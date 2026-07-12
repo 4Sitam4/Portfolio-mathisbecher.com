@@ -1,0 +1,146 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press any key to skip';
+---
+
+<div id="boot" class="boot" aria-hidden="true">
+  <pre class="boot__log mono" id="boot-log"></pre>
+  <p class="boot__skip mono">{skipLabel}</p>
+</div>
+
+<style>
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-boot);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(1rem, 6vw, 4rem);
+    background: var(--bg-terminal, #040705);
+    cursor: pointer;
+  }
+
+  html[data-booted='true'] .boot {
+    display: none;
+  }
+
+  .boot__log {
+    font-size: clamp(0.65rem, 1.8vw, 0.85rem);
+    line-height: 1.7;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    overflow: hidden;
+  }
+
+  .boot__log :global(.ok) {
+    color: var(--green);
+  }
+
+  .boot__log :global(.dim) {
+    color: var(--text-faint);
+  }
+
+  .boot__skip {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: var(--fs-xs);
+    color: var(--text-faint);
+    animation: blink 1.6s steps(1) infinite;
+  }
+</style>
+
+<script>
+  const boot = document.getElementById('boot');
+  const log = document.getElementById('boot-log');
+
+  const LINES_FR = [
+    ['ok', 'BIOS mathisbecher.com v2.0 — POST........... OK'],
+    ['ok', 'Démarrage de proxmox-cluster.service'],
+    ['ok', 'Démarrage de truenas-scale.service'],
+    ['ok', 'Réseau actif — liaison 10 Gbps établie'],
+    ['ok', 'Montage de /dev/compétences (terraform, azure, docker)'],
+    ['ok', 'Extraction du container : portfolio:latest'],
+    ['ok', 'nginx démarré — servi depuis le homelab'],
+    ['dim', ''],
+    ['dim', 'Bienvenue, visiteur·euse.'],
+  ] as const;
+
+  const LINES_EN = [
+    ['ok', 'BIOS mathisbecher.com v2.0 — POST........... OK'],
+    ['ok', 'Starting proxmox-cluster.service'],
+    ['ok', 'Starting truenas-scale.service'],
+    ['ok', 'Network up — 10 Gbps link established'],
+    ['ok', 'Mounting /dev/skills (terraform, azure, docker)'],
+    ['ok', 'Pulling container: portfolio:latest'],
+    ['ok', 'nginx started — serving from the homelab'],
+    ['dim', ''],
+    ['dim', 'Welcome, visitor.'],
+  ] as const;
+
+  function finish(): void {
+    sessionStorage.setItem('mb-booted', '1');
+    document.documentElement.dataset.booted = 'true';
+    boot?.remove();
+    window.dispatchEvent(new CustomEvent('boot:done'));
+  }
+
+  if (document.documentElement.dataset.booted === 'true' || !boot || !log) {
+    boot?.remove();
+  } else {
+    document.body.style.overflow = 'hidden';
+    const lines = document.documentElement.lang === 'fr' ? LINES_FR : LINES_EN;
+    let index = 0;
+    let timer = 0;
+    let done = false;
+
+    const end = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', end);
+      finish();
+      // The scroll lock swallowed any #anchor navigation — replay it now.
+      if (location.hash) {
+        document.querySelector(location.hash)?.scrollIntoView();
+      }
+    };
+
+    const next = () => {
+      if (index >= lines.length) {
+        timer = window.setTimeout(end, 450);
+        return;
+      }
+      const [cls, text] = lines[index]!;
+      const span = document.createElement('span');
+      if (cls === 'ok') {
+        const okTag = document.createElement('span');
+        okTag.className = 'ok';
+        okTag.textContent = '[  OK  ] ';
+        span.append(okTag, text);
+      } else {
+        span.className = cls;
+        span.textContent = text;
+      }
+      log.append(span, document.createTextNode('\n'));
+      index++;
+      timer = window.setTimeout(next, 90 + Math.random() * 160);
+    };
+
+    boot.addEventListener('click', end);
+    window.addEventListener('keydown', end);
+    next();
+
+    // Hard cap: never hold the visitor hostage for more than 4s.
+    window.setTimeout(end, 4000);
+  }
+</script>

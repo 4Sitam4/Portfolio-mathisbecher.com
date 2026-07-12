@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Experience from '../components/Experience.astro';
+import Skills from '../components/Skills.astro';
+import Projects from '../components/Projects.astro';
+import Homelab from '../components/Homelab.astro';
+import Terminal from '../components/Terminal.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import { useTranslations } from '../i18n/ui';
+
+const lang = 'fr';
+const t = useTranslations(lang);
+---
+
+<Base
+  lang={lang}
+  title="Mathis Becher — Cloud Infrastructure Engineer"
+  description={t('meta.description')}
+>
+  <Navbar lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <About lang={lang} />
+    <Experience lang={lang} />
+    <Skills lang={lang} />
+    <Projects lang={lang} />
+    <Homelab lang={lang} />
+    <Terminal lang={lang} />
+    <Contact lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</Base>

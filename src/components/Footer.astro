@@ -1,0 +1,51 @@
+---
+import { useTranslations, contactLinks, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__inner mono">
+    <p>
+      <span class="accent">©</span> {year} Mathis Becher — {t('footer.served')}
+      <span class="status-dot" style="margin-left: 6px;"></span>
+    </p>
+    <p class="code-comment">{t('footer.built')}</p>
+    <p class="footer__links">
+      <a href={contactLinks.github} target="_blank" rel="noopener noreferrer">github</a>
+      <span class="code-comment">·</span>
+      <a href={contactLinks.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
+      <span class="code-comment">·</span>
+      <a href={`mailto:${contactLinks.email}`}>mail</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-block: var(--space-5);
+    background: var(--bg-raised);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    text-align: center;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .footer__links {
+    display: flex;
+    gap: var(--space-2);
+  }
+</style>

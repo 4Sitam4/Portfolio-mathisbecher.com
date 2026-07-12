@@ -1,0 +1,71 @@
+---
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import BootSequence from '../components/BootSequence.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+}
+
+const { lang, title, description } = Astro.props;
+const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="fr" href={new URL('/', Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site)} />
+    <meta name="theme-color" content="#060a08" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_US'} />
+
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'Mathis Becher',
+        url: 'https://mathisbecher.com',
+        jobTitle: 'Cloud Infrastructure Engineer',
+        worksFor: { '@type': 'Organization', name: 'Open Lake Technology' },
+        sameAs: ['https://github.com/4Sitam4', 'https://www.linkedin.com/in/mathisbecher/'],
+      })}
+    />
+
+    <!-- Decide before first paint whether the boot sequence should run:
+         skip it on repeat views (sessionStorage) and for reduced motion. -->
+    <script is:inline>
+      (function () {
+        var skip =
+          sessionStorage.getItem('mb-booted') === '1' ||
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (skip) document.documentElement.dataset.booted = 'true';
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link mono">{lang === 'fr' ? 'Aller au contenu' : 'Skip to content'}</a>
+    <BootSequence lang={lang} />
+    <slot />
+    <script src="../scripts/animations.ts"></script>
+  </body>
+</html>

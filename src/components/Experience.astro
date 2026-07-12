@@ -1,0 +1,140 @@
+---
+import { useTranslations, timeline, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="experience" class="section container">
+  <h2 class="section-heading">
+    <span class="index mono">02.</span>
+    <span data-decrypt>{t('xp.title')}</span>
+  </h2>
+
+  <ol class="timeline" data-reveal-group>
+    {
+      timeline.map((entry) => (
+        <li class="timeline__item">
+          <div class="timeline__marker" aria-hidden="true" />
+          <div class="timeline__content card">
+            <div class="timeline__meta mono">
+              <span class="timeline__period">{entry.period[lang]}</span>
+              <span class:list={['timeline__badge', entry.type === 'edu' && 'timeline__badge--edu']}>
+                {entry.type === 'work' ? t('xp.work') : t('xp.edu')}
+              </span>
+            </div>
+            <h3 class="timeline__title">{entry.title[lang]}</h3>
+            <p class="timeline__org mono">
+              <span class="accent">@</span> {entry.org} · <span class="text-muted">{entry.location[lang]}</span>
+            </p>
+            <p class="timeline__desc">{entry.description[lang]}</p>
+            <div class="timeline__tags">
+              {entry.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .timeline {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 7px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--green-dim), var(--border));
+  }
+
+  .timeline__item {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .timeline__marker {
+    position: absolute;
+    top: 1.4rem;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--green-dim);
+    box-shadow: 0 0 10px var(--green-soft);
+  }
+
+  .timeline__item:first-child .timeline__marker {
+    background: var(--green);
+    box-shadow: 0 0 14px var(--green-glow);
+  }
+
+  .timeline__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-xs);
+  }
+
+  .timeline__period {
+    color: var(--green-dim);
+  }
+
+  .timeline__badge {
+    padding: 0.1rem 0.55rem;
+    border: 1px solid var(--green-dim);
+    border-radius: 999px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .timeline__badge--edu {
+    border-color: var(--border-bright);
+    color: var(--text-muted);
+  }
+
+  .timeline__title {
+    font-size: var(--fs-lg);
+    margin-bottom: var(--space-1);
+  }
+
+  .timeline__org {
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-2);
+    color: var(--text);
+  }
+
+  .timeline__desc {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    max-width: 65ch;
+    margin-bottom: var(--space-3);
+  }
+
+  .timeline__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

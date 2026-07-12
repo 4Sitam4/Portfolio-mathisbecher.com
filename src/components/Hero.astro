@@ -1,0 +1,135 @@
+---
+import MatrixRain from './MatrixRain.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="top" class="hero">
+  <MatrixRain />
+
+  <div class="container hero__content">
+    <p class="hero__cmd mono" data-reveal>
+      <span class="accent">~/mathisbecher.com</span> $ {t('hero.cmd')}
+    </p>
+
+    <h1 class="hero__name" data-decrypt>MATHIS BECHER</h1>
+
+    <p class="hero__role mono" data-reveal>
+      <span class="accent">&gt;</span> {t('hero.role')}<span class="cursor-blink" aria-hidden="true"></span>
+    </p>
+
+    <p class="hero__tagline" data-reveal>{t('hero.tagline')}</p>
+
+    <p class="hero__status mono" data-reveal>
+      <span class="status-dot"></span>
+      {t('hero.status')}
+    </p>
+
+    <div class="hero__actions" data-reveal-group>
+      <a href="#projects" class="btn btn--primary">[ {t('hero.cta.projects')} ]</a>
+      <a href="#terminal" class="btn">[ {t('hero.cta.terminal')} ]</a>
+    </div>
+
+    <p class="code-comment" data-reveal>{t('hero.served')}</p>
+  </div>
+
+  <a href="#about" class="hero__scroll mono" aria-label={t('nav.about')}>
+    <span>{t('hero.scroll')}</span>
+    <span class="hero__scroll-arrow" aria-hidden="true">▼</span>
+  </a>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 255, 157, 0.05), transparent),
+      var(--bg);
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block: var(--space-7);
+  }
+
+  .hero__cmd {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .hero__name {
+    font-size: var(--fs-hero);
+    letter-spacing: 0.02em;
+    color: var(--text);
+    text-shadow: 0 0 32px var(--green-glow);
+    min-height: 1.2em;
+  }
+
+  .hero__role {
+    font-size: var(--fs-xl);
+    color: var(--green);
+  }
+
+  .hero__tagline {
+    max-width: 38rem;
+    font-size: var(--fs-lg);
+    color: var(--text-muted);
+  }
+
+  .hero__status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-block: var(--space-3);
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--fs-xs);
+    color: var(--text-faint);
+  }
+
+  .hero__scroll-arrow {
+    animation: bob 1.8s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+</style>

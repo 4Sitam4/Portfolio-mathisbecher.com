@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base lang="fr" title="404 — Mathis Becher" description="Page introuvable / Page not found">
+  <main class="notfound mono">
+    <p class="notfound__code accent">404</p>
+    <pre class="notfound__pre">$ curl mathisbecher.com{Astro.url.pathname}
+curl: (404) page not found</pre>
+    <a href="/" class="btn btn--primary">[ cd ~/ ]</a>
+  </main>
+</Base>
+
+<style>
+  .notfound {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    text-align: center;
+    padding: var(--space-4);
+  }
+
+  .notfound__code {
+    font-size: clamp(4rem, 15vw, 9rem);
+    font-weight: 700;
+    text-shadow: 0 0 40px var(--green-glow);
+    line-height: 1;
+  }
+
+  .notfound__pre {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    white-space: pre-wrap;
+  }
+</style>
