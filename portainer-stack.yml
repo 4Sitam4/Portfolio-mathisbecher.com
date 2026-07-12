@@ -1,0 +1,29 @@
+services:
+  portfolio:
+    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:latest
+    container_name: portfolio
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    # Option A — exposition directe d'un port (reverse proxy hors docker) :
+    ports:
+      - "8080:80"
+
+    # Option B — reverse proxy dans docker (Traefik/NPM/Caddy) :
+    # supprime le bloc `ports` ci-dessus et attache le container au réseau
+    # partagé de ton proxy, par exemple :
+    # networks:
+    #   - proxy
+    #
+    # Exemple de labels Traefik :
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.portfolio.rule=Host(`mathisbecher.com`)
+    #   - traefik.http.routers.portfolio.entrypoints=websecure
+    #   - traefik.http.routers.portfolio.tls.certresolver=letsencrypt
+    #   - traefik.http.services.portfolio.loadbalancer.server.port=80
+
+# networks:
+#   proxy:
+#     external: true
