@@ -11,41 +11,70 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <div class="container footer__inner mono">
-    <p>
-      <span class="accent">©</span> {year} Mathis Becher — {t('footer.served')}
-      <span class="status-dot" style="margin-left: 6px;"></span>
+  <div class="container footer__inner">
+    <p class="footer__id">
+      <span class="num">© {year}</span> Mathis Becher
     </p>
-    <p class="code-comment">{t('footer.built')}</p>
-    <p class="footer__links">
-      <a href={contactLinks.github} target="_blank" rel="noopener noreferrer">github</a>
-      <span class="code-comment">·</span>
-      <a href={contactLinks.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
-      <span class="code-comment">·</span>
-      <a href={`mailto:${contactLinks.email}`}>mail</a>
-    </p>
+    <p class="footer__meta mono">{t('footer.served')}, {t('footer.built')}</p>
+    <ul class="footer__links mono">
+      <li><a href={contactLinks.github} target="_blank" rel="noopener noreferrer">github</a></li>
+      <li><a href={contactLinks.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a></li>
+      <li><a href={`mailto:${contactLinks.email}`}>mail</a></li>
+    </ul>
   </div>
 </footer>
 
 <style>
   .footer {
-    border-top: 1px solid var(--border);
-    padding-block: var(--space-5);
-    background: var(--bg-raised);
+    border-top: 1px solid var(--line);
   }
 
   .footer__inner {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2);
-    text-align: center;
+    gap: var(--s-2) var(--s-6);
+    min-height: 5rem;
+    padding-block: var(--s-5);
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--text-3);
+  }
+
+  .footer__id {
+    color: var(--text-2);
+  }
+
+  .footer__meta {
+    font-size: var(--fs-xs);
   }
 
   .footer__links {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--s-1);
+    margin-left: auto;
+  }
+
+  .footer__links a {
+    display: inline-flex;
+    align-items: center;
+    height: 2.75rem;
+    padding: 0 var(--s-2);
+    color: var(--text-3);
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .footer__links a:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    .footer__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .footer__links {
+      margin-left: calc(-1 * var(--s-2));
+    }
   }
 </style>

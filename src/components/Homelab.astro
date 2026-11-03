@@ -1,4 +1,6 @@
 ---
+import SectionHeading from './SectionHeading.astro';
+import Window from './Window.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -8,12 +10,14 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
+const HERE = '◀── ';
+
 const diagram = `
             INTERNET
                 │
                 ▼
      ┌─────────────────────┐
-     │   router / firewall │
+     │  router / firewall  │
      └──────────┬──────────┘
                 │ 10 Gbps
      ┌──────────┴──────────┐
@@ -28,13 +32,19 @@ const diagram = `
         │       │
  ┌──────┴───────┴──────────────┐
  │ VMs · LXC · Docker          │
- │ ├─ nginx ── mathisbecher.com│ ◀── ${lang === 'fr' ? 'vous êtes ici' : 'you are here'}
+ │ ├─ nginx ── mathisbecher.com│ ${HERE}${t('homelab.here')}
  │ ├─ *arr stack               │
  │ └─ ...                      │
  └─────────────────────────────┘
-`.trim();
+`
+  .trim()
+  .split('\n')
+  .map((line) => {
+    const at = line.indexOf(HERE);
+    return at === -1 ? { text: line } : { text: line.slice(0, at), pointer: line.slice(at) };
+  });
 
-const stats = [
+const specs = [
   { value: t('homelab.stat1.value'), label: t('homelab.stat1.label') },
   { value: t('homelab.stat2.value'), label: t('homelab.stat2.label') },
   { value: t('homelab.stat3.value'), label: t('homelab.stat3.label') },
@@ -42,102 +52,102 @@ const stats = [
 ];
 ---
 
-<section id="homelab" class="section container">
-  <h2 class="section-heading">
-    <span class="index mono">05.</span>
-    <span data-decrypt>{t('homelab.title')}</span>
-  </h2>
+<section id="homelab" class="section">
+  <div class="container">
+    <SectionHeading title={t('homelab.title')} />
+    <p class="section-lede">{t('homelab.intro')}</p>
 
-  <p class="homelab__intro" data-reveal>{t('homelab.intro')}</p>
+    <div class="homelab">
+      <dl class="specs">
+        {
+          specs.map((spec) => (
+            <div class="specs__row">
+              <dt class="specs__label">{spec.label}</dt>
+              <dd class="specs__value mono">{spec.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
 
-  <div class="homelab__grid">
-    <div class="homelab__stats" data-reveal-group>
-      {
-        stats.map((stat) => (
-          <div class="homelab__stat card">
-            <span class="homelab__value mono">{stat.value}</span>
-            <span class="homelab__label">{stat.label}</span>
-          </div>
-        ))
-      }
+      <figure class="homelab__diagram">
+        <Window title="~/homelab/topology.txt">
+          <pre class="diagram ascii" aria-hidden="true">{diagram.map((line) => (
+            <span class:list={['diagram__line', line.pointer && 'diagram__here']}>{line.text}{line.pointer && <span class="diagram__pointer">{line.pointer}</span>}</span>
+          ))}</pre>
+        </Window>
+        <figcaption class="visually-hidden">{t('homelab.diagram')}</figcaption>
+      </figure>
     </div>
-
-    <figure class="homelab__diagram card" data-reveal>
-      <pre class="mono" aria-hidden="true">{diagram}</pre>
-      <figcaption class="visually-hidden">
-        {lang === 'fr'
-          ? 'Schéma du homelab : internet, routeur, switch 10GbE, cluster Proxmox, TrueNAS Scale, containers Docker.'
-          : 'Homelab diagram: internet, router, 10GbE switch, Proxmox cluster, TrueNAS Scale, Docker containers.'}
-      </figcaption>
-    </figure>
   </div>
-
-  <p class="code-comment" data-reveal style="margin-top: var(--space-4);">{t('homelab.note')}</p>
 </section>
 
 <style>
-  .homelab__intro {
-    max-width: 60ch;
-    color: var(--text-muted);
-    margin-bottom: var(--space-5);
-  }
-
-  .homelab__grid {
+  .homelab {
     display: grid;
-    grid-template-columns: 1fr 1.4fr;
-    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: var(--s-8);
     align-items: start;
   }
 
-  .homelab__stats {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
+  .specs {
+    border-top: 1px solid var(--line);
   }
 
-  .homelab__stat {
+  .specs__row {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: var(--s-1);
+    padding-block: var(--s-5);
+    border-bottom: 1px solid var(--line);
   }
 
-  .homelab__value {
+  .specs__value {
+    order: -1;
+    margin: 0;
     font-size: var(--fs-xl);
-    font-weight: 700;
-    color: var(--green);
-    text-shadow: 0 0 20px var(--green-soft);
+    font-weight: 500;
+    color: var(--text);
   }
 
-  .homelab__label {
+  .specs__label {
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--text-3);
   }
 
   .homelab__diagram {
+    min-width: 0;
+  }
+
+  .diagram {
+    padding: var(--s-5);
+    font-size: clamp(0.625rem, 0.45rem + 0.6vw, 0.8125rem);
+    color: var(--text-3);
     overflow-x: auto;
-    background: var(--bg-terminal, #040705);
   }
 
-  .homelab__diagram pre {
-    font-size: clamp(0.6rem, 1.4vw, 0.8rem);
-    line-height: 1.5;
-    color: var(--text-muted);
-    text-shadow: 0 0 12px var(--green-soft);
+  .diagram__line {
+    display: block;
+    min-height: 1.3em;
   }
 
-  @media (max-width: 900px) {
-    .homelab__grid {
-      grid-template-columns: 1fr;
+  .diagram__here {
+    color: var(--text);
+  }
+
+  .diagram__pointer {
+    color: var(--accent);
+  }
+
+  @media (max-width: 1000px) {
+    .homelab {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-7);
     }
 
-    .homelab__stats {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .homelab__stats {
-      grid-template-columns: 1fr;
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--s-5);
     }
   }
 </style>

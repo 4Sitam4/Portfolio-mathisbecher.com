@@ -1,0 +1,12 @@
+---
+/** Section title rendered as a directory path: "~/parcours". */
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<h2 class="section-heading" aria-label={title}>
+  <span class="section-heading__path" aria-hidden="true">~/</span><span data-decrypt aria-hidden="true">{title}</span>
+</h2>

@@ -20,32 +20,34 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
     position: fixed;
     inset: 0;
     z-index: var(--z-boot);
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: center;
     padding: clamp(1rem, 6vw, 4rem);
-    background: var(--bg-terminal, #040705);
+    background: var(--bg-deep);
     cursor: pointer;
   }
 
-  html[data-booted='true'] .boot {
-    display: none;
+  /* Shown only when JS is running (the `js` class is set by an inline script
+     in Base.astro), so a visitor without JS never sees a black screen. */
+  :global(html.js:not([data-booted='true'])) .boot {
+    display: flex;
   }
 
   .boot__log {
     font-size: clamp(0.65rem, 1.8vw, 0.85rem);
     line-height: 1.7;
-    color: var(--text-muted);
+    color: var(--text-2);
     white-space: pre-wrap;
     overflow: hidden;
   }
 
   .boot__log :global(.ok) {
-    color: var(--green);
+    color: var(--accent);
   }
 
   .boot__log :global(.dim) {
-    color: var(--text-faint);
+    color: var(--text-3);
   }
 
   .boot__skip {
@@ -53,8 +55,7 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
     bottom: 1.5rem;
     right: 1.5rem;
     font-size: var(--fs-xs);
-    color: var(--text-faint);
-    animation: blink 1.6s steps(1) infinite;
+    color: var(--text-3);
   }
 </style>
 
@@ -102,7 +103,9 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
     let timer = 0;
     let done = false;
 
-    const end = () => {
+    const end = (e?: Event) => {
+      // The skip keystroke must not also scroll the page (Space, arrows…).
+      if (e instanceof KeyboardEvent) e.preventDefault();
       if (done) return;
       done = true;
       clearTimeout(timer);

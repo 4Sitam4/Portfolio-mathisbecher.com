@@ -1,4 +1,6 @@
 ---
+import SectionHeading from './SectionHeading.astro';
+import Window from './Window.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -9,98 +11,75 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 ---
 
-<section id="about" class="section container">
-  <h2 class="section-heading">
-    <span class="index mono">01.</span>
-    <span data-decrypt>{t('about.title')}</span>
-  </h2>
+<section id="about" class="section">
+  <div class="container">
+    <SectionHeading title={t('about.title')} />
 
-  <div class="about__grid">
-    <div class="about__text" data-reveal-group>
-      <p>{t('about.p1')}</p>
-      <p>{t('about.p2')}</p>
-      <p>{t('about.p3')}</p>
-    </div>
-
-    <div class="about__card card mono" data-reveal aria-hidden="true">
-      <div class="about__card-bar">
-        <span class="dot" style="background: var(--dot-red)"></span>
-        <span class="dot" style="background: var(--dot-yellow)"></span>
-        <span class="dot" style="background: var(--dot-green)"></span>
-        <span class="about__card-title">whoami.yaml</span>
+    <div class="about">
+      <div class="about__text">
+        <p class="about__lead">{t('about.p1')}</p>
+        <p>{t('about.p2')}</p>
+        <p>{t('about.p3')}</p>
       </div>
-      <pre class="about__code"><code><span class="k">name</span>: Mathis Becher
+
+      <Window title="whoami.yaml" class="about__card">
+        <pre class="about__code"><code><span class="k">name</span>: Mathis Becher
 <span class="k">role</span>: cloud_infrastructure_engineer
 <span class="k">company</span>: open-lake-technology
 <span class="k">school</span>: epitech
-<span class="k">graduation</span>: 2027
+<span class="k">graduation</span>: <span class="v">2027</span>
 <span class="k">location</span>: Strasbourg, FR
 <span class="k">interests</span>:
   - self_hosting
   - infrastructure_as_code
   - digital_independence
-<span class="k">homelab</span>: <span class="accent">true</span></code></pre>
+<span class="k">homelab</span>: <span class="v">true</span></code></pre>
+      </Window>
     </div>
   </div>
 </section>
 
 <style>
-  .about__grid {
+  .about {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: var(--space-5);
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--s-8);
     align-items: start;
   }
 
   .about__text {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    color: var(--text-muted);
-    max-width: 60ch;
+    gap: var(--s-4);
+    max-width: 62ch;
+    color: var(--text-2);
   }
 
-  .about__card {
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .about__card-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0.6rem 0.9rem;
-    background: var(--bg-raised);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .about__card-title {
-    margin-left: var(--space-2);
-    font-size: var(--fs-xs);
-    color: var(--text-faint);
+  .about__lead {
+    font-size: var(--fs-lg);
+    color: var(--text);
   }
 
   .about__code {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--s-5);
     font-size: var(--fs-sm);
     line-height: 1.8;
-    color: var(--text-muted);
+    color: var(--text-2);
     overflow-x: auto;
   }
 
   .about__code .k {
-    color: var(--green-dim);
+    color: var(--text-3);
+  }
+
+  .about__code .v {
+    color: var(--text);
   }
 
   @media (max-width: 900px) {
-    .about__grid {
-      grid-template-columns: 1fr;
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-7);
     }
   }
 </style>

@@ -7,6 +7,14 @@ import { prefersReducedMotion } from './scramble';
 
 const GLYPHS = 'アィウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEFZ<>*+=$#@';
 
+/** "r, g, b" of the `--bg` design token (single source of truth: global.css). */
+function bgRgb(): string {
+  const hex = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+  if (!m) return '7, 11, 9';
+  return m.slice(1).map((h) => parseInt(h, 16)).join(', ');
+}
+
 export interface MatrixOptions {
   /** 0..1 — overall brightness/alpha of the rain */
   intensity?: number;
@@ -28,6 +36,7 @@ export class MatrixRain {
   private boostUntil = 0;
   private readonly fontSize: number;
   private readonly fps: number;
+  private readonly trail = bgRgb();
   intensity: number;
 
   private onResize = () => this.resize();
@@ -89,8 +98,8 @@ export class MatrixRain {
     const h = this.canvas.clientHeight;
     const alpha = this.intensity * (boosted ? 1.6 : 1);
 
-    // Fading trail
-    this.ctx.fillStyle = `rgba(4, 7, 5, ${boosted ? 0.12 : 0.18})`;
+    // Fading trail, in the page background color so the canvas never shows an edge.
+    this.ctx.fillStyle = `rgba(${this.trail}, ${boosted ? 0.12 : 0.18})`;
     this.ctx.fillRect(0, 0, w, h);
 
     for (let i = 0; i < this.columns; i++) {

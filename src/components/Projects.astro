@@ -1,4 +1,5 @@
 ---
+import SectionHeading from './SectionHeading.astro';
 import { useTranslations, projects, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -7,140 +8,261 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+// The most-starred project leads; the rest follow in a compact row.
+const [featured, ...rest] = [...projects].sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
 ---
 
-<section id="projects" class="section container">
-  <h2 class="section-heading">
-    <span class="index mono">04.</span>
-    <span data-decrypt>{t('projects.title')}</span>
-  </h2>
+<section id="projects" class="section">
+  <div class="container">
+    <SectionHeading title={t('projects.title')} />
 
-  <div class="projects" data-reveal-group>
     {
-      projects.map((project) => (
-        <article class="projects__card card">
-          <header class="projects__header mono">
-            <span class="projects__prefix accent" aria-hidden="true">
-              &gt;
-            </span>
-            <h3 class="projects__name">{project.name}</h3>
-            {typeof project.stars === 'number' && project.stars > 10 && (
-              <span class="projects__stars" title="GitHub stars">
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z" />
-                </svg>
-                {project.stars}
-              </span>
-            )}
-            {project.archived && <span class="projects__archived">{t('projects.archived')}</span>}
-          </header>
-
-          <p class="projects__desc">{project.description[lang]}</p>
-
-          <footer class="projects__footer">
-            <div class="projects__tags">
-              {project.tags.map((tag) => (
-                <span class="tag">{tag}</span>
+      featured && (
+        <article class="feature">
+          <div class="feature__text">
+            <h3 class="feature__name">
+              {featured.name}
+              {featured.archived && <span class="archived">{t('projects.archived')}</span>}
+            </h3>
+            <p class="feature__desc">{featured.description[lang]}</p>
+            <ul class="tags" aria-label="Technologies">
+              {featured.tags.map((tag) => (
+                <li class="tag">{tag}</li>
               ))}
-            </div>
-            {project.url && (
-              <a
-                class="projects__link mono"
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${project.name} — ${t('projects.source')}`}
-              >
-                {t('projects.source')} ↗
+            </ul>
+            {featured.url && (
+              <a class="btn feature__link" href={featured.url} target="_blank" rel="noopener noreferrer">
+                {t('projects.source')}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17 17 7" /><path d="M8 7h9v9" />
+                </svg>
               </a>
             )}
-          </footer>
+          </div>
+          {typeof featured.stars === 'number' && (
+            <p class="feature__figure">
+              <span class="feature__stars num">{starFmt.format(featured.stars)}</span>
+              <span class="feature__stars-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7Z" />
+                </svg>
+                {t('projects.stars')}
+              </span>
+            </p>
+          )}
         </article>
-      ))
+      )
     }
+
+    <ul class="projects">
+      {
+        rest.map((project) => {
+          const href = project.anchor ?? project.url;
+          const external = !project.anchor && Boolean(project.url);
+          return (
+            <li class="project">
+              <h3 class="project__name">
+                {href ? (
+                  <a
+                    class="project__link"
+                    href={href}
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener noreferrer' : undefined}
+                  >
+                    {project.name}
+                  </a>
+                ) : (
+                  project.name
+                )}
+              </h3>
+              <p class="project__desc">{project.description[lang]}</p>
+              <ul class="tags" aria-label="Technologies">
+                {project.tags.map((tag) => (
+                  <li class="tag">{tag}</li>
+                ))}
+              </ul>
+              {href && (
+                <span class="project__cta mono" aria-hidden="true">
+                  {project.anchor ? t('projects.homelab') : t('projects.source')}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    {project.anchor ? <path d="M12 5v14M5 12l7 7 7-7" /> : <><path d="M7 17 17 7" /><path d="M8 7h9v9" /></>}
+                  </svg>
+                </span>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
   </div>
 </section>
 
 <style>
-  .projects {
+  /* --- Featured project: the one figure that matters --- */
+
+  .feature {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--s-6);
+    align-items: center;
+    padding: var(--s-7);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
   }
 
-  .projects__card {
+  .feature__text {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    align-items: flex-start;
+    gap: var(--s-4);
   }
 
-  .projects__header {
+  .feature__name {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    flex-wrap: wrap;
+    gap: var(--s-3);
+    font-size: var(--fs-2xl);
+    letter-spacing: -0.02em;
   }
 
-  .projects__prefix {
-    opacity: 0;
-    transform: translateX(-6px);
-    transition:
-      opacity var(--dur-base) var(--ease-out),
-      transform var(--dur-base) var(--ease-out);
+  .archived {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--text-3);
   }
 
-  .projects__card:hover .projects__prefix {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .projects__name {
+  .feature__desc {
+    max-width: 52ch;
+    color: var(--text-2);
     font-size: var(--fs-lg);
   }
 
-  .projects__stars {
+  .feature__link {
+    margin-top: var(--s-2);
+  }
+
+  .feature__figure {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--s-2);
+    text-align: right;
+  }
+
+  .feature__stars {
+    font-family: var(--font-mono);
+    font-size: clamp(3.5rem, 2rem + 5vw, 6rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+  }
+
+  .feature__stars-label {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: var(--fs-xs);
-    color: var(--green);
-  }
-
-  .projects__archived {
-    font-size: var(--fs-xs);
-    color: var(--text-faint);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.1rem 0.5rem;
-  }
-
-  .projects__desc {
-    color: var(--text-muted);
+    gap: var(--s-2);
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .feature__stars-label svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* --- The rest: a compact row --- */
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-4);
+  }
+
+  .project {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+  }
+
+  .project:has(.project__link):hover {
+    border-color: var(--line-strong);
+    background: #0f1613;
+  }
+
+  .project__name {
+    font-size: var(--fs-lg);
+  }
+
+  /* The whole card is clickable through the title link. */
+  .project__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .project__link:focus-visible {
+    outline: none;
+  }
+
+  .project:has(.project__link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .project__desc {
     flex: 1;
-  }
-
-  .projects__footer {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-3);
-  }
-
-  .projects__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .projects__link {
     font-size: var(--fs-sm);
-    white-space: nowrap;
+    color: var(--text-2);
   }
 
-  @media (max-width: 760px) {
+  .project__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-top: var(--s-2);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .project__cta svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .project:hover .project__cta {
+    color: var(--text);
+  }
+
+  @media (max-width: 900px) {
+    .feature {
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--s-5);
+    }
+
+    .feature__figure {
+      order: -1;
+      align-items: flex-start;
+      text-align: left;
+    }
+
     .projects {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

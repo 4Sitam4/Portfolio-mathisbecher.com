@@ -9,50 +9,76 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 const links = [
-  { href: '#about', label: t('nav.about') },
-  { href: '#experience', label: t('nav.experience') },
-  { href: '#skills', label: t('nav.skills') },
-  { href: '#projects', label: t('nav.projects') },
-  { href: '#homelab', label: t('nav.homelab') },
-  { href: '#terminal', label: t('nav.terminal') },
-  { href: '#contact', label: t('nav.contact') },
+  { id: 'about', label: t('nav.about') },
+  { id: 'experience', label: t('nav.experience') },
+  { id: 'skills', label: t('nav.skills') },
+  { id: 'projects', label: t('nav.projects') },
+  { id: 'homelab', label: t('nav.homelab') },
+  { id: 'terminal', label: t('nav.terminal') },
+  { id: 'contact', label: t('nav.contact') },
 ];
 
-const otherLangHref = lang === 'fr' ? '/en/' : '/';
-const otherLangLabel = lang === 'fr' ? 'EN' : 'FR';
+const langs = [
+  { code: 'fr', href: '/' },
+  { code: 'en', href: '/en/' },
+] as const;
 ---
 
 <header class="nav">
   <div class="container nav__inner">
-    <a href="#top" class="nav__logo mono glitch" data-text="mb@homelab:~$">mb@homelab:~$</a>
+    <a href="#top" class="nav__logo glitch" data-text="mb@homelab:~$" aria-label="Mathis Becher">mb@homelab:~$</a>
 
-    <nav aria-label={lang === 'fr' ? 'Navigation principale' : 'Main navigation'}>
-      <button
-        id="nav-toggle"
-        class="nav__toggle mono"
-        aria-expanded="false"
-        aria-controls="nav-links"
-      >
-        [{t('nav.menu')}]
-      </button>
-      <ul id="nav-links" class="nav__links mono">
+    <nav class="nav__menu" aria-label={t('nav.label')}>
+      <ul id="nav-links" class="nav__links">
         {
-          links.map((link, i) => (
+          links.map((link) => (
             <li>
-              <a href={link.href}>
-                <span class="nav__index">0{i + 1}.</span>
+              <a href={`#${link.id}`} data-spy={link.id}>
                 {link.label}
               </a>
             </li>
           ))
         }
-        <li>
-          <a href={otherLangHref} class="nav__lang" rel="alternate" hreflang={lang === 'fr' ? 'en' : 'fr'}>
-            [{otherLangLabel}]
-          </a>
-        </li>
       </ul>
     </nav>
+
+    <div class="nav__end">
+      <div class="nav__lang" role="group" aria-label="Langue / Language">
+        {
+          langs.map((l) =>
+            l.code === lang ? (
+              <span class="nav__lang-item is-current" aria-current="true">
+                {l.code}
+              </span>
+            ) : (
+              <a
+                class="nav__lang-item"
+                href={l.href}
+                hreflang={l.code}
+                lang={l.code}
+                rel="alternate"
+                aria-label={t('nav.switch')}
+              >
+                {l.code}
+              </a>
+            )
+          )
+        }
+      </div>
+
+      <button
+        id="nav-toggle"
+        class="nav__toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="nav-links"
+        data-open-label={t('nav.menu')}
+        data-close-label={t('nav.close')}
+      >
+        <span class="nav__toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span class="nav__toggle-label">{t('nav.menu')}</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -63,113 +89,266 @@ const otherLangLabel = lang === 'fr' ? 'EN' : 'FR';
     left: 0;
     right: 0;
     z-index: var(--z-nav);
-    background: rgba(6, 10, 8, 0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
+    background: rgba(7, 11, 9, 0.86);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
   }
 
   .nav__inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    height: 4rem;
+    gap: var(--s-6);
+    height: var(--nav-h);
   }
 
   .nav__logo {
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    font-weight: 700;
-    color: var(--green);
+    font-weight: 500;
+    color: var(--text);
     white-space: nowrap;
+  }
+
+  .nav__menu {
+    margin-left: auto;
   }
 
   .nav__links {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
-    list-style: none;
-    padding: 0;
+    gap: var(--s-1);
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
   }
 
   .nav__links a {
-    color: var(--text-muted);
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 2.25rem;
+    padding: 0 var(--s-3);
+    color: var(--text-3);
+    border-radius: var(--r-md);
+    transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
   }
 
-  .nav__links a:hover,
-  .nav__links a:focus-visible {
-    color: var(--green);
+  .nav__links a:hover {
+    color: var(--text);
   }
 
-  .nav__index {
-    color: var(--green-dim);
-    font-size: var(--fs-xs);
-    margin-right: 2px;
+  .nav__links a[aria-current='true'] {
+    color: var(--text);
+  }
+
+  .nav__links a[aria-current='true']::after {
+    content: '';
+    position: absolute;
+    left: var(--s-3);
+    right: var(--s-3);
+    bottom: 4px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .nav__end {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
   }
 
   .nav__lang {
-    color: var(--green) !important;
-    font-weight: 700;
+    display: flex;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  .nav__lang-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 1.75rem;
+    padding: 0 var(--s-2);
+    border-radius: 6px;
+    color: var(--text-3);
+    text-transform: lowercase;
+    transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+  }
+
+  a.nav__lang-item:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .nav__lang-item.is-current {
+    color: var(--text);
+    background: var(--raised);
   }
 
   .nav__toggle {
     display: none;
+    align-items: center;
+    gap: var(--s-2);
+    height: 2.75rem;
+    padding: 0 var(--s-3);
     background: none;
-    border: none;
-    color: var(--green);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    padding: var(--space-2);
+    color: var(--text);
   }
 
-  @media (max-width: 900px) {
-    .nav__toggle {
-      display: block;
+  .nav__toggle-icon {
+    display: grid;
+    gap: 4px;
+    width: 14px;
+  }
+
+  .nav__toggle-icon i {
+    height: 1.5px;
+    background: currentColor;
+    transition: transform var(--dur-base) var(--ease);
+  }
+
+  .nav__toggle[aria-expanded='true'] .nav__toggle-icon i:first-child {
+    transform: translateY(2.75px) rotate(45deg);
+  }
+
+  .nav__toggle[aria-expanded='true'] .nav__toggle-icon i:last-child {
+    transform: translateY(-2.75px) rotate(-45deg);
+  }
+
+  @media (max-width: 1100px) {
+    .nav__inner {
+      gap: var(--s-4);
+    }
+
+    .nav__menu {
+      position: absolute;
+      top: var(--nav-h);
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition:
+        opacity var(--dur-base) var(--ease),
+        transform var(--dur-base) var(--ease),
+        visibility 0s linear var(--dur-base);
+    }
+
+    .nav__menu.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity var(--dur-base) var(--ease),
+        transform var(--dur-base) var(--ease);
     }
 
     .nav__links {
-      position: absolute;
-      top: 4rem;
-      left: 0;
-      right: 0;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 0;
-      padding: var(--space-3) var(--space-4) var(--space-4);
-      background: rgba(6, 10, 8, 0.97);
-      border-bottom: 1px solid var(--border);
-      display: none;
-    }
-
-    .nav__links.is-open {
-      display: flex;
-    }
-
-    .nav__links li {
-      width: 100%;
+      padding: var(--s-2) var(--gutter) var(--s-4);
+      font-size: var(--fs-base);
     }
 
     .nav__links a {
-      display: block;
-      padding: var(--space-2) 0;
+      height: 3rem;
+      padding: 0;
+      border-radius: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav__links li:last-child a {
+      border-bottom: 0;
+    }
+
+    .nav__links a[aria-current='true']::after {
+      display: none;
+    }
+
+    .nav__end {
+      margin-left: auto;
+    }
+
+    .nav__toggle {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .nav__toggle-label {
+      display: none;
     }
   }
 </style>
 
 <script>
   const toggle = document.getElementById('nav-toggle');
-  const links = document.getElementById('nav-links');
+  const menu = document.querySelector<HTMLElement>('.nav__menu');
+  const label = toggle?.querySelector('.nav__toggle-label');
 
-  toggle?.addEventListener('click', () => {
-    const open = links?.classList.toggle('is-open');
-    toggle.setAttribute('aria-expanded', String(Boolean(open)));
+  const setOpen = (open: boolean): void => {
+    if (!toggle || !menu) return;
+    menu.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    if (label) label.textContent = (open ? toggle.dataset.closeLabel : toggle.dataset.openLabel) ?? '';
+  };
+
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+  // Close after navigating, on Escape, or when clicking outside the header.
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('.nav')) setOpen(false);
   });
 
-  // Close the mobile menu after navigating to a section.
-  links?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('a')) {
-      links.classList.remove('is-open');
-      toggle?.setAttribute('aria-expanded', 'false');
-    }
+  // Scroll spy: mark the link of the section currently in view.
+  const spyLinks = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('[data-spy]').forEach((a) => spyLinks.set(a.dataset.spy!, a));
+
+  const setCurrent = (id: string | null): void => {
+    spyLinks.forEach((a, key) => {
+      if (key === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) setCurrent(entry.target.id);
+      }
+    },
+    // A thin band a third of the way down the viewport decides the current section.
+    { rootMargin: '-33% 0px -66% 0px' }
+  );
+
+  const top = document.getElementById('top');
+  if (top) {
+    new IntersectionObserver(([entry]) => entry?.isIntersecting && setCurrent(null), {
+      rootMargin: '-33% 0px -66% 0px',
+    }).observe(top);
+  }
+  spyLinks.forEach((_, id) => {
+    const section = document.getElementById(id);
+    if (section) observer.observe(section);
   });
 </script>

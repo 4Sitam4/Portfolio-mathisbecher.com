@@ -9,9 +9,12 @@ export const defaultLang: Lang = 'fr';
 
 export const ui = {
   fr: {
+    'meta.title': 'Mathis Becher, Cloud Infrastructure Engineer',
     'meta.description':
-      "Mathis Becher — Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio auto-hébergé sur mon homelab.",
-    'nav.about': 'à-propos',
+      'Mathis Becher, Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio auto-hébergé sur mon homelab.',
+    'skip': 'Aller au contenu',
+    'nav.label': 'Navigation principale',
+    'nav.about': 'à propos',
     'nav.experience': 'parcours',
     'nav.skills': 'compétences',
     'nav.projects': 'projets',
@@ -20,67 +23,84 @@ export const ui = {
     'nav.contact': 'contact',
     'nav.menu': 'menu',
     'nav.close': 'fermer',
+    'nav.switch': 'Read this page in English',
 
-    'hero.cmd': './init --lang=fr --visitor=vous',
     'hero.role': 'Cloud Infrastructure Engineer',
-    'hero.status': 'en alternance chez Open Lake Technology · Epitech, promo 2027',
     'hero.tagline':
       "Je construis des infrastructures cloud, j'automatise tout ce qui peut l'être… et j'auto-héberge le reste.",
-    'hero.served': '// ce site est servi depuis mon homelab',
-    'hero.cta.projects': 'voir mes projets',
-    'hero.cta.terminal': 'ouvrir le terminal',
-    'hero.scroll': 'scroll',
+    'hero.status': 'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027)',
+    'hero.cta.projects': 'Voir mes projets',
+    'hero.cta.terminal': 'Ouvrir le terminal',
+
+    'trace.title': 'votre requête',
+    'trace.pending': 'mesure en cours…',
+    'trace.error': 'en-têtes indisponibles',
+    'trace.route': 'trajet',
+    'trace.you': 'vous',
+    'trace.ttfb': 'premier octet',
+    'trace.at': 'reçue à',
+    'trace.caption': 'Réponse réelle de ce serveur, mesurée dans votre navigateur au chargement de la page.',
 
     'about.title': 'à propos',
     'about.p1':
-      "Passionné d'informatique depuis toujours, je suis étudiant à Epitech (architecte de systèmes d'information, promo 2027) et alternant Cloud Infrastructure Engineer chez Open Lake Technology, où je travaille sur de l'infrastructure Azure avec Terraform et Terramate.",
+      "Je suis étudiant à Epitech (architecte de systèmes d'information, promo 2027) et alternant Cloud Infrastructure Engineer chez Open Lake Technology, où je travaille sur de l'infrastructure Azure avec Terraform et Terramate.",
     'about.p2':
-      "Mon fil rouge : l'indépendance numérique. Plutôt que de dépendre des services des GAFAM, je monte, configure et maintiens ma propre infrastructure — un homelab complet avec cluster Proxmox, stockage TrueNAS Scale et réseau 10 Gbps. Ce portfolio tourne dessus.",
+      "Mon fil rouge : l'indépendance numérique. Plutôt que de dépendre des services des GAFAM, je monte, configure et maintiens ma propre infrastructure : un homelab avec cluster Proxmox, stockage TrueNAS Scale et réseau 10 Gbps. Ce portfolio tourne dessus.",
     'about.p3':
       "Du hardware au cloud en passant par le réseau et le CI/CD : j'aime comprendre toute la pile, pas juste une couche.",
 
     'xp.title': 'parcours',
-    'xp.work': 'expérience',
-    'xp.edu': 'formation',
-    'xp.now': "aujourd'hui",
+    'xp.work': 'Expérience',
+    'xp.edu': 'Formation',
+    'xp.now': 'en cours',
 
     'skills.title': 'compétences',
-    'skills.cloud': 'cloud & IaC',
-    'skills.infra': 'virtualisation & containers',
-    'skills.dev': 'développement',
-    'skills.net': 'réseau & hardware',
+    'skills.cloud': 'Cloud et IaC',
+    'skills.infra': 'Virtualisation et containers',
+    'skills.dev': 'Développement',
+    'skills.net': 'Réseau et hardware',
 
     'projects.title': 'projets',
-    'projects.source': 'code source',
+    'projects.source': 'Code source',
     'projects.archived': 'archivé',
+    'projects.stars': 'étoiles sur GitHub',
+    'projects.homelab': 'Voir le homelab',
 
     'homelab.title': 'homelab',
     'homelab.intro':
-      "Mon terrain de jeu permanent : plusieurs machines physiques en cluster Proxmox, une machine TrueNAS Scale pour le stockage, le tout interconnecté en 10 Gbps.",
+      'Mon terrain de jeu permanent : plusieurs machines physiques en cluster Proxmox, une machine TrueNAS Scale pour le stockage, le tout interconnecté en 10 Gbps.',
     'homelab.stat1.value': 'Proxmox VE',
     'homelab.stat1.label': 'cluster multi-nœuds',
     'homelab.stat2.value': 'TrueNAS Scale',
     'homelab.stat2.label': 'stockage réseau',
     'homelab.stat3.value': '10 Gbps',
     'homelab.stat3.label': 'backbone réseau',
-    'homelab.stat4.value': '100%',
+    'homelab.stat4.value': '100 %',
     'homelab.stat4.label': 'auto-hébergé',
-    'homelab.note': '// vous lisez cette page depuis cette infrastructure',
+    'homelab.here': 'vous êtes ici',
+    'homelab.diagram':
+      'Schéma du homelab : internet, routeur et pare-feu, switch 10GbE, cluster Proxmox, TrueNAS Scale, puis les VMs et containers Docker dont le nginx qui sert ce site.',
 
     'term.title': 'terminal',
-    'term.hint': "tapez 'help' pour la liste des commandes",
+    'term.hint': 'Un vrai petit shell pour explorer ce portfolio. Tapez une commande ou essayez :',
+    'term.input': 'Invite de commande',
 
     'contact.title': 'contact',
     'contact.intro':
-      "Une opportunité, une question, ou juste envie de parler homelab ? Ma boîte mail est ouverte.",
-    'contact.cta': './send-mail.sh',
+      'Une opportunité, une question, ou juste envie de parler homelab ? Ma boîte mail est ouverte.',
+    'contact.cta': 'Écrire un e-mail',
+    'contact.copy': "Copier l'adresse",
+    'contact.copied': 'Adresse copiée',
 
-    'footer.served': 'servi avec fierté depuis mon homelab',
-    'footer.built': 'construit avec Astro + GSAP · conteneurisé avec Docker',
+    'footer.served': 'Servi depuis mon homelab',
+    'footer.built': 'Astro, GSAP et Docker',
   },
   en: {
+    'meta.title': 'Mathis Becher, Cloud Infrastructure Engineer',
     'meta.description':
-      'Mathis Becher — Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio self-hosted on my homelab.',
+      'Mathis Becher, Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio self-hosted on my homelab.',
+    'skip': 'Skip to content',
+    'nav.label': 'Main navigation',
     'nav.about': 'about',
     'nav.experience': 'experience',
     'nav.skills': 'skills',
@@ -90,39 +110,48 @@ export const ui = {
     'nav.contact': 'contact',
     'nav.menu': 'menu',
     'nav.close': 'close',
+    'nav.switch': 'Lire cette page en français',
 
-    'hero.cmd': './init --lang=en --visitor=you',
     'hero.role': 'Cloud Infrastructure Engineer',
-    'hero.status': 'apprentice @ Open Lake Technology · Epitech, class of 2027',
     'hero.tagline':
       'I build cloud infrastructure, automate everything that can be automated… and self-host the rest.',
-    'hero.served': '// this website is served from my homelab',
-    'hero.cta.projects': 'view my projects',
-    'hero.cta.terminal': 'open the terminal',
-    'hero.scroll': 'scroll',
+    'hero.status': 'Apprentice at Open Lake Technology, student at Epitech (class of 2027)',
+    'hero.cta.projects': 'View my projects',
+    'hero.cta.terminal': 'Open the terminal',
+
+    'trace.title': 'your request',
+    'trace.pending': 'measuring…',
+    'trace.error': 'headers unavailable',
+    'trace.route': 'route',
+    'trace.you': 'you',
+    'trace.ttfb': 'first byte',
+    'trace.at': 'received at',
+    'trace.caption': 'A real response from this server, measured in your browser when the page loaded.',
 
     'about.title': 'about',
     'about.p1':
-      "Passionate about computers for as long as I can remember, I'm a student at Epitech (information systems architecture, class of 2027) and an apprentice Cloud Infrastructure Engineer at Open Lake Technology, working on Azure infrastructure with Terraform and Terramate.",
+      "I'm a student at Epitech (information systems architecture, class of 2027) and an apprentice Cloud Infrastructure Engineer at Open Lake Technology, working on Azure infrastructure with Terraform and Terramate.",
     'about.p2':
-      'My common thread: digital independence. Rather than relying on big-tech services, I build, configure and maintain my own infrastructure — a full homelab with a Proxmox cluster, TrueNAS Scale storage and 10 Gbps networking. This portfolio runs on it.',
+      'My common thread: digital independence. Rather than relying on big-tech services, I build, configure and maintain my own infrastructure: a homelab with a Proxmox cluster, TrueNAS Scale storage and 10 Gbps networking. This portfolio runs on it.',
     'about.p3':
       'From hardware to cloud, through networking and CI/CD: I like understanding the whole stack, not just one layer.',
 
     'xp.title': 'experience',
-    'xp.work': 'work',
-    'xp.edu': 'education',
-    'xp.now': 'present',
+    'xp.work': 'Work',
+    'xp.edu': 'Education',
+    'xp.now': 'current',
 
     'skills.title': 'skills',
-    'skills.cloud': 'cloud & IaC',
-    'skills.infra': 'virtualization & containers',
-    'skills.dev': 'development',
-    'skills.net': 'network & hardware',
+    'skills.cloud': 'Cloud and IaC',
+    'skills.infra': 'Virtualization and containers',
+    'skills.dev': 'Development',
+    'skills.net': 'Network and hardware',
 
     'projects.title': 'projects',
-    'projects.source': 'source code',
+    'projects.source': 'Source code',
     'projects.archived': 'archived',
+    'projects.stars': 'stars on GitHub',
+    'projects.homelab': 'See the homelab',
 
     'homelab.title': 'homelab',
     'homelab.intro':
@@ -135,18 +164,23 @@ export const ui = {
     'homelab.stat3.label': 'network backbone',
     'homelab.stat4.value': '100%',
     'homelab.stat4.label': 'self-hosted',
-    'homelab.note': '// you are reading this page from that very infrastructure',
+    'homelab.here': 'you are here',
+    'homelab.diagram':
+      'Homelab diagram: internet, router and firewall, 10GbE switch, Proxmox cluster, TrueNAS Scale, then the VMs and Docker containers including the nginx serving this site.',
 
     'term.title': 'terminal',
-    'term.hint': "type 'help' to list available commands",
+    'term.hint': 'A small working shell to explore this portfolio. Type a command or try:',
+    'term.input': 'Command prompt',
 
     'contact.title': 'contact',
     'contact.intro':
       'An opportunity, a question, or just want to talk homelab? My inbox is open.',
-    'contact.cta': './send-mail.sh',
+    'contact.cta': 'Send an email',
+    'contact.copy': 'Copy address',
+    'contact.copied': 'Address copied',
 
-    'footer.served': 'proudly served from my homelab',
-    'footer.built': 'built with Astro + GSAP · containerized with Docker',
+    'footer.served': 'Served from my homelab',
+    'footer.built': 'Astro, GSAP and Docker',
   },
 } as const;
 
@@ -267,6 +301,8 @@ export interface Project {
   description: { fr: string; en: string };
   tags: string[];
   url?: string;
+  /** in-page anchor, for projects documented on this page */
+  anchor?: string;
   stars?: number;
   archived?: boolean;
 }
@@ -300,6 +336,7 @@ export const projects: Project[] = [
       en: 'Multi-machine Proxmox cluster, TrueNAS Scale, 10 Gbps networking: the infrastructure hosting this website and my services.',
     },
     tags: ['Proxmox', 'TrueNAS', '10GbE', 'Docker'],
+    anchor: '#homelab',
   },
   {
     name: 'mathisbecher.com',

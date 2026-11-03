@@ -1,4 +1,6 @@
 ---
+import SectionHeading from './SectionHeading.astro';
+import Window from './Window.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -7,84 +9,93 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+const suggestions = ['help', 'whoami', 'neofetch', 'ls projects', 'cat skills.json', 'matrix'];
 ---
 
-<section id="terminal" class="section container">
-  <h2 class="section-heading">
-    <span class="index mono">06.</span>
-    <span data-decrypt>{t('term.title')}</span>
-  </h2>
+<section id="terminal" class="section">
+  <div class="container">
+    <SectionHeading title={t('term.title')} />
 
-  <p class="code-comment" data-reveal style="margin-bottom: var(--space-4);">
-    // {t('term.hint')}
-  </p>
-
-  <div id="term" class="term card mono" data-reveal>
-    <div class="term__bar">
-      <span class="term__dot" style="background: var(--dot-red)"></span>
-      <span class="term__dot" style="background: var(--dot-yellow)"></span>
-      <span class="term__dot" style="background: var(--dot-green)"></span>
-      <span class="term__title">visitor@mathisbecher.com: ~</span>
+    <div class="term-intro">
+      <p class="term-intro__hint">{t('term.hint')}</p>
+      <ul class="term-intro__cmds">
+        {
+          suggestions.map((cmd) => (
+            <li>
+              <button type="button" class="kbd term-intro__cmd" data-term-cmd={cmd}>
+                {cmd}
+              </button>
+            </li>
+          ))
+        }
+      </ul>
     </div>
 
-    <div id="term-body" class="term__body">
-      <div id="term-out" class="term__out" role="log" aria-live="polite"></div>
-      <div class="term__input-row">
-        <label class="term__prompt" for="term-input">
-          <span class="accent">visitor@mathisbecher</span><span class="term__colon">:~$</span>
-        </label>
-        <input
-          id="term-input"
-          class="term__input"
-          type="text"
-          autocomplete="off"
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          enterkeyhint="send"
-          aria-label={lang === 'fr' ? 'Invite de commande' : 'Command prompt'}
-        />
+    <Window id="term" title="visitor@mathisbecher.com: ~" class="term">
+      <div id="term-body" class="term__body">
+        <div id="term-out" class="term__out" role="log" aria-live="polite"></div>
+        <div class="term__input-row">
+          <label class="term__prompt" for="term-input">
+            <span class="term__user">visitor@mathisbecher</span><span class="term__colon">:~$</span>
+          </label>
+          <input
+            id="term-input"
+            class="term__input"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            enterkeyhint="send"
+            aria-label={t('term.input')}
+          />
+        </div>
       </div>
-    </div>
+    </Window>
   </div>
 </section>
 
 <style>
-  .term {
-    padding: 0;
-    overflow: hidden;
-    background: var(--bg-terminal, #040705);
-  }
-
-  .term:hover {
-    transform: none;
-  }
-
-  .term__bar {
+  .term-intro {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    padding: 0.6rem 0.9rem;
-    background: var(--bg-raised);
-    border-bottom: 1px solid var(--border);
+    gap: var(--s-3) var(--s-4);
+    margin-bottom: var(--s-5);
   }
 
-  .term__dot {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
+  .term-intro__hint {
+    color: var(--text-2);
   }
 
-  .term__title {
-    margin-inline: auto;
-    font-size: var(--fs-xs);
-    color: var(--text-faint);
+  .term-intro__cmds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .term-intro__cmd {
+    min-height: 2rem;
+    padding: 0 var(--s-3);
+    font-size: var(--fs-sm);
+    transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
+      transform var(--dur-fast) var(--ease);
+  }
+
+  .term-intro__cmd:hover {
+    background: #18221d;
+    border-color: rgba(228, 237, 232, 0.22);
+  }
+
+  .term-intro__cmd:active {
+    transform: translateY(1px);
   }
 
   .term__body {
-    height: 22rem;
+    height: 24rem;
     overflow-y: auto;
-    padding: var(--space-3) var(--space-4);
+    padding: var(--s-4) var(--s-5);
     font-size: var(--fs-sm);
     line-height: 1.7;
     cursor: text;
@@ -97,22 +108,28 @@ const t = useTranslations(lang);
   }
 
   .term__out :global(.term-line--accent) {
-    color: var(--green);
+    color: var(--accent);
+  }
+
+  .term__out :global(.term-line--art) {
+    color: var(--accent);
+    font-family: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    line-height: 1.15;
   }
 
   .term__out :global(.term-line--error) {
-    color: var(--dot-red);
+    color: var(--negative);
   }
 
   .term__out :global(.term-line--dim) {
-    color: var(--text-muted);
+    color: var(--text-3);
   }
 
   .term__input-row {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-1);
+    gap: var(--s-2);
+    margin-top: var(--s-1);
   }
 
   .term__prompt {
@@ -120,8 +137,12 @@ const t = useTranslations(lang);
     cursor: text;
   }
 
+  .term__user {
+    color: var(--accent);
+  }
+
   .term__colon {
-    color: var(--text-muted);
+    color: var(--text-3);
   }
 
   .term__input {
@@ -130,13 +151,31 @@ const t = useTranslations(lang);
     background: transparent;
     border: none;
     outline: none;
-    color: var(--green);
+    color: var(--text);
     font: inherit;
-    caret-color: var(--green);
+    caret-color: var(--accent);
   }
 
-  .term__input:focus {
-    outline: none;
+  /* The window shows focus, since the input itself has no box. */
+  .term:focus-within {
+    border-color: rgba(0, 255, 157, 0.4);
+  }
+
+  @media (max-width: 560px) {
+    .term__body {
+      height: 20rem;
+      padding: var(--s-3) var(--s-4);
+      font-size: var(--fs-xs);
+    }
+
+    /* 16px keeps iOS from zooming into the field. */
+    .term__input {
+      font-size: 16px;
+    }
+
+    .term__user {
+      display: none;
+    }
   }
 </style>
 

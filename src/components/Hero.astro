@@ -1,5 +1,6 @@
 ---
 import MatrixRain from './MatrixRain.astro';
+import Window from './Window.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -8,128 +9,309 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+
+// The physical path a request takes to reach this page (see the homelab section).
+const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
 ---
 
 <section id="top" class="hero">
   <MatrixRain />
 
-  <div class="container hero__content">
-    <p class="hero__cmd mono" data-reveal>
-      <span class="accent">~/mathisbecher.com</span> $ {t('hero.cmd')}
-    </p>
+  <div class="container hero__grid">
+    <div class="hero__text">
+      <p class="hero__prompt mono" data-hero>
+        <span class="hero__prompt-sign">$</span> whoami
+      </p>
 
-    <h1 class="hero__name" data-decrypt>MATHIS BECHER</h1>
+      <h1 class="hero__name" aria-label="Mathis Becher">
+        <span data-decrypt aria-hidden="true">Mathis Becher</span>
+      </h1>
 
-    <p class="hero__role mono" data-reveal>
-      <span class="accent">&gt;</span> {t('hero.role')}<span class="cursor-blink" aria-hidden="true"></span>
-    </p>
+      <p class="hero__role mono" data-hero>
+        {t('hero.role')}<span class="cursor-blink" aria-hidden="true"></span>
+      </p>
 
-    <p class="hero__tagline" data-reveal>{t('hero.tagline')}</p>
+      <p class="hero__tagline" data-hero>{t('hero.tagline')}</p>
 
-    <p class="hero__status mono" data-reveal>
-      <span class="status-dot"></span>
-      {t('hero.status')}
-    </p>
+      <p class="hero__status" data-hero>{t('hero.status')}</p>
 
-    <div class="hero__actions" data-reveal-group>
-      <a href="#projects" class="btn btn--primary">[ {t('hero.cta.projects')} ]</a>
-      <a href="#terminal" class="btn">[ {t('hero.cta.terminal')} ]</a>
+      <div class="hero__actions" data-hero>
+        <a href="#projects" class="btn btn--primary">{t('hero.cta.projects')}</a>
+        <a href="#terminal" class="btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m4 17 6-6-6-6" /><path d="M12 19h8" />
+          </svg>
+          {t('hero.cta.terminal')}
+        </a>
+      </div>
     </div>
 
-    <p class="code-comment" data-reveal>{t('hero.served')}</p>
+    <figure class="hero__visual" data-hero>
+      <Window title={`curl -sI mathisbecher.com — ${t('trace.title')}`} class="trace">
+        <span slot="status" class="trace__state">
+          <span class="live-dot" data-state="pending" id="trace-dot"></span>
+          <span id="trace-state">live</span>
+        </span>
+        <div
+          class="trace__body"
+          id="trace"
+          data-pending={t('trace.pending')}
+          data-error={t('trace.error')}
+          data-locale={lang === 'fr' ? 'fr-FR' : 'en-GB'}
+        >
+          <p class="trace__cmd"><span class="trace__sign">$</span> curl -sI https://mathisbecher.com{lang === 'en' ? '/en/' : '/'}</p>
+          <dl class="trace__headers" id="trace-headers" aria-live="polite" data-pending>
+            <div class="trace__row trace__row--muted"><dt>{t('trace.pending')}</dt><dd></dd></div>
+          </dl>
+          <div class="trace__footer">
+            <p class="trace__route">
+              <span class="trace__key">{t('trace.route')}</span>
+              <span class="trace__hops">
+                {
+                  route.map((hop, i) => (
+                    <>
+                      <span class:list={['trace__hop', i === route.length - 1 && 'trace__hop--end']}>{hop}</span>
+                      {i < route.length - 1 && <span class="trace__arrow" aria-hidden="true">→</span>}
+                    </>
+                  ))
+                }
+              </span>
+            </p>
+            <p class="trace__metrics">
+              <span><span class="trace__key">{t('trace.ttfb')}</span> <span class="num" id="trace-ttfb">—</span></span>
+              <span><span class="trace__key">{t('trace.at')}</span> <span class="num" id="trace-time">—</span></span>
+            </p>
+          </div>
+        </div>
+      </Window>
+      <figcaption class="hero__caption">{t('trace.caption')}</figcaption>
+    </figure>
   </div>
-
-  <a href="#about" class="hero__scroll mono" aria-label={t('nav.about')}>
-    <span>{t('hero.scroll')}</span>
-    <span class="hero__scroll-arrow" aria-hidden="true">▼</span>
-  </a>
 </section>
 
 <style>
   .hero {
     position: relative;
-    min-height: 100dvh;
     display: flex;
     align-items: center;
+    min-height: 100dvh;
+    padding-top: var(--nav-h);
     overflow: hidden;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 255, 157, 0.05), transparent),
-      var(--bg);
   }
 
-  .hero__content {
+  .hero__grid {
     position: relative;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    padding-block: var(--space-7);
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s-8);
+    padding-block: var(--s-9);
   }
 
-  .hero__cmd {
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero__prompt {
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--text-3);
+    margin-bottom: var(--s-4);
+  }
+
+  .hero__prompt-sign {
+    color: var(--accent);
   }
 
   .hero__name {
     font-size: var(--fs-hero);
-    letter-spacing: 0.02em;
-    color: var(--text);
-    text-shadow: 0 0 32px var(--green-glow);
-    min-height: 1.2em;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    min-height: 1.02em;
   }
 
   .hero__role {
+    margin-top: var(--s-4);
     font-size: var(--fs-xl);
-    color: var(--green);
+    color: var(--text);
   }
 
   .hero__tagline {
-    max-width: 38rem;
+    max-width: 36rem;
+    margin-top: var(--s-6);
     font-size: var(--fs-lg);
-    color: var(--text-muted);
+    line-height: 1.6;
+    color: var(--text-2);
   }
 
   .hero__status {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
+    margin-top: var(--s-3);
     font-size: var(--fs-sm);
-    color: var(--text-muted);
+    color: var(--text-3);
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-block: var(--space-3);
+    gap: var(--s-3);
+    margin-top: var(--s-6);
   }
 
-  .hero__scroll {
-    position: absolute;
-    bottom: var(--space-4);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
+  /* --- The moment: a live trace of the visitor's own request --- */
+
+  .hero__visual {
+    min-width: 0;
+  }
+
+  .trace__state {
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--s-2);
+  }
+
+  .trace__body {
+    padding: var(--s-5);
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+  }
+
+  .trace__cmd {
+    color: var(--text);
+    margin-bottom: var(--s-3);
+    overflow-wrap: anywhere;
+  }
+
+  .trace__sign {
+    color: var(--accent);
+  }
+
+  /* 7 rows reserved while the response is pending, so the window does not jump. */
+  .trace__headers[data-pending] {
+    min-height: 11.9em;
+  }
+
+  .trace__headers :global(.trace__row) {
+    display: flex;
+    gap: var(--s-2);
+    min-width: 0;
+  }
+
+  .trace__headers :global(dt) {
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  .trace__headers :global(dd) {
+    margin: 0;
+    min-width: 0;
+    color: var(--text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .trace__headers :global(.trace__row--status dt),
+  .trace__headers :global(.trace__row--status dd) {
+    color: var(--text);
+  }
+
+  .trace__headers :global(.trace__ok) {
+    color: var(--accent);
+  }
+
+  .trace__footer {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    padding-top: var(--s-4);
+    border-top: 1px dashed var(--line-strong);
     font-size: var(--fs-xs);
-    color: var(--text-faint);
   }
 
-  .hero__scroll-arrow {
-    animation: bob 1.8s ease-in-out infinite;
+  .trace__key {
+    color: var(--text-3);
   }
 
-  @keyframes bob {
-    0%,
-    100% {
-      transform: translateY(0);
+  .trace__route,
+  .trace__metrics > span {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .trace__hops {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-1) var(--s-2);
+    color: var(--text-2);
+  }
+
+  .trace__arrow {
+    color: var(--text-3);
+  }
+
+  .trace__hop--end {
+    color: var(--text);
+  }
+
+  .trace__metrics {
+    display: grid;
+    gap: var(--s-2);
+    color: var(--text);
+  }
+
+  .hero__caption {
+    margin-top: var(--s-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  @media (max-width: 1100px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-7);
+      padding-block: var(--s-8) var(--s-9);
     }
-    50% {
-      transform: translateY(6px);
+
+    .hero__visual {
+      max-width: 40rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .hero {
+      min-height: 0;
+    }
+
+    .hero__grid {
+      padding-block: var(--s-7) var(--s-8);
+    }
+
+    .hero__actions {
+      width: 100%;
+    }
+
+    .hero__actions .btn {
+      flex: 1 1 100%;
+    }
+
+    .trace__body {
+      padding: var(--s-4);
+      font-size: var(--fs-xs);
+    }
+
+    .trace__route,
+    .trace__metrics > span {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
     }
   }
 </style>
+
+<script>
+  import '../scripts/trace';
+</script>

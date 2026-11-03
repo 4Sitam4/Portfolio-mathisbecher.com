@@ -1,0 +1,37 @@
+---
+/** The one-page portfolio, shared by the FR (/) and EN (/en/) routes. */
+import Base from '../layouts/Base.astro';
+import Navbar from './Navbar.astro';
+import Hero from './Hero.astro';
+import About from './About.astro';
+import Experience from './Experience.astro';
+import Skills from './Skills.astro';
+import Projects from './Projects.astro';
+import Homelab from './Homelab.astro';
+import Terminal from './Terminal.astro';
+import Contact from './Contact.astro';
+import Footer from './Footer.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Base lang={lang} title={t('meta.title')} description={t('meta.description')}>
+  <Navbar lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <About lang={lang} />
+    <Experience lang={lang} />
+    <Skills lang={lang} />
+    <Projects lang={lang} />
+    <Homelab lang={lang} />
+    <Terminal lang={lang} />
+    <Contact lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</Base>

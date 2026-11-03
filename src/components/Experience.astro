@@ -1,4 +1,5 @@
 ---
+import SectionHeading from './SectionHeading.astro';
 import { useTranslations, timeline, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -9,132 +10,113 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 ---
 
-<section id="experience" class="section container">
-  <h2 class="section-heading">
-    <span class="index mono">02.</span>
-    <span data-decrypt>{t('xp.title')}</span>
-  </h2>
+<section id="experience" class="section">
+  <div class="container">
+    <SectionHeading title={t('xp.title')} />
 
-  <ol class="timeline" data-reveal-group>
-    {
-      timeline.map((entry) => (
-        <li class="timeline__item">
-          <div class="timeline__marker" aria-hidden="true" />
-          <div class="timeline__content card">
-            <div class="timeline__meta mono">
-              <span class="timeline__period">{entry.period[lang]}</span>
-              <span class:list={['timeline__badge', entry.type === 'edu' && 'timeline__badge--edu']}>
-                {entry.type === 'work' ? t('xp.work') : t('xp.edu')}
-              </span>
-            </div>
-            <h3 class="timeline__title">{entry.title[lang]}</h3>
-            <p class="timeline__org mono">
-              <span class="accent">@</span> {entry.org} · <span class="text-muted">{entry.location[lang]}</span>
-            </p>
-            <p class="timeline__desc">{entry.description[lang]}</p>
-            <div class="timeline__tags">
-              {entry.tags.map((tag) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </div>
-          </div>
-        </li>
-      ))
-    }
-  </ol>
+    <ol class="xp">
+      {
+        timeline.map((entry, i) => {
+          const current = i === 0;
+          return (
+            <li class:list={['xp__item', current && 'is-current']}>
+              <div class="xp__when mono">
+                <span class="xp__period num">{entry.period[lang]}</span>
+                <span class="xp__type">
+                  {current ? t('xp.now') : entry.type === 'work' ? t('xp.work') : t('xp.edu')}
+                </span>
+              </div>
+              <div class="xp__body">
+                <h3 class="xp__title">{entry.title[lang]}</h3>
+                <p class="xp__org">
+                  {entry.org}<span class="xp__loc">, {entry.location[lang]}</span>
+                </p>
+                <p class="xp__desc">{entry.description[lang]}</p>
+                <ul class="tags" aria-label="Technologies">
+                  {entry.tags.map((tag) => (
+                    <li class="tag">{tag}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </div>
 </section>
 
 <style>
-  .timeline {
-    position: relative;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .xp {
+    border-top: 1px solid var(--line);
+  }
+
+  .xp__item {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: var(--s-6);
+    padding-block: var(--s-6);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .xp__when {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    bottom: 8px;
-    left: 7px;
-    width: 1px;
-    background: linear-gradient(to bottom, var(--green-dim), var(--border));
-  }
-
-  .timeline__item {
-    position: relative;
-    padding-left: var(--space-5);
-  }
-
-  .timeline__marker {
-    position: absolute;
-    top: 1.4rem;
-    left: 0;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background: var(--bg);
-    border: 2px solid var(--green-dim);
-    box-shadow: 0 0 10px var(--green-soft);
-  }
-
-  .timeline__item:first-child .timeline__marker {
-    background: var(--green);
-    box-shadow: 0 0 14px var(--green-glow);
-  }
-
-  .timeline__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    margin-bottom: var(--space-2);
-    font-size: var(--fs-xs);
-  }
-
-  .timeline__period {
-    color: var(--green-dim);
-  }
-
-  .timeline__badge {
-    padding: 0.1rem 0.55rem;
-    border: 1px solid var(--green-dim);
-    border-radius: 999px;
-    color: var(--green);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .timeline__badge--edu {
-    border-color: var(--border-bright);
-    color: var(--text-muted);
-  }
-
-  .timeline__title {
-    font-size: var(--fs-lg);
-    margin-bottom: var(--space-1);
-  }
-
-  .timeline__org {
+    gap: var(--s-1);
+    padding-top: 2px;
     font-size: var(--fs-sm);
-    margin-bottom: var(--space-2);
+  }
+
+  .xp__period {
+    color: var(--text-2);
+  }
+
+  .xp__type {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .is-current .xp__type {
+    color: var(--accent);
+  }
+
+  .xp__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-xl);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .xp__org {
+    margin-top: var(--s-1);
     color: var(--text);
   }
 
-  .timeline__desc {
-    color: var(--text-muted);
-    font-size: var(--fs-sm);
-    max-width: 65ch;
-    margin-bottom: var(--space-3);
+  .xp__loc {
+    color: var(--text-3);
   }
 
-  .timeline__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+  .xp__desc {
+    max-width: 65ch;
+    margin-top: var(--s-3);
+    margin-bottom: var(--s-4);
+    color: var(--text-2);
+  }
+
+  @media (max-width: 760px) {
+    .xp__item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-3);
+      padding-block: var(--s-5);
+    }
+
+    .xp__when {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 </style>

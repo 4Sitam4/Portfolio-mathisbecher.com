@@ -1,0 +1,75 @@
+---
+/**
+ * Terminal-style window chrome (title bar + body), shared by the hero trace,
+ * the about card, the homelab diagram and the interactive terminal.
+ */
+interface Props {
+  title: string;
+  id?: string;
+  class?: string;
+}
+
+const { title, id, class: className } = Astro.props;
+// Optional `status` slot: content at the right of the title bar.
+const hasStatus = Astro.slots.has('status');
+---
+
+<div id={id} class:list={['window', className]}>
+  <div class="window__bar">
+    <span class="window__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="window__title">{title}</span>
+    {hasStatus && <span class="window__status"><slot name="status" /></span>}
+  </div>
+  <slot />
+</div>
+
+<style>
+  .window {
+    background: var(--bg-deep);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    font-family: var(--font-mono);
+  }
+
+  .window__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    height: 2.5rem;
+    padding: 0 var(--s-4);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .window__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .window__dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+  }
+
+  .window__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .window__status {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-left: auto;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+</style>

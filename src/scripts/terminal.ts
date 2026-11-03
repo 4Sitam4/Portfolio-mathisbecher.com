@@ -7,7 +7,7 @@
 import { fullscreenMatrixBurst } from './matrix';
 import { projects, contactLinks, skillGroups, timeline } from '../i18n/ui';
 
-type Line = { text: string; cls?: 'accent' | 'error' | 'dim' };
+type Line = { text: string; cls?: 'accent' | 'error' | 'dim' | 'art' };
 
 const NEOFETCH_LOGO = String.raw`
  ███╗   ███╗ ██████╗
@@ -49,9 +49,9 @@ const STR = {
     isDir: (d: string) => `cat : ${d} : est un dossier`,
     notFound: (c: string) => `${c} : commande introuvable — essayez 'help'`,
     sudo: 'permission refusée : bien tenté. ;)',
-    rmrf: ["suppression du homelab en cours…", '…', 'non. ❤ vos données sont en sécurité (RAID + snapshots).'],
+    rmrf: ["suppression du homelab en cours…", '…', 'non. <3 vos données sont en sécurité (RAID + snapshots).'],
     matrix: 'réveille-toi, Neo…',
-    exit: 'déconnexion. à bientôt !',
+    exit: 'déconnexion. à bientôt.',
     langSwitch: 'bascule vers la version anglaise…',
     uptime: 'up depuis toujours (ou presque) — 99,9% de disponibilité homelab',
   },
@@ -86,9 +86,9 @@ const STR = {
     isDir: (d: string) => `cat: ${d}: is a directory`,
     notFound: (c: string) => `${c}: command not found — try 'help'`,
     sudo: 'permission denied: nice try. ;)',
-    rmrf: ['deleting homelab…', '…', 'no. ❤ your data is safe (RAID + snapshots).'],
+    rmrf: ['deleting homelab…', '…', 'no. <3 your data is safe (RAID + snapshots).'],
     matrix: 'wake up, Neo…',
-    exit: 'logout. see you around!',
+    exit: 'logout. see you around.',
     langSwitch: 'switching to the French version…',
     uptime: 'up since forever (almost) — 99.9% homelab availability',
   },
@@ -169,7 +169,7 @@ export function initTerminal(): void {
     projects: () => print(listProjects()),
     contact: () => print(files['contact.txt']!()),
     neofetch: () => {
-      print(NEOFETCH_LOGO.split('\n').map((text) => ({ text, cls: 'accent' }) as Line));
+      print(NEOFETCH_LOGO.split('\n').map((text) => ({ text, cls: 'art' }) as Line));
       print([
         `visitor@mathisbecher.com`,
         '─────────────────────────',
@@ -239,13 +239,24 @@ export function initTerminal(): void {
         historyIndex = history.length;
         input.value = '';
       }
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      const partial = input.value.toLowerCase();
-      if (!partial) return;
-      const match = Object.keys(commands).find((c) => c.startsWith(partial));
-      if (match) input.value = match + ' ';
+    } else if (e.key === 'Tab' && !e.shiftKey) {
+      // Autocomplete only when there is something to complete, so an empty
+      // prompt never traps keyboard users: Tab still moves focus on.
+      const partial = input.value.trim().toLowerCase();
+      const match = partial && Object.keys(commands).find((c) => c.startsWith(partial));
+      if (match) {
+        e.preventDefault();
+        input.value = match + ' ';
+      }
     }
+  });
+
+  // Suggested commands above the window run as if typed.
+  document.querySelectorAll<HTMLButtonElement>('[data-term-cmd]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      run(btn.dataset.termCmd ?? '');
+      body.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
   });
 
   // Clicking anywhere in the window focuses the prompt (like a real terminal).
