@@ -55,27 +55,22 @@ const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
       })}
     />
 
-    <!-- Decide before first paint whether the boot sequence should run:
-         skip it on repeat views (sessionStorage) and for reduced motion. -->
+    <!-- Decide before first paint whether the boot sequence should run
+         (every visit, except with reduced motion). -->
     <script is:inline>
       (function () {
         var root = document.documentElement;
         root.classList.add('js');
-        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var skip = false;
-        try {
-          skip = sessionStorage.getItem('mb-booted') === '1';
-        } catch (e) {}
-        if (skip || reduced) root.dataset.booted = 'true';
-        // First visit: boot + "terraform apply" build, so every resource starts
-        // hidden ('pv'). Repeat visit: a short hero entrance ('anim').
-        // animations.ts takes over these classes; the timeout is a safety net
-        // so content can never stay hidden if the script fails to load.
-        if (!reduced) {
-          var cls = skip ? 'anim' : 'pv';
-          root.classList.add(cls);
+        // Every visit: boot + "terraform apply" build, so every resource starts
+        // hidden ('pv'). With reduced motion there is no show at all.
+        // animations.ts takes over this class; the timeout is a safety net so
+        // content can never stay hidden if the script fails to load.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          root.dataset.booted = 'true';
+        } else {
+          root.classList.add('pv');
           setTimeout(function () {
-            root.classList.remove(cls);
+            root.classList.remove('pv');
           }, 8000);
         }
       })();

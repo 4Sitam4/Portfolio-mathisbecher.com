@@ -441,11 +441,6 @@ p {
   }
 }
 
-/* Hero items wait for their entrance (see animations.ts). */
-.anim [data-hero] {
-  opacity: 0;
-}
-
 /* --- Reduced motion --------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

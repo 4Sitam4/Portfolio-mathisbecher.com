@@ -1,15 +1,17 @@
 /**
  * Page choreography.
- *  - First visit: boot sequence, then the page provisions itself
- *    ("terraform apply", see provision.ts), section by section on scroll.
- *  - Repeat visit (same session): one short entrance on the hero.
- *  - Section titles decrypt once; the live trace rows stream in.
+ *  - Every visit: boot sequence, then the page provisions itself
+ *    ("terraform apply", see provision.ts), section by section on scroll,
+ *    then ambient effects keep running (drift detection, hover inspector).
+ *  - Boot skipped with a key or a click: everything at once, short hero entrance.
+ *  - The live trace rows stream in.
  * Everything is readable without JS; with reduced motion nothing moves.
  */
 
 import gsap from 'gsap';
 import { initDecryptObserver, prefersReducedMotion } from './scramble';
 import { Provisioner } from './provision';
+import { startAmbient } from './provision-ambient';
 
 const root = document.documentElement;
 const lang = root.lang === 'fr' ? 'fr' : 'en';
@@ -24,10 +26,7 @@ root.classList.remove('pv');
 
 function heroEntrance(): void {
   const items = document.querySelectorAll<HTMLElement>('[data-hero]');
-  if (reduced || items.length === 0) {
-    root.classList.remove('anim');
-    return;
-  }
+  if (reduced || items.length === 0) return;
   gsap.fromTo(
     items,
     { opacity: 0, y: 10 },
@@ -38,7 +37,6 @@ function heroEntrance(): void {
       ease: 'power3.out',
       stagger: 0.06,
       clearProps: 'transform',
-      onStart: () => root.classList.remove('anim'),
     }
   );
 }
@@ -73,6 +71,7 @@ if (root.dataset.booted === 'true') {
         provisioner?.revealAll();
         startCalm();
       }
+      if (provisioner) startAmbient(provisioner);
     },
     { once: true }
   );

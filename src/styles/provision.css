@@ -139,6 +139,165 @@
   will-change: transform;
 }
 
+.pv-agent__chip {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 14px;
+  color: var(--on-accent);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Fading dots left behind a moving agent. */
+.pv-trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  margin: -1px 0 0 -1px;
+  border-radius: 1px;
+  background: currentColor;
+  animation: pv-trail 520ms linear forwards;
+}
+
+@keyframes pv-trail {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Scan line revealing a resource. */
+.pv-scan {
+  position: absolute;
+  height: 2px;
+  opacity: 0;
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 255, 157, 0.5);
+}
+
+.pv-scan::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 48px;
+  background: linear-gradient(to top, rgba(0, 255, 157, 0.14), transparent);
+}
+
+/* Chromatic flicker once a resource is up (palette colors only). */
+.pv-glitch {
+  animation: pv-glitch 320ms steps(1) 1;
+}
+
+@keyframes pv-glitch {
+  0% {
+    transform: translate(2px, 0);
+    text-shadow: -2px 0 rgba(0, 255, 157, 0.7), 2px 0 rgba(228, 237, 232, 0.45);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+    text-shadow: 2px 0 rgba(0, 255, 157, 0.7), -2px 0 rgba(127, 149, 139, 0.6);
+    clip-path: inset(12% 0 38% 0);
+  }
+  50% {
+    transform: translate(1px, -1px);
+    text-shadow: -1px 0 rgba(0, 255, 157, 0.6);
+    clip-path: inset(48% 0 6% 0);
+  }
+  75%,
+  100% {
+    transform: none;
+    text-shadow: none;
+    clip-path: none;
+  }
+}
+
+/* "Apply complete!" — a full-screen scan. */
+.pv-sweep {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-nav) + 3);
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 157, 0.06) 82%, transparent 84%);
+}
+
+.pv-sweep__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 82%;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 24px 4px rgba(0, 255, 157, 0.35);
+}
+
+/* Drift detection frames: dashed, quieter tag. */
+.pv-frame--drift .pv-frame__box {
+  border-style: dashed;
+  background: rgba(0, 255, 157, 0.025);
+}
+
+.pv-frame--drift .pv-frame__tag {
+  background: var(--raised);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 157, 0.4);
+}
+
+/* Devtools-like inspector on hover. */
+.pv-inspect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: calc(var(--z-nav) - 1);
+  pointer-events: none;
+  border: 1px solid rgba(0, 255, 157, 0.6);
+  background: rgba(0, 255, 157, 0.035);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.pv-inspect.is-on {
+  opacity: 1;
+}
+
+.pv-inspect__tag,
+.pv-inspect__dims {
+  position: absolute;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+
+.pv-inspect__tag {
+  left: -1px;
+  bottom: 100%;
+  margin-bottom: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.pv-inspect__dims {
+  right: -1px;
+  top: 100%;
+  margin-top: 4px;
+  background: var(--raised);
+  color: var(--text-2);
+  border: 1px solid var(--line-strong);
+}
+
 /* --- Status bar ------------------------------------------------------------ */
 
 .pv-status {
@@ -162,6 +321,18 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--line-strong);
   border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.pv-status__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
 }
 
 .pv-status[hidden] {

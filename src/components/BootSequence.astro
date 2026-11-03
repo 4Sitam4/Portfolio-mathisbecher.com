@@ -34,6 +34,30 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
     display: flex;
   }
 
+  /* Stays displayed while it switches off, even though the page is booted. */
+  :global(html.js) .boot.boot--off {
+    display: flex;
+    animation: boot-off 560ms cubic-bezier(0.55, 0, 0.45, 1) forwards;
+  }
+
+  @keyframes boot-off {
+    0% {
+      transform: scale(1, 1);
+      filter: brightness(1);
+      opacity: 1;
+    }
+    55% {
+      transform: scale(1, 0.004);
+      filter: brightness(3);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0, 0.004);
+      filter: brightness(3);
+      opacity: 0;
+    }
+  }
+
   .boot__log {
     font-size: clamp(0.65rem, 1.8vw, 0.85rem);
     line-height: 1.7;
@@ -107,9 +131,6 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
   }
 
   function finish(skipped: boolean): void {
-    try {
-      sessionStorage.setItem('mb-booted', '1');
-    } catch {}
     document.documentElement.dataset.booted = 'true';
     window.dispatchEvent(new CustomEvent('boot:done', { detail: { skipped } }));
   }
@@ -132,11 +153,13 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
       // The scroll lock swallowed any #anchor navigation — replay it now.
       if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
       // The page starts building underneath while the overlay fades away.
-      boot.style.transition = skipped ? 'none' : 'opacity 450ms cubic-bezier(0.22, 1, 0.36, 1)';
-      boot.style.opacity = '0';
+      // Natural end: the screen switches off like a CRT while the page
+      // starts building underneath. Skipped: it just disappears.
       boot.style.pointerEvents = 'none';
+      if (skipped) boot.style.opacity = '0';
+      else boot.classList.add('boot--off');
       finish(skipped);
-      window.setTimeout(() => boot.remove(), skipped ? 0 : 500);
+      window.setTimeout(() => boot.remove(), skipped ? 0 : 600);
     };
 
     // The skip keystroke must not also scroll the page (Space, arrows…).
