@@ -12,12 +12,12 @@ const t = useTranslations(lang);
 
 <section id="skills" class="section">
   <div class="container">
-    <SectionHeading title={t('skills.title')} />
+    <SectionHeading title={t('skills.title')} name="skills" />
 
     <dl class="skills">
       {
-        skillGroups.map((group) => (
-          <div class="skills__row">
+        skillGroups.map((group, i) => (
+          <div class="skills__row" data-provision={`skills.group[${i}]`}>
             <dt class="skills__head">
               <span class="skills__name">{t(group.key)}</span>
               <code class="skills__prompt">$ {group.prompt}</code>

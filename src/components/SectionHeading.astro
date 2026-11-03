@@ -2,11 +2,13 @@
 /** Section title rendered as a directory path: "~/parcours". */
 interface Props {
   title: string;
+  /** section key, used as the terraform resource name */
+  name: string;
 }
 
-const { title } = Astro.props;
+const { title, name } = Astro.props;
 ---
 
-<h2 class="section-heading" aria-label={title}>
+<h2 class="section-heading" aria-label={title} data-provision={`${name}.title`}>
   <span class="section-heading__path" aria-hidden="true">~/</span><span data-decrypt aria-hidden="true">{title}</span>
 </h2>

@@ -10,14 +10,14 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-const suggestions = ['help', 'whoami', 'neofetch', 'ls projects', 'cat skills.json', 'matrix'];
+const suggestions = ['help', 'whoami', 'neofetch', 'ls projects', 'terraform apply', 'matrix'];
 ---
 
 <section id="terminal" class="section">
   <div class="container">
-    <SectionHeading title={t('term.title')} />
+    <SectionHeading title={t('term.title')} name="terminal" />
 
-    <div class="term-intro">
+    <div class="term-intro" data-provision="terminal.hints">
       <p class="term-intro__hint">{t('term.hint')}</p>
       <ul class="term-intro__cmds">
         {
@@ -32,7 +32,7 @@ const suggestions = ['help', 'whoami', 'neofetch', 'ls projects', 'cat skills.js
       </ul>
     </div>
 
-    <Window id="term" title="visitor@mathisbecher.com: ~" class="term">
+    <Window id="term" title="visitor@mathisbecher.com: ~" class="term" provision="terminal.shell">
       <div id="term-body" class="term__body">
         <div id="term-out" class="term__out" role="log" aria-live="polite"></div>
         <div class="term__input-row">

@@ -6,6 +6,7 @@ import '@fontsource/ibm-plex-sans/400.css';
 import '@fontsource/ibm-plex-sans/500.css';
 import '@fontsource/ibm-plex-sans/600.css';
 import '../styles/global.css';
+import '../styles/provision.css';
 import BootSequence from '../components/BootSequence.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
@@ -66,13 +67,16 @@ const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
           skip = sessionStorage.getItem('mb-booted') === '1';
         } catch (e) {}
         if (skip || reduced) root.dataset.booted = 'true';
-        // Hide hero items until their entrance runs (removed by animations.ts;
-        // the timeout is a safety net so content can never stay hidden).
+        // First visit: boot + "terraform apply" build, so every resource starts
+        // hidden ('pv'). Repeat visit: a short hero entrance ('anim').
+        // animations.ts takes over these classes; the timeout is a safety net
+        // so content can never stay hidden if the script fails to load.
         if (!reduced) {
-          root.classList.add('anim');
+          var cls = skip ? 'anim' : 'pv';
+          root.classList.add(cls);
           setTimeout(function () {
-            root.classList.remove('anim');
-          }, 6000);
+            root.classList.remove(cls);
+          }, 8000);
         }
       })();
     </script>

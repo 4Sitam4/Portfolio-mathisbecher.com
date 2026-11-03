@@ -33,6 +33,7 @@ const STR = {
       '  projects      mes projets',
       '  contact       me contacter',
       '  lang          basculer FR ⇄ EN',
+      '  terraform apply  reconstruire la page',
       '  matrix        ???',
       '  clear         nettoyer l’écran',
       '  exit          fermer la session',
@@ -70,6 +71,7 @@ const STR = {
       '  projects      my projects',
       '  contact       reach me',
       '  lang          switch FR ⇄ EN',
+      '  terraform apply  rebuild this page',
       '  matrix        ???',
       '  clear         clear the screen',
       '  exit          close the session',
@@ -195,6 +197,16 @@ export function initTerminal(): void {
       print([{ text: s.matrix, cls: 'accent' }]);
       window.dispatchEvent(new CustomEvent('matrix:boost'));
       fullscreenMatrixBurst();
+    },
+    terraform: (args) => {
+      if (args[0] !== 'apply') {
+        return print([{ text: 'usage: terraform apply', cls: 'dim' }]);
+      }
+      print([
+        { text: 'Acquiring state lock. This may take a few moments...', cls: 'dim' },
+        { text: 'Plan: page rebuild — scrolling to the top.', cls: 'accent' },
+      ]);
+      window.setTimeout(() => window.dispatchEvent(new CustomEvent('provision:replay')), 700);
     },
     sudo: () => print([{ text: s.sudo, cls: 'error' }]),
     rm: (args) => {

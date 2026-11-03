@@ -7,14 +7,16 @@ interface Props {
   title: string;
   id?: string;
   class?: string;
+  /** resource name for the terraform-apply intro (provision.ts) */
+  provision?: string;
 }
 
-const { title, id, class: className } = Astro.props;
+const { title, id, class: className, provision } = Astro.props;
 // Optional `status` slot: content at the right of the title bar.
 const hasStatus = Astro.slots.has('status');
 ---
 
-<div id={id} class:list={['window', className]}>
+<div id={id} class:list={['window', className]} data-provision={provision}>
   <div class="window__bar">
     <span class="window__dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="window__title">{title}</span>

@@ -54,11 +54,11 @@ const specs = [
 
 <section id="homelab" class="section">
   <div class="container">
-    <SectionHeading title={t('homelab.title')} />
-    <p class="section-lede">{t('homelab.intro')}</p>
+    <SectionHeading title={t('homelab.title')} name="homelab" />
+    <p class="section-lede" data-provision="homelab.intro">{t('homelab.intro')}</p>
 
     <div class="homelab">
-      <dl class="specs">
+      <dl class="specs" data-provision="homelab.specs">
         {
           specs.map((spec) => (
             <div class="specs__row">
@@ -69,7 +69,7 @@ const specs = [
         }
       </dl>
 
-      <figure class="homelab__diagram">
+      <figure class="homelab__diagram" data-provision="homelab.topology">
         <Window title="~/homelab/topology.txt">
           <pre class="diagram ascii" aria-hidden="true">{diagram.map((line) => (
             <span class:list={['diagram__line', line.pointer && 'diagram__here']}>{line.text}{line.pointer && <span class="diagram__pointer">{line.pointer}</span>}</span>

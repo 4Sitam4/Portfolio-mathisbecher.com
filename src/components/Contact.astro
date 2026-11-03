@@ -33,10 +33,10 @@ const channels = [
 
 <section id="contact" class="section">
   <div class="container">
-    <SectionHeading title={t('contact.title')} />
+    <SectionHeading title={t('contact.title')} name="contact" />
 
     <div class="contact">
-      <div class="contact__main">
+      <div class="contact__main" data-provision="contact.mail">
         <p class="contact__intro">{t('contact.intro')}</p>
         <div class="contact__actions">
           <a class="btn btn--primary" href={`mailto:${contactLinks.email}`}>{t('contact.cta')}</a>
@@ -56,7 +56,7 @@ const channels = [
         <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
       </div>
 
-      <ul class="channels">
+      <ul class="channels" data-provision="contact.channels">
         {
           channels.map((c) => {
             const external = c.href.startsWith('http');

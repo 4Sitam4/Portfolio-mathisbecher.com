@@ -26,9 +26,9 @@ const langs = [
 
 <header class="nav">
   <div class="container nav__inner">
-    <a href="#top" class="nav__logo glitch" data-text="mb@homelab:~$" aria-label="Mathis Becher">mb@homelab:~$</a>
+    <a href="#top" class="nav__logo glitch" data-provision="nav.logo" data-text="mb@homelab:~$" aria-label="Mathis Becher">mb@homelab:~$</a>
 
-    <nav class="nav__menu" aria-label={t('nav.label')}>
+    <nav class="nav__menu" aria-label={t('nav.label')} data-provision="nav.links">
       <ul id="nav-links" class="nav__links">
         {
           links.map((link) => (
@@ -42,7 +42,7 @@ const langs = [
       </ul>
     </nav>
 
-    <div class="nav__end">
+    <div class="nav__end" data-provision="nav.controls">
       <div class="nav__lang" role="group" aria-label="Langue / Language">
         {
           langs.map((l) =>

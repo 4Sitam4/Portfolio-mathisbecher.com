@@ -19,23 +19,23 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
 
   <div class="container hero__grid">
     <div class="hero__text">
-      <p class="hero__prompt mono" data-hero>
+      <p class="hero__prompt mono" data-hero data-provision="hero.prompt">
         <span class="hero__prompt-sign">$</span> whoami
       </p>
 
-      <h1 class="hero__name" aria-label="Mathis Becher">
+      <h1 class="hero__name" aria-label="Mathis Becher" data-provision="hero.name">
         <span data-decrypt aria-hidden="true">Mathis Becher</span>
       </h1>
 
-      <p class="hero__role mono" data-hero>
+      <p class="hero__role mono" data-hero data-provision="hero.role">
         {t('hero.role')}<span class="cursor-blink" aria-hidden="true"></span>
       </p>
 
-      <p class="hero__tagline" data-hero>{t('hero.tagline')}</p>
+      <p class="hero__tagline" data-hero data-provision="hero.tagline">{t('hero.tagline')}</p>
 
-      <p class="hero__status" data-hero>{t('hero.status')}</p>
+      <p class="hero__status" data-hero data-provision="hero.status">{t('hero.status')}</p>
 
-      <div class="hero__actions" data-hero>
+      <div class="hero__actions" data-hero data-provision="hero.actions">
         <a href="#projects" class="btn btn--primary">{t('hero.cta.projects')}</a>
         <a href="#terminal" class="btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -46,7 +46,7 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
       </div>
     </div>
 
-    <figure class="hero__visual" data-hero>
+    <figure class="hero__visual" data-hero data-provision="hero.trace">
       <Window title={`curl -sI mathisbecher.com — ${t('trace.title')}`} class="trace">
         <span slot="status" class="trace__state">
           <span class="live-dot" data-state="pending" id="trace-dot"></span>

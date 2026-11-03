@@ -57,6 +57,6 @@
       else rain.start();
     });
 
-    window.addEventListener('matrix:boost', () => rain.boost());
+    window.addEventListener('matrix:boost', (e) => rain.boost((e as CustomEvent<number | undefined>).detail));
   }
 </script>

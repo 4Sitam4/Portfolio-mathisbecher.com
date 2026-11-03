@@ -13,16 +13,16 @@ const t = useTranslations(lang);
 
 <section id="about" class="section">
   <div class="container">
-    <SectionHeading title={t('about.title')} />
+    <SectionHeading title={t('about.title')} name="about" />
 
     <div class="about">
-      <div class="about__text">
+      <div class="about__text" data-provision="about.bio">
         <p class="about__lead">{t('about.p1')}</p>
         <p>{t('about.p2')}</p>
         <p>{t('about.p3')}</p>
       </div>
 
-      <Window title="whoami.yaml" class="about__card">
+      <Window title="whoami.yaml" class="about__card" provision="about.whoami">
         <pre class="about__code"><code><span class="k">name</span>: Mathis Becher
 <span class="k">role</span>: cloud_infrastructure_engineer
 <span class="k">company</span>: open-lake-technology

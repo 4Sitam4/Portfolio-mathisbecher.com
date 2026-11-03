@@ -59,39 +59,59 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
   }
 </style>
 
+
 <script>
+  /**
+   * Boot sequence (first visit of the session): the homelab comes up, then
+   * `terraform apply` is typed and the overlay fades into the page being
+   * provisioned (provision.ts). A key or a click skips everything.
+   */
   const boot = document.getElementById('boot');
   const log = document.getElementById('boot-log');
 
   const LINES_FR = [
-    ['ok', 'BIOS mathisbecher.com v2.0 — POST........... OK'],
-    ['ok', 'Démarrage de proxmox-cluster.service'],
-    ['ok', 'Démarrage de truenas-scale.service'],
-    ['ok', 'Réseau actif — liaison 10 Gbps établie'],
-    ['ok', 'Montage de /dev/compétences (terraform, azure, docker)'],
-    ['ok', 'Extraction du container : portfolio:latest'],
-    ['ok', 'nginx démarré — servi depuis le homelab'],
-    ['dim', ''],
-    ['dim', 'Bienvenue, visiteur·euse.'],
-  ] as const;
+    'BIOS mathisbecher.com v2.0 — POST........... OK',
+    'Démarrage de proxmox-cluster.service',
+    'Démarrage de truenas-scale.service',
+    'Réseau actif — liaison 10 Gbps établie',
+    'Montage de /dev/compétences (terraform, azure, docker)',
+    'Extraction du container : portfolio:latest',
+    'nginx démarré — servi depuis le homelab',
+  ];
 
   const LINES_EN = [
-    ['ok', 'BIOS mathisbecher.com v2.0 — POST........... OK'],
-    ['ok', 'Starting proxmox-cluster.service'],
-    ['ok', 'Starting truenas-scale.service'],
-    ['ok', 'Network up — 10 Gbps link established'],
-    ['ok', 'Mounting /dev/skills (terraform, azure, docker)'],
-    ['ok', 'Pulling container: portfolio:latest'],
-    ['ok', 'nginx started — serving from the homelab'],
-    ['dim', ''],
-    ['dim', 'Welcome, visitor.'],
-  ] as const;
+    'BIOS mathisbecher.com v2.0 — POST........... OK',
+    'Starting proxmox-cluster.service',
+    'Starting truenas-scale.service',
+    'Network up — 10 Gbps link established',
+    'Mounting /dev/skills (terraform, azure, docker)',
+    'Pulling container: portfolio:latest',
+    'nginx started — serving from the homelab',
+  ];
 
-  function finish(): void {
-    sessionStorage.setItem('mb-booted', '1');
+  const COMMAND = 'terraform apply -auto-approve';
+
+  function line(cls: string, ...parts: (string | Node)[]): HTMLElement {
+    const span = document.createElement('span');
+    if (cls) span.className = cls;
+    span.append(...parts);
+    log!.append(span, document.createTextNode('\n'));
+    return span;
+  }
+
+  function tag(cls: string, text: string): HTMLElement {
+    const s = document.createElement('span');
+    s.className = cls;
+    s.textContent = text;
+    return s;
+  }
+
+  function finish(skipped: boolean): void {
+    try {
+      sessionStorage.setItem('mb-booted', '1');
+    } catch {}
     document.documentElement.dataset.booted = 'true';
-    boot?.remove();
-    window.dispatchEvent(new CustomEvent('boot:done'));
+    window.dispatchEvent(new CustomEvent('boot:done', { detail: { skipped } }));
   }
 
   if (document.documentElement.dataset.booted === 'true' || !boot || !log) {
@@ -99,51 +119,72 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
   } else {
     document.body.style.overflow = 'hidden';
     const lines = document.documentElement.lang === 'fr' ? LINES_FR : LINES_EN;
-    let index = 0;
+    const resources = document.querySelectorAll('[data-provision]').length;
     let timer = 0;
     let done = false;
 
-    const end = (e?: Event) => {
-      // The skip keystroke must not also scroll the page (Space, arrows…).
-      if (e instanceof KeyboardEvent) e.preventDefault();
+    const end = (skipped: boolean) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', end);
-      finish();
+      window.removeEventListener('keydown', onKey);
       // The scroll lock swallowed any #anchor navigation — replay it now.
-      if (location.hash) {
-        document.querySelector(location.hash)?.scrollIntoView();
-      }
+      if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+      // The page starts building underneath while the overlay fades away.
+      boot.style.transition = skipped ? 'none' : 'opacity 450ms cubic-bezier(0.22, 1, 0.36, 1)';
+      boot.style.opacity = '0';
+      boot.style.pointerEvents = 'none';
+      finish(skipped);
+      window.setTimeout(() => boot.remove(), skipped ? 0 : 500);
     };
 
+    // The skip keystroke must not also scroll the page (Space, arrows…).
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') return;
+      e.preventDefault();
+      end(true);
+    };
+
+    const after = (ms: number, fn: () => void) => {
+      timer = window.setTimeout(fn, ms);
+    };
+
+    const plan = () => {
+      line('', tag('dim', `Plan: `), tag('ok', `${resources} to add`), tag('dim', ', 0 to change, 0 to destroy.'));
+      after(250, () => {
+        line('dim', 'Applying…');
+        after(350, () => end(false));
+      });
+    };
+
+    const typeCommand = () => {
+      line('');
+      const prompt = line('', tag('ok', 'visitor@homelab'), tag('dim', ':~$ '));
+      const typed = document.createElement('span');
+      prompt.append(typed);
+      let i = 0;
+      const step = () => {
+        typed.textContent = COMMAND.slice(0, ++i);
+        if (i < COMMAND.length) after(18 + Math.random() * 30, step);
+        else after(220, plan);
+      };
+      after(200, step);
+    };
+
+    let index = 0;
     const next = () => {
-      if (index >= lines.length) {
-        timer = window.setTimeout(end, 450);
-        return;
-      }
-      const [cls, text] = lines[index]!;
-      const span = document.createElement('span');
-      if (cls === 'ok') {
-        const okTag = document.createElement('span');
-        okTag.className = 'ok';
-        okTag.textContent = '[  OK  ] ';
-        span.append(okTag, text);
-      } else {
-        span.className = cls;
-        span.textContent = text;
-      }
-      log.append(span, document.createTextNode('\n'));
+      if (index >= lines.length) return typeCommand();
+      line('', tag('ok', '[  OK  ] '), lines[index]!);
       index++;
-      timer = window.setTimeout(next, 90 + Math.random() * 160);
+      after(55 + Math.random() * 90, next);
     };
 
-    boot.addEventListener('click', end);
-    window.addEventListener('keydown', end);
+    boot.addEventListener('click', () => end(true));
+    window.addEventListener('keydown', onKey);
     next();
 
-    // Hard cap: never hold the visitor hostage for more than 4s.
-    window.setTimeout(end, 4000);
+    // Hard cap: never hold the visitor hostage for more than 5s.
+    window.setTimeout(() => end(false), 5000);
   }
 </script>

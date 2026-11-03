@@ -12,14 +12,14 @@ const t = useTranslations(lang);
 
 <section id="experience" class="section">
   <div class="container">
-    <SectionHeading title={t('xp.title')} />
+    <SectionHeading title={t('xp.title')} name="experience" />
 
     <ol class="xp">
       {
         timeline.map((entry, i) => {
           const current = i === 0;
           return (
-            <li class:list={['xp__item', current && 'is-current']}>
+            <li class:list={['xp__item', current && 'is-current']} data-provision={`experience.entry[${i}]`}>
               <div class="xp__when mono">
                 <span class="xp__period num">{entry.period[lang]}</span>
                 <span class="xp__type">

@@ -1,0 +1,237 @@
+/* ==========================================================================
+   "terraform apply" intro — see src/scripts/provision.ts
+   ========================================================================== */
+
+/* Before first paint (class set in Base.astro), then per element. */
+.pv [data-provision],
+[data-pv='pending'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media print {
+  .pv [data-provision],
+  [data-pv='pending'] {
+    opacity: 1;
+  }
+}
+
+/* Overlay drawn over the document while resources are being built. */
+.pv-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: calc(var(--z-nav) + 1);
+}
+
+.pv-guide {
+  position: absolute;
+  opacity: 0;
+  background: rgba(0, 255, 157, 0.28);
+}
+
+.pv-guide--x {
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform-origin: left center;
+}
+
+.pv-guide--y {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform-origin: center top;
+}
+
+.pv-frame {
+  position: absolute;
+  opacity: 0;
+}
+
+.pv-frame__box {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--accent);
+  background: rgba(0, 255, 157, 0.04);
+}
+
+.pv-frame__tag,
+.pv-frame__dims {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.pv-frame__tag {
+  left: -1px;
+  bottom: 100%;
+  margin-bottom: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.pv-frame__dims {
+  left: 50%;
+  top: 100%;
+  margin-top: 4px;
+  transform: translateX(-50%);
+  background: var(--raised);
+  color: var(--text-2);
+  border: 1px solid var(--line-strong);
+}
+
+.pv-frame--flip .pv-frame__tag {
+  top: 100%;
+  bottom: auto;
+  margin: 4px 0 0;
+}
+
+.pv-frame--flip .pv-frame__dims {
+  left: auto;
+  right: -1px;
+  transform: none;
+}
+
+.pv-frame__handle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+}
+
+.pv-frame__handle--tl {
+  top: -3px;
+  left: -3px;
+}
+
+.pv-frame__handle--tr {
+  top: -3px;
+  right: -3px;
+}
+
+.pv-frame__handle--bl {
+  bottom: -3px;
+  left: -3px;
+}
+
+.pv-frame__handle--br {
+  bottom: -3px;
+  right: -3px;
+}
+
+.pv-agent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: -2px 0 0 -2px; /* the arrow tip sits on the point */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  will-change: transform;
+}
+
+/* --- Status bar ------------------------------------------------------------ */
+
+.pv-status {
+  position: fixed;
+  left: 50%;
+  bottom: var(--s-4);
+  z-index: calc(var(--z-nav) + 2);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: max-content;
+  max-width: calc(100% - 2 * var(--s-4));
+  height: 2.75rem;
+  padding: 0 var(--s-2) 0 var(--s-4);
+  translate: -50% 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  background: rgba(12, 18, 15, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+}
+
+.pv-status[hidden] {
+  display: none;
+}
+
+.pv-status__dots {
+  display: flex;
+  gap: 4px;
+}
+
+.pv-status__dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--raised);
+  border: 1px solid var(--line-strong);
+  transition: background-color var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
+}
+
+.pv-status__dots i.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pv-status__cmd {
+  color: var(--text);
+}
+
+.pv-status__msg {
+  min-width: 0;
+  max-width: 34rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pv-status.is-complete .pv-status__msg {
+  color: var(--accent);
+}
+
+.pv-status__count,
+.pv-status__time {
+  color: var(--text-3);
+}
+
+.pv-status__btn {
+  height: 2rem;
+  padding: 0 var(--s-3);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.pv-status__btn:hover {
+  background: #18221d;
+}
+
+@media (max-width: 640px) {
+  .pv-status {
+    gap: var(--s-2);
+  }
+
+  .pv-status__cmd,
+  .pv-status__time {
+    display: none;
+  }
+}
