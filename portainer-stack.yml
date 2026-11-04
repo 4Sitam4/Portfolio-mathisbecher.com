@@ -1,12 +1,12 @@
 # Généré par la CI depuis main (portainer-stack.yml) : ne pas modifier ici.
-# Image épinglée sur le build de main 559e4e4.
+# Image épinglée sur le build de main dd5b2c1.
 
 # Stack de référence. La CI en publie une copie sur la branche `deploy`, avec
 # l'image de chaque build épinglée (sha-xxxxxxx@sha256:…) : c'est cette branche
 # que suit la stack Portainer. Garder ici `:latest` sur la ligne image.
 services:
   portfolio:
-    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:sha-559e4e4@sha256:85c27f8a985c9e492a75f30739c305089c45a47b9545a74aa350f1ba34d23c59
+    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:sha-dd5b2c1@sha256:19976e0fdf45f6e3a3becee7fcce0dc32ff8b79cec0aca3f81f3e4368c407da7
     container_name: portfolio
     restart: unless-stopped
     security_opt:
