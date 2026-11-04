@@ -205,29 +205,26 @@
   background: linear-gradient(to top, rgba(0, 255, 157, 0.14), transparent);
 }
 
-/* Chromatic flicker once a resource is up (palette colors only). */
+/* Chromatic flicker (palette colors only). No transform: the element must
+   not move, or it can cross the zone edge and retrigger itself. */
 .pv-glitch {
   animation: pv-glitch var(--pv-glitch-dur, 320ms) steps(1) 1;
 }
 
 @keyframes pv-glitch {
   0% {
-    transform: translate(2px, 0);
     text-shadow: -2px 0 rgba(0, 255, 157, 0.7), 2px 0 rgba(228, 237, 232, 0.45);
   }
   25% {
-    transform: translate(-2px, 1px);
     text-shadow: 2px 0 rgba(0, 255, 157, 0.7), -2px 0 rgba(127, 149, 139, 0.6);
     clip-path: inset(12% 0 38% 0);
   }
   50% {
-    transform: translate(1px, -1px);
     text-shadow: -1px 0 rgba(0, 255, 157, 0.6);
     clip-path: inset(48% 0 6% 0);
   }
   75%,
   100% {
-    transform: none;
     text-shadow: none;
     clip-path: none;
   }

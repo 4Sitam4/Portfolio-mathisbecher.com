@@ -32,8 +32,14 @@ import {
 
 type State = 'pending' | 'building' | 'done' | 'destroying';
 
-/** The active zone: the viewport minus a thin band at the top and bottom. */
-const ZONE_MARGIN = 0.06;
+/**
+ * The active zone, with hysteresis so a resource sitting on the edge never
+ * flips back and forth: it is built once it is 12 % inside the viewport,
+ * and destroyed only once it is out past the 6 % line. Changing state
+ * takes a real scroll of ~6 % of the screen height.
+ */
+const ENTER_MARGIN = 0.12;
+const LEAVE_MARGIN = 0.06;
 
 /* --- timing (seconds) ----------------------------------------------------- */
 const T_REACH = 0.35; // agent flies to the top-left corner
@@ -59,26 +65,29 @@ const setState = (el: HTMLElement, s: State): void => void (el.dataset.pv = s);
 /** The fixed side nav follows its own open/close cycle, not the scroll. */
 const pinned = (el: HTMLElement): boolean => el.closest('.nav') !== null;
 
-/** Zone edges in px from the top and bottom of the viewport. */
-function zoneInsets(): { top: number; bottom: number } {
-  const band = Math.round(window.innerHeight * ZONE_MARGIN);
-  return { top: band, bottom: band };
-}
+/** IntersectionObserver rootMargin for a band of `margin` × viewport height. */
+const zoneMargin = (margin: number): string => {
+  const band = Math.round(window.innerHeight * margin);
+  return `-${band}px 0px -${band}px 0px`;
+};
 
-/** Same test as the observer's zone, for decisions made before it reports. */
+/** Inside the enter zone now, for decisions made before the observers report. */
 function inZoneNow(el: HTMLElement): boolean {
   const r = el.getBoundingClientRect();
-  const z = zoneInsets();
-  return r.bottom > z.top && r.top < window.innerHeight - z.bottom;
+  const band = window.innerHeight * ENTER_MARGIN;
+  return r.bottom > band && r.top < window.innerHeight - band;
 }
 
 export class Provisioner {
   private readonly targets: HTMLElement[];
   private readonly running = new Set<gsap.core.Timeline>();
   private readonly destroying = new Map<HTMLElement, { tl: gsap.core.Timeline; layer: HTMLElement; done: () => void }>();
-  /** Last zone status reported by the observer, per element. */
+  /** Whether each resource is still within the leave line (true once it entered). */
   private readonly zone = new Map<HTMLElement, boolean>();
-  private readonly observer: IntersectionObserver;
+  /** Fires when a resource gets 12 % inside: build (or restore). */
+  private readonly enterObserver: IntersectionObserver;
+  /** Fires when a resource gets past the 6 % line: destroy. */
+  private readonly leaveObserver: IntersectionObserver;
   /** Resets resources that end up fully off screen without a zone exit. */
   private readonly offscreen = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -94,17 +103,27 @@ export class Provisioner {
 
   constructor() {
     this.targets = [...document.querySelectorAll<HTMLElement>('[data-provision]')];
-    const z = zoneInsets();
-    this.observer = new IntersectionObserver(
+    this.enterObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
           const el = entry.target as HTMLElement;
-          this.zone.set(el, entry.isIntersecting);
-          if (entry.isIntersecting) this.onEnter(el);
-          else this.onLeave(el);
+          this.zone.set(el, true);
+          this.onEnter(el);
         }
       },
-      { rootMargin: `-${z.top}px 0px -${z.bottom}px 0px` }
+      { rootMargin: zoneMargin(ENTER_MARGIN) }
+    );
+    this.leaveObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          this.zone.set(el, false);
+          this.onLeave(el);
+        }
+      },
+      { rootMargin: zoneMargin(LEAVE_MARGIN) }
     );
   }
 
@@ -182,7 +201,8 @@ export class Provisioner {
     this.observing = true;
     for (const el of this.targets) {
       if (pinned(el)) continue;
-      this.observer.observe(el);
+      this.enterObserver.observe(el);
+      this.leaveObserver.observe(el);
       this.offscreen.observe(el);
     }
   }
