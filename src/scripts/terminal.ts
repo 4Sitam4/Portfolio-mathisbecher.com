@@ -12,7 +12,7 @@ import { easterEggs } from './term/eggs';
 import type { Command, Io, Lang, Line } from './term/io';
 import { Nano } from './term/nano';
 import { tokenize } from './term/parse';
-import { NEOFETCH_LOGO, STR } from './term/strings';
+import { HELP_ALL, NEOFETCH_LOGO, STR } from './term/strings';
 import { FsError, HOME, VFS } from './term/vfs';
 
 const HISTORY_KEY = 'mb-term-history';
@@ -93,7 +93,19 @@ export function initTerminal(): void {
 
   const commands: Record<string, Command> = {
     ...easterEggs,
-    help: (_, io) => io.out([...s.help]),
+    help: (args, io) => {
+      if (!args.some((a) => a === '-a' || a === '--all')) return io.out([...s.help]);
+      const groups = HELP_ALL[lang];
+      const width = Math.max(...groups.flatMap((g) => g.items.map(([c]) => c.length))) + 2;
+      for (const g of groups) {
+        io.out({ text: g.title, cls: 'accent' });
+        io.out(g.items.map(([c, d]) => `  ${c.padEnd(width)}${d}`));
+      }
+      // Safety net: a command added later without a description still shows up.
+      const described = new Set(groups.flatMap((g) => g.items.flatMap(([c]) => c.split(/[\s·]+/))));
+      const missing = names.filter((n) => !described.has(n));
+      if (missing.length) io.out([{ text: lang === 'fr' ? 'autres' : 'other', cls: 'accent' }, `  ${missing.join('  ')}`]);
+    },
     whoami: (_, io) => io.out([...s.whoami]),
 
     ls: (args, io) => {
@@ -346,7 +358,7 @@ export function initTerminal(): void {
       e.preventDefault();
       const result = complete(input.value, {
         commands: names,
-        subcommands: { terraform: ['apply', 'destroy', 'plan'], docker: ['ps'], kubectl: ['get'], uname: ['-a'] },
+        subcommands: { help: ['-a', '--all'], terraform: ['apply', 'destroy', 'plan'], docker: ['ps'], kubectl: ['get'], uname: ['-a'] },
         dirsOnly: ['cd'],
         list: (typedDir) => {
           try {
