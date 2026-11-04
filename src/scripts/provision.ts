@@ -29,6 +29,7 @@ import {
   sweep,
   trail,
 } from './provision-dom';
+import { ScrollSpeed } from './scroll-speed';
 
 type State = 'pending' | 'building' | 'done' | 'destroying';
 
@@ -94,6 +95,10 @@ export class Provisioner {
   private intro: gsap.core.Timeline | null = null;
   private introCleanup: (() => void) | null = null;
   private observing = false;
+  /** Scroll velocity, which speeds up the scroll effects. */
+  private readonly speed = new ScrollSpeed();
+  /** Builds and destroys driven by the scroll, sped up live with it. */
+  private readonly scrollRuns = new Set<gsap.core.Timeline>();
 
   constructor() {
     this.targets = [...document.querySelectorAll<HTMLElement>('[data-provision]')];
@@ -153,7 +158,7 @@ export class Provisioner {
         build.push(el);
       }
     }
-    if (build.length) this.navRun = this.run(build, { stagger: 0.07, from: 'left', intro: false, fixed: true });
+    if (build.length) this.navRun = this.run(build, { stagger: 0.05, from: 'left', intro: false, fixed: true });
   }
 
   /** The nav is closing: destroy its items; resolves once they are gone. */
@@ -179,7 +184,14 @@ export class Provisioner {
         this.track();
       });
     };
-    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener(
+      'scroll',
+      () => {
+        this.speed.sample();
+        schedule();
+      },
+      { passive: true }
+    );
     window.addEventListener('resize', schedule);
     // Layout can move without scrolling (nav push, terminal output, fonts).
     new ResizeObserver(schedule).observe(document.body);
@@ -202,6 +214,9 @@ export class Provisioner {
       // Fully off screen without a visible exit: reset quietly.
       if (!w.visible && stateOf(el) === 'done' && this.zone.get(el) === false) setState(el, 'pending');
     }
+    // Effects already running catch up with a faster scroll (never slow down mid-way).
+    const target = SPEED * this.speed.boost();
+    for (const tl of this.scrollRuns) if (tl.timeScale() < target) tl.timeScale(target);
   }
 
   private onEnter(el: HTMLElement): void {
@@ -228,7 +243,7 @@ export class Provisioner {
       const batch = [...new Set(this.queue)].filter((t) => stateOf(t) === 'pending' && this.zone.get(t));
       this.queue = [];
       if (batch.length) this.run(batch, { stagger: 0.12, from: 'left', intro: false });
-    }, 60);
+    }, this.speed.boost() > 1.5 ? 0 : 60);
   }
 
   /* --- apply -------------------------------------------------------------- */
@@ -265,6 +280,7 @@ export class Provisioner {
       onComplete: () => {
         layer.remove();
         this.running.delete(tl);
+        this.scrollRuns.delete(tl);
         if (o.intro) {
           this.introCleanup?.();
           this.introCleanup = null;
@@ -273,8 +289,10 @@ export class Provisioner {
       },
     });
     this.running.add(tl);
-    const speed = o.fixed ? NAV_SPEED : SPEED;
-    tl.timeScale(speed);
+    // The nav is drawn light: no agents, no guides, no dimensions, no glitch.
+    const lite = Boolean(o.fixed);
+    if (!lite && !o.intro) this.scrollRuns.add(tl);
+    tl.timeScale(lite ? NAV_SPEED : o.intro ? SPEED : SPEED * this.speed.boost());
 
     // Hidden or collapsed resources (e.g. the closed mobile menu) are done at once.
     const visible = list.filter((el) => {
@@ -284,7 +302,7 @@ export class Provisioner {
     });
     visible.forEach((el) => setState(el, 'building'));
 
-    const squad = Math.max(1, Math.min(visible.length, Math.ceil(AGENT_BUSY / o.stagger) + 1));
+    const squad = lite ? 0 : Math.max(1, Math.min(visible.length, Math.ceil(AGENT_BUSY / o.stagger) + 1));
     const agents = Array.from({ length: squad }, (_, i) => createAgent(layer, i));
     const trails = agents.map((a) => trail(a, layer));
     const vw = window.innerWidth;
@@ -302,28 +320,30 @@ export class Provisioner {
     visible.forEach((el, i) => {
       const box = boxOf(el, o.fixed);
       const name = el.dataset.provision ?? 'resource';
-      const { frame, sel, marks, gx, gy } = createFrame(layer, box, `module.${name}`);
+      const { frame, sel, marks, guides } = createFrame(layer, box, `module.${name}`, '', { guides: !lite, dims: !lite });
       const scan = createScan(layer, box);
-      const a = i % squad;
-      const agent = agents[a]!;
-      const onUpdate = trails[a]!;
       const t0 = i * o.stagger;
-      const tDrag = t0 + T_REACH;
-      const tFill = tDrag + T_DRAG;
+      // Light style: the frame opens on its own, at once.
+      const tDrag = lite ? t0 : t0 + T_REACH;
+      const tFill = lite ? tDrag + T_DRAG * 0.6 : tDrag + T_DRAG;
+      const a = squad ? i % squad : -1;
+      const agent = agents[a];
+      const onUpdate = trails[a];
 
-      tl.to(agent, { x: box.x, y: box.y, duration: T_REACH, ease: 'power3.inOut', onUpdate }, t0);
+      if (agent) tl.to(agent, { x: box.x, y: box.y, duration: T_REACH, ease: 'power3.inOut', onUpdate }, t0);
       // The selection is dragged open by the agent.
       tl.set(frame, { opacity: 1 }, tDrag);
       tl.fromTo(
         sel,
         { clipPath: 'inset(0% 100% 100% 0%)' },
-        { clipPath: 'inset(0% 0% 0% 0%)', duration: T_DRAG, ease: 'power2.inOut' },
+        { clipPath: 'inset(0% 0% 0% 0%)', duration: lite ? T_DRAG * 0.6 : T_DRAG, ease: 'power2.inOut' },
         tDrag
       );
-      tl.to(agent, { x: box.x + box.w, y: box.y + box.h, duration: T_DRAG, ease: 'power2.inOut', onUpdate }, tDrag);
+      if (agent) tl.to(agent, { x: box.x + box.w, y: box.y + box.h, duration: T_DRAG, ease: 'power2.inOut', onUpdate }, tDrag);
       tl.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.15, stagger: 0.02 }, tDrag + T_DRAG * 0.6);
-      tl.fromTo(gx, { opacity: 0.9, scaleX: 0 }, { scaleX: 1, duration: T_DRAG, ease: 'power2.out', immediateRender: false }, tDrag);
-      tl.fromTo(gy, { opacity: 0.9, scaleY: 0 }, { scaleY: 1, duration: T_DRAG, ease: 'power2.out', immediateRender: false }, tDrag);
+      const [gx, gy] = guides;
+      if (gx) tl.fromTo(gx, { opacity: 0.9, scaleX: 0 }, { scaleX: 1, duration: T_DRAG, ease: 'power2.out', immediateRender: false }, tDrag);
+      if (gy) tl.fromTo(gy, { opacity: 0.9, scaleY: 0 }, { scaleY: 1, duration: T_DRAG, ease: 'power2.out', immediateRender: false }, tDrag);
 
       // The resource comes up under a scan line, then flickers into place.
       tl.call(() => this.complete(el, true), [], tFill);
@@ -335,13 +355,13 @@ export class Provisioner {
       );
       tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_FILL, ease: 'power2.inOut', immediateRender: false }, tFill);
       tl.to(scan, { opacity: 0, duration: 0.15 }, tFill + T_FILL);
-      tl.call(() => glitch(el, speed), [], tFill + T_FILL);
-      tl.to([frame, gx, gy], { opacity: 0, duration: T_OUT, ease: 'power1.in' }, tFill + T_FILL + T_HOLD);
+      if (!lite) tl.call(() => glitch(el, tl.timeScale()), [], tFill + T_FILL);
+      tl.to([frame, ...guides], { opacity: 0, duration: T_OUT, ease: 'power1.in' }, tFill + T_FILL + (lite ? 0.1 : T_HOLD));
     });
 
     // The squad leaves once its last resource is up.
     const end = (visible.length - 1) * o.stagger + T_REACH + T_DRAG + 0.2;
-    tl.to(agents, { opacity: 0, duration: 0.3, stagger: 0.03 }, Math.max(0, end));
+    if (agents.length) tl.to(agents, { opacity: 0, duration: 0.3, stagger: 0.03 }, Math.max(0, end));
     return tl;
   }
 
@@ -358,11 +378,16 @@ export class Provisioner {
     const fixed = pinned(el);
     const layer = createLayer(fixed, fixed);
     const box = boxOf(el, fixed);
-    const { frame, marks } = createFrame(layer, box, `module.${el.dataset.provision}: Destroying...`, 'pv-frame--destroy');
+    const lite = fixed; // the nav: no dimensions, no glitch
+    const { frame, marks } = createFrame(layer, box, `module.${el.dataset.provision}: Destroying...`, 'pv-frame--destroy', {
+      guides: false,
+      dims: !lite,
+    });
     const scan = createScan(layer, box);
     scan.classList.add('pv-scan--destroy');
-    const speed = fixed ? NAV_SPEED : SPEED;
-    glitch(el, speed);
+    const speed = lite ? NAV_SPEED : SPEED * this.speed.boost();
+    if (!lite) glitch(el, speed);
+    const tErase = lite ? 0.05 : T_GLITCH;
 
     let done!: () => void;
     const gone = new Promise<void>((resolve) => (done = resolve));
@@ -370,17 +395,19 @@ export class Provisioner {
       onComplete: () => {
         layer.remove();
         this.destroying.delete(el);
+        this.scrollRuns.delete(tl);
         gsap.set(el, { clearProps: 'clipPath' });
         setState(el, 'pending');
         done();
       },
     });
     tl.timeScale(speed);
+    if (!lite) this.scrollRuns.add(tl);
     tl.set(frame, { opacity: 1 });
     tl.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.12 }, 0);
-    tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(100% 0% 0% 0%)', duration: T_ERASE, ease: 'power2.in' }, T_GLITCH);
-    tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_ERASE, ease: 'power2.in', immediateRender: false }, T_GLITCH);
-    tl.to([frame, scan], { opacity: 0, duration: 0.25 }, T_GLITCH + T_ERASE);
+    tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(100% 0% 0% 0%)', duration: T_ERASE, ease: 'power2.in' }, tErase);
+    tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_ERASE, ease: 'power2.in', immediateRender: false }, tErase);
+    tl.to([frame, scan], { opacity: 0, duration: 0.25 }, tErase + T_ERASE);
     this.destroying.set(el, { tl, layer, done });
     return gone;
   }
@@ -391,6 +418,7 @@ export class Provisioner {
     d.tl.kill();
     d.layer.remove();
     this.destroying.delete(el);
+    this.scrollRuns.delete(d.tl);
     gsap.set(el, { clearProps: 'clipPath' });
     d.done();
   }

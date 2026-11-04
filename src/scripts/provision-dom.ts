@@ -9,8 +9,8 @@ import gsap from 'gsap';
 
 /** Playback speed of the effects (1 = the original timings). */
 export const SPEED = 1.25;
-/** The side nav is snappier still. */
-export const NAV_SPEED = 1.5;
+/** The side nav is snappier still (and drawn in a lighter style). */
+export const NAV_SPEED = 2.2;
 
 const GLITCH_MS = 320; // base length of the .pv-glitch animation
 
@@ -95,23 +95,34 @@ export interface Frame {
   frame: HTMLElement;
   sel: HTMLElement;
   marks: HTMLElement[];
-  gx: HTMLElement;
-  gy: HTMLElement;
+  /** guides across the page — absent in the light style */
+  guides: HTMLElement[];
+}
+
+export interface FrameOptions {
+  /** full-width/height guide lines (default true) */
+  guides?: boolean;
+  /** the "w × h" label (default true) */
+  dims?: boolean;
 }
 
 /** Selection frame with resource tag, dimensions, handles and guides. */
-export function createFrame(layer: HTMLElement, box: Box, tagText: string, variant = ''): Frame {
-  const gx = h('div', 'pv-guide pv-guide--x', layer);
-  gx.style.top = `${box.y}px`;
-  const gy = h('div', 'pv-guide pv-guide--y', layer);
-  gy.style.left = `${box.x}px`;
+export function createFrame(layer: HTMLElement, box: Box, tagText: string, variant = '', opts: FrameOptions = {}): Frame {
+  const guides: HTMLElement[] = [];
+  if (opts.guides !== false) {
+    const gx = h('div', 'pv-guide pv-guide--x', layer);
+    gx.style.top = `${box.y}px`;
+    const gy = h('div', 'pv-guide pv-guide--y', layer);
+    gy.style.left = `${box.x}px`;
+    guides.push(gx, gy);
+  }
 
   // Near the top of the page there is no room above: labels go underneath,
   // side by side — so the dimensions are dropped when both would not fit.
   const flip = box.y < 24;
   const dimsText = `${Math.round(box.w)} × ${Math.round(box.h)}`;
   const LABEL_CH = 6.2; // px per character of the 10px mono labels
-  const showDims = !flip || box.w > (tagText.length + dimsText.length) * LABEL_CH + 24;
+  const showDims = opts.dims !== false && (!flip || box.w > (tagText.length + dimsText.length) * LABEL_CH + 24);
   const frame = h('div', ['pv-frame', flip && 'pv-frame--flip', variant].filter(Boolean).join(' '), layer);
   Object.assign(frame.style, { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` });
   // The box is clipped while it is dragged open; the labels and handles sit
@@ -122,7 +133,7 @@ export function createFrame(layer: HTMLElement, box: Box, tagText: string, varia
     ...(showDims ? [h('span', 'pv-frame__dims', frame, dimsText)] : []),
     ...['tl', 'tr', 'bl', 'br'].map((c) => h('i', `pv-frame__handle pv-frame__handle--${c}`, frame)),
   ];
-  return { frame, sel, marks, gx, gy };
+  return { frame, sel, marks, guides };
 }
 
 /** A bright line sweeping down a box. Returns the line so a timeline can drive it. */
