@@ -89,8 +89,13 @@ const t = useTranslations(Astro.props.lang);
   button?.setAttribute('aria-pressed', String(calm));
   button?.addEventListener('click', () => {
     try {
-      if (calm) localStorage.removeItem(KEY);
-      else localStorage.setItem(KEY, '1');
+      if (calm) {
+        localStorage.removeItem(KEY);
+        // effects back on: skip the full-screen boot, we are already on the site
+        sessionStorage.setItem('mb-skip-boot', '1');
+      } else {
+        localStorage.setItem(KEY, '1');
+      }
     } catch {
       return; // storage blocked: the mode could not survive the reload
     }

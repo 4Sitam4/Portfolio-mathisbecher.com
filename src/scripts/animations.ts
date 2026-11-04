@@ -63,7 +63,14 @@ window.addEventListener('nav:closing', (e) => {
 window.addEventListener('provision:replay', () => provisioner?.replay());
 
 if (root.dataset.booted === 'true') {
-  startCalm();
+  // No boot screen: reduced motion / reading mode (calm), or effects just
+  // turned back on from reading mode (build without the boot).
+  if (provisioner && buildMode) {
+    provisioner.start();
+    startAmbient(provisioner);
+  } else {
+    startCalm();
+  }
 } else {
   // The boot overlay dispatches `boot:done`; a visitor who skipped it with a
   // key or a click wants the page now, not a show.

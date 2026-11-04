@@ -30,7 +30,7 @@ export const ui = {
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
-      "Je construis des **infrastructures cloud**, j'**automatise** tout ce qui peut l'être… et j'**auto-héberge le reste**.",
+      "Le jour, j'**automatise** des ==infrastructures cloud==. Le soir, j'**héberge les miennes** à la maison.",
     'hero.status': 'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027)',
     'hero.cta.projects': 'Mes projets',
     'hero.cta.terminal': 'Ouvrir le terminal',
@@ -132,7 +132,7 @@ export const ui = {
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
-      'I build **cloud infrastructure**, **automate** everything that can be automated… and **self-host the rest**.',
+      'By day, I **automate** ==cloud infrastructure==. By night, I **host my own** at home.',
     'hero.status': 'Apprentice at Open Lake Technology, student at Epitech (class of 2027)',
     'hero.cta.projects': 'My projects',
     'hero.cta.terminal': 'Open the terminal',

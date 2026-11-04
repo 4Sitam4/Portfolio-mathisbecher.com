@@ -93,6 +93,14 @@ const ogImage = new URL('/og.png', Astro.site).href;
           root.dataset.booted = 'true';
         } else {
           root.classList.add('pv');
+          // Leaving reading mode (ReadingMode.astro): the visitor is already
+          // on the site, so no boot screen, the page just builds itself again.
+          try {
+            if (sessionStorage.getItem('mb-skip-boot') === '1') {
+              sessionStorage.removeItem('mb-skip-boot');
+              root.dataset.booted = 'true';
+            }
+          } catch (e) {}
           setTimeout(function () {
             root.classList.remove('pv');
           }, 8000);
