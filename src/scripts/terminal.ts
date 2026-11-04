@@ -1,272 +1,387 @@
 /**
- * Interactive terminal: a small fake shell letting visitors explore the
- * portfolio (whoami, ls, cat, neofetch…) with a few easter eggs.
- * All output is inserted via textContent — user input is never parsed as HTML.
+ * Interactive terminal: a small shell over a virtual file system (term/vfs),
+ * with tab completion (term/complete), a nano editor (term/nano) and a few
+ * easter eggs (term/eggs). The visitor's files stay in their own browser.
+ * All output goes through textContent — input is never parsed as HTML.
  */
 
 import { fullscreenMatrixBurst } from './matrix';
-import { projects, contactLinks, skillGroups, timeline } from '../i18n/ui';
+import { complete } from './term/complete';
+import { seed } from './term/content';
+import { easterEggs } from './term/eggs';
+import type { Command, Io, Lang, Line } from './term/io';
+import { Nano } from './term/nano';
+import { tokenize } from './term/parse';
+import { NEOFETCH_LOGO, STR } from './term/strings';
+import { FsError, HOME, VFS } from './term/vfs';
 
-type Line = { text: string; cls?: 'accent' | 'error' | 'dim' | 'art' };
-
-const NEOFETCH_LOGO = String.raw`
- ███╗   ███╗ ██████╗
- ████╗ ████║ ██╔══██╗
- ██╔████╔██║ ██████╔╝
- ██║╚██╔╝██║ ██╔══██╗
- ██║ ╚═╝ ██║ ██████╔╝
- ╚═╝     ╚═╝ ╚═════╝`;
-
-const STR = {
-  fr: {
-    welcome: [
-      'mathisbecher.com — session invité ouverte.',
-      "tapez 'help' pour la liste des commandes.",
-    ],
-    help: [
-      'commandes disponibles :',
-      '  help          cette liste',
-      '  whoami        qui suis-je',
-      '  ls [dossier]  lister les fichiers',
-      '  cat <fichier> afficher un fichier',
-      '  neofetch      infos système',
-      '  projects      mes projets',
-      '  contact       me contacter',
-      '  lang          basculer FR ⇄ EN',
-      '  terraform apply  reconstruire la page',
-      '  matrix        ???',
-      '  clear         nettoyer l’écran',
-      '  exit          fermer la session',
-    ],
-    whoami: [
-      'Mathis Becher — Cloud Infrastructure Engineer.',
-      'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027).',
-      "Je monte des infras cloud le jour, et j'auto-héberge la nuit.",
-    ],
-    about:
-      "Passionné d'informatique, obsédé par l'indépendance numérique. Terraform, Azure, Docker, Proxmox — et un homelab en 10 Gbps pour héberger tout ça, y compris ce site.",
-    catUsage: 'usage : cat <fichier> — essayez : cat about.txt',
-    noSuchFile: (f: string) => `cat : ${f} : fichier introuvable`,
-    isDir: (d: string) => `cat : ${d} : est un dossier`,
-    notFound: (c: string) => `${c} : commande introuvable — essayez 'help'`,
-    sudo: 'permission refusée : bien tenté. ;)',
-    rmrf: ["suppression du homelab en cours…", '…', 'non. <3 vos données sont en sécurité (RAID + snapshots).'],
-    matrix: 'réveille-toi, Neo…',
-    exit: 'déconnexion. à bientôt.',
-    langSwitch: 'bascule vers la version anglaise…',
-    uptime: 'up depuis toujours (ou presque) — 99,9% de disponibilité homelab',
-  },
-  en: {
-    welcome: [
-      'mathisbecher.com — guest session opened.',
-      "type 'help' to list available commands.",
-    ],
-    help: [
-      'available commands:',
-      '  help          this list',
-      '  whoami        who am I',
-      '  ls [dir]      list files',
-      '  cat <file>    print a file',
-      '  neofetch      system info',
-      '  projects      my projects',
-      '  contact       reach me',
-      '  lang          switch FR ⇄ EN',
-      '  terraform apply  rebuild this page',
-      '  matrix        ???',
-      '  clear         clear the screen',
-      '  exit          close the session',
-    ],
-    whoami: [
-      'Mathis Becher — Cloud Infrastructure Engineer.',
-      'Apprentice at Open Lake Technology, student at Epitech (class of 2027).',
-      'I build cloud infrastructure by day, and self-host by night.',
-    ],
-    about:
-      'Passionate about computers, obsessed with digital independence. Terraform, Azure, Docker, Proxmox — plus a 10 Gbps homelab hosting all of it, including this very website.',
-    catUsage: 'usage: cat <file> — try: cat about.txt',
-    noSuchFile: (f: string) => `cat: ${f}: no such file`,
-    isDir: (d: string) => `cat: ${d}: is a directory`,
-    notFound: (c: string) => `${c}: command not found — try 'help'`,
-    sudo: 'permission denied: nice try. ;)',
-    rmrf: ['deleting homelab…', '…', 'no. <3 your data is safe (RAID + snapshots).'],
-    matrix: 'wake up, Neo…',
-    exit: 'logout. see you around.',
-    langSwitch: 'switching to the French version…',
-    uptime: 'up since forever (almost) — 99.9% homelab availability',
-  },
-} as const;
+const HISTORY_KEY = 'mb-term-history';
 
 export function initTerminal(): void {
   const output = document.getElementById('term-out');
   const input = document.getElementById('term-input') as HTMLInputElement | null;
   const body = document.getElementById('term-body');
   const windowEl = document.getElementById('term');
-  if (!output || !input || !body || !windowEl) return;
+  const cwdLabel = document.getElementById('term-cwd');
+  const nanoEl = document.getElementById('nano');
+  if (!output || !input || !body || !windowEl || !nanoEl) return;
 
-  const lang: 'fr' | 'en' = document.documentElement.lang === 'fr' ? 'fr' : 'en';
+  const lang: Lang = document.documentElement.lang === 'fr' ? 'fr' : 'en';
   const s = STR[lang];
-  const history: string[] = [];
-  let historyIndex = -1;
+  const fs = new VFS(seed(lang));
+  const nano = new Nano(nanoEl, lang);
+  let previousDir = HOME;
+  let lastTab = '';
 
-  const print = (lines: Line[] | string[]): void => {
-    for (const line of lines) {
-      const el = document.createElement('div');
-      const { text, cls } = typeof line === 'string' ? { text: line, cls: undefined } : line;
-      el.textContent = text || ' ';
-      if (cls) el.className = `term-line--${cls}`;
-      output.appendChild(el);
-    }
+  let history: string[] = [];
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]');
+    if (Array.isArray(saved)) history = saved.filter((h): h is string => typeof h === 'string').slice(-50);
+  } catch {}
+  let historyIndex = history.length;
+
+  /* --- output ----------------------------------------------------------------- */
+
+  const render = (line: Line): HTMLElement => {
+    const el = document.createElement('div');
+    const { text, cls } = typeof line === 'string' ? { text: line, cls: undefined } : line;
+    el.textContent = text || ' ';
+    if (cls) el.className = `term-line--${cls}`;
+    return el;
+  };
+  const print = (lines: Line | Line[]): void => {
+    for (const line of Array.isArray(lines) ? lines : [lines]) output.appendChild(render(line));
     body.scrollTop = body.scrollHeight;
   };
-
-  const echoCommand = (raw: string): void => {
-    print([{ text: `visitor@mathisbecher:~$ ${raw}`, cls: 'dim' }]);
-  };
-
-  const files: Record<string, () => Line[]> = {
-    'about.txt': () => [{ text: s.about }],
-    'contact.txt': () => [
-      { text: `mail     ${contactLinks.email}` },
-      { text: `github   ${contactLinks.github}` },
-      { text: `linkedin ${contactLinks.linkedin}` },
-    ],
-    'skills.json': () =>
-      JSON.stringify(
-        Object.fromEntries(skillGroups.map((g) => [g.key.replace('skills.', ''), g.items])),
-        null,
-        2
-      )
-        .split('\n')
-        .map((text) => ({ text }) as Line),
-    'experience.log': () =>
-      timeline
-        .filter((e) => e.type === 'work')
-        .map((e) => ({ text: `[${e.period[lang]}] ${e.title[lang]} @ ${e.org}` }) as Line),
-  };
-
-  const listProjects = (): Line[] =>
-    projects.map((p) => ({
-      text: `${p.name.padEnd(20)} ${p.description[lang]}`,
-    }));
-
-  const commands: Record<string, (args: string[]) => void> = {
-    help: () => print([...s.help]),
-    whoami: () => print([...s.whoami]),
-    ls: (args) => {
-      const dir = args[0]?.replace(/\/$/, '');
-      if (dir === 'projects') return print(listProjects());
-      if (dir === 'homelab')
-        return print(['proxmox-cluster/  truenas-scale/  switch-10gbe/  docker/']);
-      print(['about.txt  contact.txt  experience.log  skills.json  projects/  homelab/']);
+  const screen: Io = {
+    lang,
+    out: print,
+    live: () => {
+      const el = render('');
+      output.appendChild(el);
+      body.scrollTop = body.scrollHeight;
+      return el;
     },
-    cat: (args) => {
-      const file = args[0];
-      if (!file) return print([{ text: s.catUsage, cls: 'dim' }]);
-      if (file === 'projects' || file === 'homelab' || file === 'projects/' || file === 'homelab/')
-        return print([{ text: s.isDir(file), cls: 'error' }]);
-      const reader = files[file];
-      if (!reader) return print([{ text: s.noSuchFile(file), cls: 'error' }]);
-      print(reader());
+  };
+  const prompt = (): string => `visitor@mathisbecher:${fs.display(fs.cwd)}$`;
+  const title = windowEl.querySelector('.window__title');
+  const updatePrompt = (): void => {
+    const where = fs.display(fs.cwd);
+    if (cwdLabel) cwdLabel.textContent = `:${where}$`;
+    if (title) title.textContent = `visitor@mathisbecher.com: ${where}`;
+  };
+  const fail = (io: Io, cmd: string, e: unknown): void => {
+    if (e instanceof FsError) io.out({ text: `${cmd}: ${fs.display(e.path)}: ${s.errors[e.code]}`, cls: 'error' });
+    else throw e;
+  };
+  /** Run fn for each path, printing file-system errors like a real shell. */
+  const each = (io: Io, cmd: string, paths: string[], fn: (abs: string, raw: string) => void): void => {
+    for (const raw of paths) {
+      try {
+        fn(fs.resolve(raw), raw);
+      } catch (e) {
+        fail(io, cmd, e);
+      }
+    }
+  };
+  const flags = (args: string[]) => ({
+    opts: args.filter((a) => a.startsWith('-') && a.length > 1).join(''),
+    rest: args.filter((a) => !a.startsWith('-') || a === '-'),
+  });
+
+  /* --- commands ---------------------------------------------------------------- */
+
+  const commands: Record<string, Command> = {
+    ...easterEggs,
+    help: (_, io) => io.out([...s.help]),
+    whoami: (_, io) => io.out([...s.whoami]),
+
+    ls: (args, io) => {
+      const { opts, rest } = flags(args);
+      const targets = rest.length ? rest : ['.'];
+      each(io, 'ls', targets, (abs, raw) => {
+        const entries = fs.list(abs, opts.includes('a'));
+        if (targets.length > 1) io.out({ text: `${raw}:`, cls: 'dim' });
+        io.out(entries.map((e) => (e.dir ? `${e.name}/` : e.name)).join('  ') || ' ');
+      });
     },
-    projects: () => print(listProjects()),
-    contact: () => print(files['contact.txt']!()),
-    neofetch: () => {
-      print(NEOFETCH_LOGO.split('\n').map((text) => ({ text, cls: 'art' }) as Line));
-      print([
-        `visitor@mathisbecher.com`,
+    cd: (args, io) => {
+      const raw = args[0] === '-' ? previousDir : (args[0] ?? HOME);
+      try {
+        const abs = fs.resolve(raw);
+        if (!fs.get(abs)) throw new FsError('ENOENT', abs);
+        if (!fs.isDir(abs)) throw new FsError('ENOTDIR', abs);
+        previousDir = fs.cwd;
+        fs.cwd = abs;
+        updatePrompt();
+      } catch (e) {
+        fail(io, 'cd', e);
+      }
+    },
+    pwd: (_, io) => io.out(fs.cwd),
+    cat: (args, io) => {
+      if (!args.length) return io.out({ text: s.usage(lang === 'fr' ? 'cat <fichier>' : 'cat <file>'), cls: 'dim' });
+      // Like a real cat: a final newline does not show up as an extra empty line.
+      each(io, 'cat', args, (abs) => io.out(fs.read(abs).replace(/\n$/, '').split('\n')));
+    },
+    tree: (args, io) => {
+      const { opts, rest } = flags(args);
+      each(io, 'tree', [rest[0] ?? '.'], (abs) => io.out(fs.tree(abs, opts.includes('a'))));
+    },
+    mkdir: (args, io) => {
+      const { opts, rest } = flags(args);
+      if (!rest.length) return io.out({ text: s.usage('mkdir [-p] <dir>'), cls: 'dim' });
+      each(io, 'mkdir', rest, (abs) => fs.mkdir(abs, opts.includes('p')));
+    },
+    touch: (args, io) => {
+      if (!args.length) return io.out({ text: s.usage('touch <file>'), cls: 'dim' });
+      each(io, 'touch', args, (abs) => {
+        if (!fs.get(abs)) fs.write(abs, '');
+      });
+    },
+    rm: (args, io) => {
+      const { opts, rest } = flags(args);
+      if (!rest.length) return io.out({ text: s.usage('rm [-r] <path>'), cls: 'dim' });
+      // The classic: refuse to wipe everything, with style.
+      if (rest.some((p) => ['/', '~', '*', '/*', HOME].includes(p) || fs.resolve(p) === '/' || fs.resolve(p) === HOME)) {
+        return io.out([...s.rmrf]);
+      }
+      each(io, 'rm', rest, (abs) => fs.rm(abs, opts.includes('r') || opts.includes('R')));
+    },
+    mv: (args, io) => {
+      const [src, dst] = flags(args).rest;
+      if (!src || !dst) return io.out({ text: s.usage('mv <src> <dest>'), cls: 'dim' });
+      try {
+        fs.move(fs.resolve(src), fs.resolve(dst));
+      } catch (e) {
+        fail(io, 'mv', e);
+      }
+    },
+    cp: (args, io) => {
+      const { opts, rest } = flags(args);
+      const [src, dst] = rest;
+      if (!src || !dst) return io.out({ text: s.usage('cp [-r] <src> <dest>'), cls: 'dim' });
+      try {
+        const from = fs.resolve(src);
+        if (fs.isDir(from) && !opts.includes('r')) throw new FsError('EISDIR', from);
+        fs.copy(from, fs.resolve(dst));
+      } catch (e) {
+        fail(io, 'cp', e);
+      }
+    },
+    echo: (args, io) => io.out(args.join(' ')),
+    nano: (args, io) => {
+      if (!args[0]) return io.out({ text: s.usage('nano <file>'), cls: 'dim' });
+      const abs = fs.resolve(args[0]);
+      const node = fs.get(abs);
+      if (node?.type === 'dir') return fail(io, 'nano', new FsError('EISDIR', abs));
+      nano.open({
+        name: fs.display(abs),
+        content: node?.type === 'file' ? node.content : '',
+        isNew: !node,
+        save: (text) => {
+          try {
+            fs.write(abs, text);
+            return null;
+          } catch (e) {
+            return e instanceof FsError ? `[ ${fs.display(e.path)} : ${s.errors[e.code]} ]` : String(e);
+          }
+        },
+        close: () => {
+          input.focus({ preventScroll: true });
+          body.scrollTop = body.scrollHeight;
+        },
+      });
+    },
+    reset: (_, io) => {
+      fs.reset();
+      previousDir = HOME;
+      updatePrompt();
+      io.out({ text: s.reset, cls: 'accent' });
+    },
+
+    neofetch: (_, io) => {
+      io.out(NEOFETCH_LOGO.split('\n').map((text) => ({ text, cls: 'art' as const })));
+      io.out([
+        'visitor@mathisbecher.com',
         '─────────────────────────',
-        `OS:       Homelab Linux x86_64`,
-        `Host:     Proxmox VE cluster`,
-        `Storage:  TrueNAS Scale`,
-        `Network:  10 Gbps`,
-        `Shell:    astro 5 / gsap 3`,
+        'OS:       Homelab Linux x86_64',
+        'Host:     Proxmox VE cluster',
+        'Storage:  TrueNAS Scale',
+        'Network:  10 Gbps',
+        'Shell:    astro 7 / gsap 3',
         `Uptime:   ${s.uptime}`,
       ]);
     },
-    uptime: () => print([s.uptime]),
-    pwd: () => print(['/home/visitor']),
-    echo: (args) => print([args.join(' ')]),
-    history: () => print(history.map((h, i) => `  ${i + 1}  ${h}`)),
-    lang: () => {
-      print([{ text: s.langSwitch, cls: 'accent' }]);
-      window.setTimeout(() => {
-        window.location.href = lang === 'fr' ? '/en/' : '/';
-      }, 600);
+    projects: (_, io) => {
+      io.out({ text: '~/projects', cls: 'dim' });
+      io.out(fs.list(`${HOME}/projects`).map((e) => `  ${e.name}`));
+      io.out({ text: lang === 'fr' ? "→ cd projects, puis cat <fichier>" : '→ cd projects, then cat <file>', cls: 'dim' });
     },
-    matrix: () => {
-      print([{ text: s.matrix, cls: 'accent' }]);
+    contact: (_, io) => each(io, 'cat', [`${HOME}/contact.txt`], (abs) => io.out(fs.read(abs).split('\n'))),
+    history: (_, io) => io.out(history.map((h, i) => `  ${String(i + 1).padStart(3)}  ${h}`)),
+    date: (_, io) => io.out(new Date().toString()),
+    uname: (args, io) => io.out(args.includes('-a') ? 'Linux mathisbecher 6.8.12-pve #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux' : 'Linux'),
+    uptime: (_, io) => io.out(s.uptime),
+    lang: (_, io) => {
+      io.out({ text: s.langSwitch, cls: 'accent' });
+      window.setTimeout(() => (window.location.href = lang === 'fr' ? '/en/' : '/'), 600);
+    },
+    matrix: (_, io) => {
+      io.out({ text: s.matrix, cls: 'accent' });
       window.dispatchEvent(new CustomEvent('matrix:boost'));
       fullscreenMatrixBurst();
     },
-    terraform: (args) => {
-      if (args[0] !== 'apply') {
-        return print([{ text: 'usage: terraform apply', cls: 'dim' }]);
-      }
-      print([
+    terraform: (args, io) => {
+      if (args[0] === 'destroy') return io.out([...s.destroy]);
+      if (args[0] === 'plan') return io.out('Plan: 0 to add, 1 to change, 0 to destroy. (portfolio.tf — this page)');
+      if (args[0] !== 'apply') return io.out({ text: s.usage('terraform apply | plan | destroy'), cls: 'dim' });
+      io.out([
         { text: 'Acquiring state lock. This may take a few moments...', cls: 'dim' },
         { text: 'Plan: page rebuild — scrolling to the top.', cls: 'accent' },
       ]);
       window.setTimeout(() => window.dispatchEvent(new CustomEvent('provision:replay')), 700);
     },
-    sudo: () => print([{ text: s.sudo, cls: 'error' }]),
-    rm: (args) => {
-      if (args.join(' ').includes('-rf')) return print([...s.rmrf]);
-      print([{ text: s.notFound('rm'), cls: 'error' }]);
+    reboot: (_, io) => {
+      io.out({ text: s.reboot, cls: 'accent' });
+      window.setTimeout(() => location.reload(), 900);
+    },
+    sudo: (args, io) => {
+      if (args.join(' ') === 'make me a sandwich') return io.out(lang === 'fr' ? "D'accord." : 'Okay.');
+      if (args[0] === 'rm') return io.out([...s.rmrf]);
+      io.out({ text: s.sudo, cls: 'error' });
     },
     clear: () => {
-      output.innerHTML = '';
+      output.replaceChildren();
     },
-    exit: () => {
-      print([{ text: s.exit, cls: 'dim' }]);
+    exit: (_, io) => {
+      io.out({ text: s.exit, cls: 'dim' });
       input.blur();
     },
   };
 
-  const run = (raw: string): void => {
-    const trimmed = raw.trim();
-    echoCommand(trimmed);
-    if (!trimmed) return;
+  const names = Object.keys(commands).filter((c) => !c.startsWith(':')).sort();
 
-    history.push(trimmed);
+  /* --- running a line ------------------------------------------------------------- */
+
+  const run = async (raw: string): Promise<void> => {
+    let line = raw.trim();
+    print({ text: `${prompt()} ${line}`, cls: 'dim' });
+    if (!line) return;
+    if (line.includes('!!')) {
+      const last = history[history.length - 1];
+      if (!last) return print({ text: '!!: event not found', cls: 'error' });
+      line = line.replaceAll('!!', last);
+      print({ text: line, cls: 'dim' });
+    }
+    if (history[history.length - 1] !== line) history.push(line);
+    history = history.slice(-50);
     historyIndex = history.length;
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch {}
 
-    const [cmd = '', ...args] = trimmed.split(/\s+/);
-    const handler = commands[cmd.toLowerCase()];
-    if (handler) handler(args);
-    else print([{ text: s.notFound(cmd), cls: 'error' }]);
+    let words = tokenize(line);
+    // Redirection: cmd … > file  /  cmd … >> file
+    let redirect: { path: string; append: boolean } | null = null;
+    const r = words.findIndex((w) => w === '>' || w === '>>');
+    if (r !== -1) {
+      const target = words[r + 1];
+      if (!target) return print({ text: 'syntax error near unexpected token `newline\'', cls: 'error' });
+      redirect = { path: target, append: words[r] === '>>' };
+      words = words.slice(0, r);
+    }
+
+    const [name = '', ...args] = words;
+    const cmd = commands[name] ?? commands[name.toLowerCase()];
+    if (!cmd) return print({ text: s.notFound(name), cls: 'error' });
+
+    if (!redirect) {
+      await cmd(args, screen);
+      return;
+    }
+    const captured: string[] = [];
+    const errors: Line[] = [];
+    const io: Io = {
+      lang,
+      out: (lines) => {
+        for (const l of Array.isArray(lines) ? lines : [lines]) {
+          if (typeof l !== 'string' && l.cls === 'error') errors.push(l);
+          else captured.push(typeof l === 'string' ? l : l.text);
+        }
+      },
+      live: screen.live,
+    };
+    await cmd(args, io);
+    if (errors.length) print(errors);
+    try {
+      fs.write(fs.resolve(redirect.path), captured.length ? `${captured.join('\n')}\n` : '', redirect.append);
+    } catch (e) {
+      fail(screen, name, e);
+    }
   };
 
+  /* --- keyboard ------------------------------------------------------------------- */
+
   input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') lastTab = '';
     if (e.key === 'Enter') {
-      run(input.value);
+      // Without this, the Enter that opens nano would land in its text area.
+      e.preventDefault();
+      const value = input.value;
       input.value = '';
+      void run(value);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (historyIndex > 0) input.value = history[--historyIndex] ?? '';
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (historyIndex < history.length - 1) {
-        input.value = history[++historyIndex] ?? '';
-      } else {
+      if (historyIndex < history.length - 1) input.value = history[++historyIndex] ?? '';
+      else {
         historyIndex = history.length;
         input.value = '';
       }
-    } else if (e.key === 'Tab' && !e.shiftKey) {
-      // Autocomplete only when there is something to complete, so an empty
-      // prompt never traps keyboard users: Tab still moves focus on.
-      const partial = input.value.trim().toLowerCase();
-      const match = partial && Object.keys(commands).find((c) => c.startsWith(partial));
-      if (match) {
-        e.preventDefault();
-        input.value = match + ' ';
+    } else if (e.key === 'Tab' && !e.shiftKey && input.value.trim()) {
+      // An empty prompt lets Tab move focus on, so keyboard users are never trapped.
+      e.preventDefault();
+      const result = complete(input.value, {
+        commands: names,
+        subcommands: { terraform: ['apply', 'destroy', 'plan'], docker: ['ps'], kubectl: ['get'], uname: ['-a'] },
+        dirsOnly: ['cd'],
+        list: (typedDir) => {
+          try {
+            const abs = fs.resolve(typedDir || '.');
+            return fs.isDir(abs) ? fs.list(abs, true) : null;
+          } catch {
+            return null;
+          }
+        },
+      });
+      if (result.line !== input.value) {
+        input.value = result.line;
+        lastTab = '';
+      } else if (result.options.length) {
+        // Second Tab in a row lists the choices, like bash.
+        if (lastTab === input.value) {
+          print({ text: `${prompt()} ${input.value}`, cls: 'dim' });
+          print(result.options.join('  '));
+        }
+        lastTab = input.value;
       }
+    } else if (e.key === 'c' && e.ctrlKey && !window.getSelection()?.toString()) {
+      e.preventDefault();
+      print({ text: `${prompt()} ${input.value}^C`, cls: 'dim' });
+      input.value = '';
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      output.replaceChildren();
     }
   });
 
   // Suggested commands above the window run as if typed.
   document.querySelectorAll<HTMLButtonElement>('[data-term-cmd]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      run(btn.dataset.termCmd ?? '');
+      void run(btn.dataset.termCmd ?? '');
       body.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
   });
@@ -274,10 +389,15 @@ export function initTerminal(): void {
   // Clicking anywhere in the window focuses the prompt (like a real terminal).
   windowEl.addEventListener('click', (e) => {
     if (window.getSelection()?.toString()) return; // let people copy text
-    if ((e.target as HTMLElement).tagName !== 'A') input.focus({ preventScroll: true });
+    const target = e.target as HTMLElement;
+    if (target.closest('#nano')) return;
+    if (target.tagName === 'A') return;
+    if (nano.isOpen) nano.focus();
+    else input.focus({ preventScroll: true });
   });
 
-  print(s.welcome.map((text) => ({ text, cls: 'dim' }) as Line));
+  updatePrompt();
+  print(s.welcome.map((text) => ({ text, cls: 'dim' as const })));
 }
 
 initTerminal();

@@ -6,12 +6,14 @@ Mon portfolio de Cloud Infrastructure Engineer — en ligne sur **[mathisbecher.
 
 ## Le concept
 
-La page se construit comme une infrastructure : au chargement, le homelab « démarre », puis un `terraform apply` provisionne chaque bloc du site. Des curseurs tirent des cadres de sélection autour de chaque ressource (`module.hero.name`, dimensions, guides) et une ligne de scan la révèle. Au scroll, ce qui sort de l'écran est détruit (`terraform destroy`) et ce qui y entre est reconstruit, à une vitesse proportionnelle à celle du scroll.
+La page se construit sous vos yeux, avec le vocabulaire visuel de l'infrastructure. Au chargement, une séquence de boot s'affiche, puis chaque bloc du site apparaît : des curseurs tirent un cadre de sélection autour de lui (nom du bloc façon `module.hero.name`, dimensions, guides) et une ligne de scan le révèle. Au scroll, ce qui sort de l'écran s'efface (cadre rouge) et ce qui y entre se reconstruit, d'autant plus vite que vous scrollez vite.
+
+C'est une animation : aucun vrai Terraform ne tourne dans votre navigateur.
 
 Autres détails :
 
 - **Trace live** : le hero affiche les vrais en-têtes HTTP de la page que vous venez de charger et le temps de réponse mesuré par votre navigateur.
-- **Terminal interactif** : `help`, `whoami`, `neofetch`, `ls projects`, `terraform apply`…
+- **Terminal interactif** : un petit shell sur un système de fichiers virtuel. `ls`, `cd`, `tree`, `cat`, `mkdir`, `touch`, `rm`, `mv`, `cp`, `echo … > fichier`, un éditeur `nano` (`^O` / `^X`), la complétion avec Tab et l'historique. Ce que vous créez reste uniquement dans votre navigateur (`reset` pour tout effacer). Quelques easter eggs sont à découvrir…
 - **Pluie matrix** en canvas, avec un double tampon pour que les traînées disparaissent complètement.
 - **Navigation latérale** cachée, qui pousse la page et se construit / se déconstruit.
 - **Accessible** : contenu lisible sans JavaScript, `prefers-reduced-motion` respecté (aucune animation), navigation au clavier.
@@ -55,7 +57,8 @@ src/
 ├── components/   sections de la page (Hero, Projects, Homelab, Terminal…)
 ├── i18n/ui.ts    tous les textes FR / EN et les données (parcours, projets…)
 ├── layouts/      squelette HTML, SEO, décision du boot avant le premier rendu
-├── scripts/      effets : provision*.ts (apply / destroy), matrix, terminal, trace
+├── scripts/      effets : provision*.ts (construction / effacement), matrix, trace
+│   └── term/     terminal : système de fichiers, complétion, nano, easter eggs
 └── styles/       design tokens (global.css) et styles des effets
 nginx.conf, nginx/security-headers.conf   serveur et en-têtes de sécurité
 ```
