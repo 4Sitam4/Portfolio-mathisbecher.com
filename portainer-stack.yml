@@ -1,16 +1,22 @@
 # Généré par la CI depuis main (portainer-stack.yml) : ne pas modifier ici.
-# Image épinglée sur le build de main a1bead3.
+# Image épinglée sur le build de main 14fb296.
 
 # Stack de référence. La CI en publie une copie sur la branche `deploy`, avec
 # l'image de chaque build épinglée (sha-xxxxxxx@sha256:…) : c'est cette branche
 # que suit la stack Portainer. Garder ici `:latest` sur la ligne image.
 services:
   portfolio:
-    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:sha-a1bead3@sha256:2b1c7336638d0a59adb0f80cf55e932f7935aa709b9e16b768ca9bfa31ee1437
+    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:sha-14fb296@sha256:619050a99cb35ca2afba5679cefe286cf5edffddd0c14d7537ba56849e2135d4
     container_name: portfolio
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    # Static site: no capability, read-only filesystem, nginx only writes to /tmp.
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
 
     # Option A — exposition directe d'un port (reverse proxy hors docker) :
     ports:
