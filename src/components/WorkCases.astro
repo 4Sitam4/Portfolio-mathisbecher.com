@@ -4,6 +4,7 @@
  * role, a few figures and the stack. Private repos, so no links.
  */
 import { useTranslations, workProjects, type Lang } from '../i18n/ui';
+import Rich from './Rich.astro';
 
 interface Props {
   lang: Lang;
@@ -35,15 +36,15 @@ const t = useTranslations(lang);
         <dl class="case__story">
           <div>
             <dt>{t('projects.need')}</dt>
-            <dd>{p.need[lang]}</dd>
+            <dd><Rich text={p.need[lang]} /></dd>
           </div>
           <div>
             <dt>{t('projects.solution')}</dt>
-            <dd>{p.solution[lang]}</dd>
+            <dd><Rich text={p.solution[lang]} /></dd>
           </div>
           <div>
             <dt>{t('projects.role')}</dt>
-            <dd>{p.role[lang]}</dd>
+            <dd><Rich text={p.role[lang]} /></dd>
           </div>
         </dl>
 

@@ -1,6 +1,7 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Window from './Window.astro';
+import Rich from './Rich.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -17,9 +18,9 @@ const t = useTranslations(lang);
 
     <div class="about">
       <div class="about__text" data-provision="about.bio">
-        <p class="about__lead">{t('about.p1')}</p>
-        <p>{t('about.p2')}</p>
-        <p>{t('about.p3')}</p>
+        <p class="about__lead"><Rich text={t('about.p1')} /></p>
+        <p><Rich text={t('about.p2')} /></p>
+        <p><Rich text={t('about.p3')} /></p>
       </div>
 
       <Window title="whoami.yaml" class="about__card" provision="about.whoami">
@@ -33,6 +34,12 @@ const t = useTranslations(lang);
   - self_hosting
   - infrastructure_as_code
   - digital_independence
+<span class="k">languages</span>:
+  <span class="k">fr</span>: native
+  <span class="k">en</span>: C1
+<span class="k">off_duty</span>:
+  - counter_strike  <span class="c"># {lang === 'fr' ? 'en équipe, haut niveau' : 'team, high level'}</span>
+  - travel
 <span class="k">homelab</span>: <span class="v">true</span></code></pre>
       </Window>
     </div>
@@ -74,6 +81,10 @@ const t = useTranslations(lang);
 
   .about__code .v {
     color: var(--text);
+  }
+
+  .about__code .c {
+    color: var(--text-3);
   }
 
   @media (max-width: 900px) {

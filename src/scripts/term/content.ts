@@ -4,6 +4,7 @@
  */
 
 import { contactLinks, projects, skillGroups, timeline, workProjects } from '../../i18n/ui';
+import { plain } from '../../i18n/rich';
 import type { Seed } from './vfs';
 
 type Lang = 'fr' | 'en';
@@ -36,13 +37,13 @@ export function seed(lang: Lang): Seed {
       `${p.period[lang]} · Open Lake Technology`,
       '',
       `## ${L('Le besoin', 'The need')}`,
-      p.need[lang],
+      plain(p.need[lang]),
       '',
       `## ${L('La solution', 'The solution')}`,
-      p.solution[lang],
+      plain(p.solution[lang]),
       '',
       `## ${L('Mon rôle', 'My role')}`,
-      p.role[lang],
+      plain(p.role[lang]),
       '',
       ...p.figures.map((f) => `- ${f.value} ${f.label[lang]}`),
       '',
@@ -54,7 +55,7 @@ export function seed(lang: Lang): Seed {
     projectFiles[`${slug(p.name)}.md`] = [
       `# ${p.name}`,
       '',
-      p.description[lang],
+      plain(p.description[lang]),
       '',
       `stack: ${p.tags.join(', ')}`,
       ...(p.url ? [`code: ${p.url}`] : []),

@@ -1,5 +1,6 @@
 ---
 import SectionHeading from './SectionHeading.astro';
+import Rich from './Rich.astro';
 import { useTranslations, contactLinks, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -37,7 +38,7 @@ const channels = [
 
     <div class="contact">
       <div class="contact__main" data-provision="contact.mail">
-        <p class="contact__intro">{t('contact.intro')}</p>
+        <p class="contact__intro"><Rich text={t('contact.intro')} /></p>
         <div class="contact__actions">
           <a class="btn btn--primary" href={`mailto:${contactLinks.email}`}>{t('contact.cta')}</a>
           <button

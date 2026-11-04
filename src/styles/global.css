@@ -449,6 +449,31 @@ p {
   }
 }
 
+/* --- Emphasis in body text (components/Rich.astro) ------------------------------- */
+
+/* Key idea: brighter and heavier than the grey body text around it. */
+.rich-strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Concrete fact (tech, figure): accent color + a highlighter stroke that
+   sweeps in once its block has been built. */
+.rich-key {
+  color: var(--accent);
+  font-weight: 500;
+  background: linear-gradient(transparent 62%, rgba(0, 255, 157, 0.16) 62%) no-repeat 0 0 / 100% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-size 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s;
+}
+
+[data-pv='pending'] .rich-key,
+[data-pv='building'] .rich-key {
+  background-size: 0% 100%;
+  transition: none;
+}
+
 /* --- Reduced motion --------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

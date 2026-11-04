@@ -27,7 +27,7 @@ export const ui = {
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
-      "Je construis des infrastructures cloud, j'automatise tout ce qui peut l'être… et j'auto-héberge le reste.",
+      "Je construis des **infrastructures cloud**, j'**automatise** tout ce qui peut l'être… et j'**auto-héberge le reste**.",
     'hero.status': 'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027)',
     'hero.cta.projects': 'Voir mes projets',
     'hero.cta.terminal': 'Ouvrir le terminal',
@@ -43,11 +43,11 @@ export const ui = {
 
     'about.title': 'à propos',
     'about.p1':
-      "Je suis étudiant à Epitech (architecte de systèmes d'information, promo 2027) et alternant Cloud Infrastructure Engineer chez Open Lake Technology, où je travaille sur de l'infrastructure Azure avec Terraform et Terramate.",
+      "Je suis étudiant à **Epitech** (architecte de systèmes d'information, promo 2027) et **alternant Cloud Infrastructure Engineer** chez Open Lake Technology, où je travaille sur de l'infrastructure ==Azure== avec ==Terraform== et ==Terramate==.",
     'about.p2':
-      "Mon fil rouge : l'indépendance numérique. Plutôt que de dépendre des services des GAFAM, je monte, configure et maintiens ma propre infrastructure : un homelab avec cluster Proxmox, stockage TrueNAS Scale et réseau 10 Gbps. Ce portfolio tourne dessus.",
+      "Mon fil rouge : **l'indépendance numérique**. Plutôt que de dépendre des services des GAFAM, je monte, configure et maintiens ma propre infrastructure : un homelab avec cluster ==Proxmox==, stockage ==TrueNAS Scale== et réseau ==10 Gbps==. **Ce portfolio tourne dessus.**",
     'about.p3':
-      "Du hardware au cloud en passant par le réseau et le CI/CD : j'aime comprendre toute la pile, pas juste une couche.",
+      "Technicien hardware, puis développeur web, aujourd'hui ingénieur cloud : **du hardware au cloud**, en passant par le réseau et le CI/CD, j'aime **comprendre toute la pile**, pas juste une couche.",
 
     'xp.title': 'parcours',
     'xp.work': 'Expérience',
@@ -67,7 +67,7 @@ export const ui = {
     'projects.homelab': 'Voir le homelab',
     'projects.work': 'open-lake',
     'projects.work.lede':
-      "Les trois projets majeurs de mon alternance. À chaque fois, j'ai identifié le besoin, choisi la solution, puis conçu, développé et livré le projet de bout en bout.",
+      "Les **trois projets majeurs** de mon alternance. À chaque fois, j'ai **identifié le besoin**, choisi la solution, puis conçu, développé et **livré le projet de bout en bout**.",
     'projects.perso': 'perso',
     'projects.need': 'Le besoin',
     'projects.solution': 'La solution',
@@ -77,7 +77,7 @@ export const ui = {
 
     'homelab.title': 'homelab',
     'homelab.intro':
-      'Mon terrain de jeu permanent : plusieurs machines physiques en cluster Proxmox, une machine TrueNAS Scale pour le stockage, le tout interconnecté en 10 Gbps.',
+      'Mon **terrain de jeu permanent** : plusieurs machines physiques en cluster Proxmox, une machine TrueNAS Scale pour le stockage, le tout interconnecté en ==10 Gbps==.',
     'homelab.stat1.value': 'Proxmox VE',
     'homelab.stat1.label': 'cluster multi-nœuds',
     'homelab.stat2.value': 'TrueNAS Scale',
@@ -96,7 +96,7 @@ export const ui = {
 
     'contact.title': 'contact',
     'contact.intro':
-      'Une opportunité, une question, ou juste envie de parler homelab ? Ma boîte mail est ouverte.',
+      'Une opportunité, une question, ou juste envie de parler homelab ? **Ma boîte mail est ouverte.**',
     'contact.cta': 'Écrire un e-mail',
     'contact.copy': "Copier l'adresse",
     'contact.copied': 'Adresse copiée',
@@ -123,7 +123,7 @@ export const ui = {
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
-      'I build cloud infrastructure, automate everything that can be automated… and self-host the rest.',
+      'I build **cloud infrastructure**, **automate** everything that can be automated… and **self-host the rest**.',
     'hero.status': 'Apprentice at Open Lake Technology, student at Epitech (class of 2027)',
     'hero.cta.projects': 'View my projects',
     'hero.cta.terminal': 'Open the terminal',
@@ -139,11 +139,11 @@ export const ui = {
 
     'about.title': 'about',
     'about.p1':
-      "I'm a student at Epitech (information systems architecture, class of 2027) and an apprentice Cloud Infrastructure Engineer at Open Lake Technology, working on Azure infrastructure with Terraform and Terramate.",
+      "I'm a student at **Epitech** (information systems architecture, class of 2027) and an **apprentice Cloud Infrastructure Engineer** at Open Lake Technology, working on ==Azure== infrastructure with ==Terraform== and ==Terramate==.",
     'about.p2':
-      'My common thread: digital independence. Rather than relying on big-tech services, I build, configure and maintain my own infrastructure: a homelab with a Proxmox cluster, TrueNAS Scale storage and 10 Gbps networking. This portfolio runs on it.',
+      'My common thread: **digital independence**. Rather than relying on big-tech services, I build, configure and maintain my own infrastructure: a homelab with a ==Proxmox== cluster, ==TrueNAS Scale== storage and ==10 Gbps== networking. **This portfolio runs on it.**',
     'about.p3':
-      'From hardware to cloud, through networking and CI/CD: I like understanding the whole stack, not just one layer.',
+      'Hardware technician, then web developer, now cloud engineer: **from hardware to cloud**, through networking and CI/CD, I like **understanding the whole stack**, not just one layer.',
 
     'xp.title': 'experience',
     'xp.work': 'Work',
@@ -163,7 +163,7 @@ export const ui = {
     'projects.homelab': 'See the homelab',
     'projects.work': 'open-lake',
     'projects.work.lede':
-      'The three major projects of my apprenticeship. Each time, I identified the need, chose the solution, then designed, built and shipped the project end to end.',
+      'The **three major projects** of my apprenticeship. Each time, I **identified the need**, chose the solution, then designed, built and **shipped the project end to end**.',
     'projects.perso': 'personal',
     'projects.need': 'The need',
     'projects.solution': 'The solution',
@@ -173,7 +173,7 @@ export const ui = {
 
     'homelab.title': 'homelab',
     'homelab.intro':
-      'My permanent playground: several physical machines running as a Proxmox cluster, a TrueNAS Scale box for storage, all interconnected at 10 Gbps.',
+      'My **permanent playground**: several physical machines running as a Proxmox cluster, a TrueNAS Scale box for storage, all interconnected at ==10 Gbps==.',
     'homelab.stat1.value': 'Proxmox VE',
     'homelab.stat1.label': 'multi-node cluster',
     'homelab.stat2.value': 'TrueNAS Scale',
@@ -192,7 +192,7 @@ export const ui = {
 
     'contact.title': 'contact',
     'contact.intro':
-      'An opportunity, a question, or just want to talk homelab? My inbox is open.',
+      'An opportunity, a question, or just want to talk homelab? **My inbox is open.**',
     'contact.cta': 'Send an email',
     'contact.copy': 'Copy address',
     'contact.copied': 'Address copied',
@@ -208,82 +208,11 @@ export function useTranslations(lang: Lang) {
   };
 }
 
+export { timeline, type TimelineEntry } from './timeline';
+
 /* --------------------------------------------------------------------------
    Structured content (experience, skills, projects) — localized fields
    -------------------------------------------------------------------------- */
-
-export interface TimelineEntry {
-  type: 'work' | 'edu';
-  period: { fr: string; en: string };
-  title: { fr: string; en: string };
-  org: string;
-  location: { fr: string; en: string };
-  description: { fr: string; en: string };
-  tags: string[];
-}
-
-export const timeline: TimelineEntry[] = [
-  {
-    type: 'work',
-    period: { fr: "janv. 2025 — aujourd'hui", en: 'Jan 2025 — present' },
-    title: { fr: 'Alternant DevOps / Cloud Infrastructure Engineer', en: 'DevOps / Cloud Infrastructure Engineer (apprentice)' },
-    org: 'Open Lake Technology',
-    location: { fr: 'Paris · full remote', en: 'Paris · full remote' },
-    description: {
-      fr: "Infrastructure cloud Azure en Infrastructure-as-Code. J'ai porté de bout en bout trois projets majeurs : la plateforme Terramate qui gère les environnements clients, une plateforme de monitoring multi-tenant sur AKS, et Shipyard, l'outil de déploiement on-prem hors ligne.",
-      en: 'Azure cloud infrastructure as code. I led three major projects end to end: the Terramate platform that manages customer environments, a multi-tenant monitoring platform on AKS, and Shipyard, the offline on-prem deployment tool.',
-    },
-    tags: ['Azure', 'Terraform', 'Terramate', 'Kubernetes', 'Go', 'Docker'],
-  },
-  {
-    type: 'edu',
-    period: { fr: '2024 — 2027', en: '2024 — 2027' },
-    title: { fr: "Architecte de systèmes d'information", en: 'Information Systems Architect' },
-    org: 'Epitech',
-    location: { fr: 'Strasbourg', en: 'Strasbourg, France' },
-    description: {
-      fr: "Cursus par projets : systèmes, réseaux, cloud et développement. Diplôme préparé en alternance.",
-      en: 'Project-based curriculum: systems, networking, cloud and software development. Work-study program.',
-    },
-    tags: ['Systèmes', 'Cloud', 'Projets'],
-  },
-  {
-    type: 'work',
-    period: { fr: 'mars 2024 — juil. 2024', en: 'Mar 2024 — Jul 2024' },
-    title: { fr: 'Stagiaire développement web', en: 'Web Development Intern' },
-    org: 'Open Lake Technology',
-    location: { fr: 'full remote', en: 'full remote' },
-    description: {
-      fr: "Développement web au sein de l'équipe produit — le stage qui a débouché sur mon alternance actuelle.",
-      en: 'Web development within the product team — the internship that led to my current apprenticeship.',
-    },
-    tags: ['JavaScript', 'HTML/CSS', 'Git'],
-  },
-  {
-    type: 'edu',
-    period: { fr: '2023 — 2024', en: '2023 — 2024' },
-    title: { fr: 'Ingénieur en informatique (1re année)', en: 'Computer Science Engineering (1st year)' },
-    org: 'CESI',
-    location: { fr: 'Strasbourg', en: 'Strasbourg, France' },
-    description: {
-      fr: 'Première année de cycle ingénieur informatique, avant de rejoindre Epitech.',
-      en: 'First year of a CS engineering degree, before joining Epitech.',
-    },
-    tags: ['Informatique'],
-  },
-  {
-    type: 'work',
-    period: { fr: 'juil. 2022 — juil. 2023', en: 'Jul 2022 — Jul 2023' },
-    title: { fr: 'Développeur web (alternance)', en: 'Web Developer (apprentice)' },
-    org: 'BFECOM',
-    location: { fr: 'Illkirch-Graffenstaden', en: 'Illkirch-Graffenstaden, France' },
-    description: {
-      fr: 'Création et maintenance de sites WordPress : développement front-end, PHP, intégration.',
-      en: 'Building and maintaining WordPress websites: front-end development, PHP, integration.',
-    },
-    tags: ['WordPress', 'PHP', 'Front-end'],
-  },
-];
 
 export interface SkillGroup {
   key: 'skills.cloud' | 'skills.infra' | 'skills.dev' | 'skills.net';
@@ -300,12 +229,12 @@ export const skillGroups: SkillGroup[] = [
   {
     key: 'skills.infra',
     prompt: 'docker compose up -d',
-    items: ['Docker', 'Docker Compose', 'Kubernetes (AKS)', 'Helm', 'Proxmox VE', 'TrueNAS Scale', 'Linux'],
+    items: ['Docker', 'Docker Compose', 'Kubernetes (AKS)', 'Helm', 'Proxmox VE', 'TrueNAS Scale', 'Linux', 'Windows Server'],
   },
   {
     key: 'skills.dev',
     prompt: 'git push origin main',
-    items: ['Go', 'Python', 'JavaScript', 'HTML/CSS', 'PHP', 'YAML/JSON', 'Bash'],
+    items: ['Go', 'Python', 'JavaScript', 'HTML/CSS', 'PHP', 'C', 'YAML/JSON', 'Bash'],
   },
   {
     key: 'skills.net',
@@ -336,16 +265,16 @@ export const workProjects: WorkProject[] = [
     subtitle: { fr: 'Plateforme IaC multi-environnements', en: 'Multi-environment IaC platform' },
     period: { fr: 'mars — août 2026', en: 'Mar — Aug 2026' },
     need: {
-      fr: "Chaque environnement client avait son propre repo Terraform : la même infrastructure était copiée dans des dizaines de repos et chaque changement commun devait être refait partout, à la main.",
-      en: 'Every customer environment had its own Terraform repo: the same infrastructure was copied across dozens of repos, and every shared change had to be redone everywhere, by hand.',
+      fr: "Chaque environnement client avait son propre repo Terraform : la même infrastructure était copiée dans des dizaines de repos et **chaque changement commun devait être refait partout, à la main**.",
+      en: 'Every customer environment had its own Terraform repo: the same infrastructure was copied across dozens of repos, and **every shared change had to be redone everywhere, by hand**.',
     },
     solution: {
-      fr: "Un monorepo Terramate et un catalogue de modules Terraform versionnés. Chaque environnement est une stack isolée qui hérite de ses valeurs sur trois niveaux et active ce dont il a besoin par feature flags ; le code Terraform est généré, et la détection de changements git ne cible que les stacks concernées. La migration s'est faite à côté de la production : déploiement en parallèle, validation, bascule DNS, puis décommissionnement de l'ancien.",
-      en: 'A Terramate monorepo plus a catalogue of versioned Terraform modules. Each environment is an isolated stack that inherits its values over three levels and turns on what it needs through feature flags; the Terraform code is generated, and git change detection only targets the affected stacks. The migration ran next to production: parallel deployment, validation, DNS cutover, then decommissioning of the old setup.',
+      fr: "Un **monorepo Terramate** et un catalogue de ==modules Terraform versionnés==. Chaque environnement est une stack isolée qui hérite de ses valeurs sur trois niveaux et active ce dont il a besoin par feature flags ; le code Terraform est généré, et la détection de changements git ne cible que les stacks concernées. La migration s'est faite **à côté de la production** : déploiement en parallèle, validation, bascule DNS, puis décommissionnement de l'ancien.",
+      en: 'A **Terramate monorepo** plus a catalogue of ==versioned Terraform modules==. Each environment is an isolated stack that inherits its values over three levels and turns on what it needs through feature flags; the Terraform code is generated, and git change detection only targets the affected stacks. The migration ran **next to production**: parallel deployment, validation, DNS cutover, then decommissioning of the old setup.',
     },
     role: {
-      fr: "J'ai identifié le problème, proposé Terramate, conçu l'architecture, écrit la grande majorité du code et des modules, mené la migration et documenté le tout.",
-      en: 'I identified the problem, proposed Terramate, designed the architecture, wrote the vast majority of the code and modules, ran the migration and documented it all.',
+      fr: "J'ai **identifié le problème, proposé Terramate**, conçu l'architecture, écrit la grande majorité du code et des modules, mené la migration et documenté le tout.",
+      en: 'I **identified the problem, proposed Terramate**, designed the architecture, wrote the vast majority of the code and modules, ran the migration and documented it all.',
     },
     figures: [
       { value: '16', label: { fr: 'environnements de production migrés', en: 'production environments migrated' } },
@@ -359,16 +288,16 @@ export const workProjects: WorkProject[] = [
     subtitle: { fr: 'Kits de déploiement on-prem hors ligne', en: 'Offline on-prem deployment kits' },
     period: { fr: 'sept. — nov. 2026', en: 'Sep — Nov 2026' },
     need: {
-      fr: "Installer la stack produit chez des clients sur des VM durcies, sans accès Internet et sous politiques de sécurité strictes, reposait sur environ 3 000 lignes de scripts bash et PowerShell.",
-      en: 'Installing the product stack at customers on hardened VMs, with no internet access and under strict security policies, relied on about 3,000 lines of bash and PowerShell scripts.',
+      fr: "Installer la stack produit chez des clients sur des VM durcies, sans accès Internet et sous politiques de sécurité strictes, reposait sur ==environ 3 000 lignes de scripts== bash et PowerShell.",
+      en: 'Installing the product stack at customers on hardened VMs, with no internet access and under strict security policies, relied on ==about 3,000 lines of== bash and PowerShell ==scripts==.',
     },
     solution: {
-      fr: "Une application web en Go (SSO Entra ID) qui génère en quelques minutes un kit d'installation autonome : images épinglées par digest, sommes SHA256 vérifiées, double-clic sur Windows Server ou une commande sur Linux. Un moteur d'installation en Go, idempotent et reprenable, remplace les scripts ; chaque révision livrée est conservée pour appliquer un correctif en quelques secondes.",
-      en: 'A Go web app (Entra ID SSO) that builds a self-contained install kit in minutes: images pinned by digest, verified SHA256 sums, a double-click on Windows Server or one command on Linux. An idempotent, resumable Go install engine replaces the scripts; every delivered revision is kept so a hotfix can be applied in seconds.',
+      fr: "Une application web en Go (SSO Entra ID) qui génère **en quelques minutes un kit d'installation autonome** : images épinglées par digest, sommes SHA256 vérifiées, double-clic sur Windows Server ou une commande sur Linux. Un moteur d'installation en ==Go==, **idempotent et reprenable**, remplace les scripts ; chaque révision livrée est conservée pour appliquer un correctif en quelques secondes.",
+      en: 'A Go web app (Entra ID SSO) that builds **a self-contained install kit in minutes**: images pinned by digest, verified SHA256 sums, a double-click on Windows Server or one command on Linux. An **idempotent, resumable** ==Go== install engine replaces the scripts; every delivered revision is kept so a hotfix can be applied in seconds.',
     },
     role: {
-      fr: "Seul développeur : besoin, architecture (décisions documentées en ADR), code, tests, pipeline CI DevSecOps, infrastructure Azure en Terraform et validation sur un lab de VM Windows et Linux. En production chez des clients depuis la V1.0.",
-      en: 'Sole developer: need, architecture (decisions recorded as ADRs), code, tests, DevSecOps CI pipeline, Azure infrastructure in Terraform and validation on a lab of Windows and Linux VMs. In production at customers since V1.0.',
+      fr: "**Seul développeur** : besoin, architecture (décisions documentées en ADR), code, tests, pipeline CI DevSecOps, infrastructure Azure en Terraform et validation sur un lab de VM Windows et Linux. **En production chez des clients** depuis la V1.0.",
+      en: '**Sole developer**: need, architecture (decisions recorded as ADRs), code, tests, DevSecOps CI pipeline, Azure infrastructure in Terraform and validation on a lab of Windows and Linux VMs. **In production at customers** since V1.0.',
     },
     figures: [
       { value: '~18k', label: { fr: 'lignes de Go', en: 'lines of Go' } },
@@ -382,16 +311,16 @@ export const workProjects: WorkProject[] = [
     subtitle: { fr: 'Plateforme de monitoring sur Kubernetes', en: 'Monitoring platform on Kubernetes' },
     period: { fr: "déc. 2025 — aujourd'hui", en: 'Dec 2025 — present' },
     need: {
-      fr: "Chaque tenant d'un client avait son propre environnement Azure Container Apps et un Elasticsearch managé : chaque nouveau tenant demandait du DNS et des certificats faits à la main, et la plateforme se heurtait aux limites de capacité d'Azure.",
-      en: "Each of a customer's tenants had its own Azure Container Apps environment and a managed Elasticsearch: every new tenant meant manual DNS and certificate work, and the platform kept hitting Azure capacity limits.",
+      fr: "Chaque tenant d'un client avait son propre environnement Azure Container Apps et un Elasticsearch managé : chaque nouveau tenant demandait **du DNS et des certificats faits à la main**, et la plateforme se heurtait aux limites de capacité d'Azure.",
+      en: "Each of a customer's tenants had its own Azure Container Apps environment and a managed Elasticsearch: every new tenant meant **manual DNS and certificate work**, and the platform kept hitting Azure capacity limits.",
     },
     solution: {
-      fr: "Un cluster AKS unique en Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) où chaque tenant, isolé dans son namespace, reçoit son Elasticsearch, son Grafana avec SSO Entra ID et ses jobs de traitement planifiés. Ajouter un tenant tient en une entrée de configuration et un terraform apply. La migration a suivi un runbook sans perte de données (snapshots et comptages avant et après chaque étape), avec sauvegardes AKS, snapshots Elasticsearch et restaurations testées.",
-      en: 'A single AKS cluster in Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) where each tenant, isolated in its own namespace, gets its Elasticsearch, a Grafana with Entra ID SSO and its scheduled processing jobs. Adding a tenant takes one config entry and one terraform apply. The migration followed a zero-data-loss runbook (snapshots and record counts before and after each step), with AKS backups, Elasticsearch snapshots and tested restores.',
+      fr: "Un **cluster AKS unique** en Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) où chaque tenant, isolé dans son namespace, reçoit son Elasticsearch, son Grafana avec SSO Entra ID et ses jobs de traitement planifiés. **Ajouter un tenant tient en une entrée de configuration** et un ==terraform apply==. La migration a suivi un runbook **sans perte de données** (snapshots et comptages avant et après chaque étape), avec sauvegardes AKS, snapshots Elasticsearch et restaurations testées.",
+      en: 'A **single AKS cluster** in Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) where each tenant, isolated in its own namespace, gets its Elasticsearch, a Grafana with Entra ID SSO and its scheduled processing jobs. **Adding a tenant takes one config entry** and one ==terraform apply==. The migration followed a **zero-data-loss** runbook (snapshots and record counts before and after each step), with AKS backups, Elasticsearch snapshots and tested restores.',
     },
     role: {
-      fr: "J'ai conçu la plateforme, écrit tout le code Terraform et les scripts d'exploitation, mené la migration jusqu'au décommissionnement de l'ancienne infrastructure, puis optimisé les coûts et dimensionné la capacité. En production depuis octobre 2026.",
-      en: 'I designed the platform, wrote all the Terraform code and operations scripts, ran the migration through to decommissioning the old infrastructure, then optimised costs and planned capacity. In production since October 2026.',
+      fr: "J'ai **conçu la plateforme**, écrit tout le code Terraform et les scripts d'exploitation, mené la migration jusqu'au décommissionnement de l'ancienne infrastructure, puis **optimisé les coûts** et dimensionné la capacité. En production depuis ==octobre 2026==.",
+      en: 'I **designed the platform**, wrote all the Terraform code and operations scripts, ran the migration through to decommissioning the old infrastructure, then **optimised costs** and planned capacity. In production since ==October 2026==.',
     },
     figures: [
       { value: '10', label: { fr: 'tenants isolés sur un seul cluster', en: 'isolated tenants on one cluster' } },
@@ -420,8 +349,8 @@ export const projects: Project[] = [
   {
     name: 'Romifleur',
     description: {
-      fr: "Application open source développée en Dart/Flutter — mon projet le plus populaire sur GitHub.",
-      en: 'Open source app built with Dart/Flutter — my most popular project on GitHub.',
+      fr: "Application open source développée en ==Dart/Flutter== — **mon projet le plus populaire sur GitHub**.",
+      en: 'Open source app built with ==Dart/Flutter== — **my most popular project on GitHub**.',
     },
     tags: ['Dart', 'Flutter'],
     url: 'https://github.com/4Sitam4/Romifleur',
@@ -431,8 +360,8 @@ export const projects: Project[] = [
   {
     name: 'Torrentarr',
     description: {
-      fr: "Créer des fichiers .torrent facilement depuis un container Docker — pensé pour s'intégrer à un écosystème self-hosted.",
-      en: 'Create .torrent files easily from a Docker container — designed to fit a self-hosted ecosystem.',
+      fr: "Créer des fichiers .torrent facilement depuis un **container Docker** — pensé pour s'intégrer à un écosystème self-hosted.",
+      en: 'Create .torrent files easily from a **Docker container** — designed to fit a self-hosted ecosystem.',
     },
     tags: ['JavaScript', 'Docker', 'Self-hosting'],
     url: 'https://github.com/4Sitam4/Torrentarr',
@@ -441,8 +370,8 @@ export const projects: Project[] = [
   {
     name: 'artlilou.com',
     description: {
-      fr: "Le site de ma sœur, artiste peintre : 187 œuvres migrées depuis WordPress, CMS headless Directus pour qu'elle gère tout elle-même, vue des toiles en réalité augmentée, accessibilité WCAG 2.2 AA. Auto-hébergé sur mon homelab, avec déploiement continu.",
-      en: 'My sister\'s website, a painter: 187 artworks migrated from WordPress, a headless Directus CMS so she manages everything herself, augmented-reality view of the paintings, WCAG 2.2 AA accessibility. Self-hosted on my homelab, with continuous deployment.',
+      fr: "Le site de ma sœur, artiste peintre : ==187 œuvres== migrées depuis WordPress, CMS headless ==Directus== **pour qu'elle gère tout elle-même**, vue des toiles **en réalité augmentée**, accessibilité ==WCAG 2.2 AA==. Auto-hébergé sur mon homelab, avec déploiement continu.",
+      en: 'My sister\'s website, a painter: ==187 artworks== migrated from WordPress, a headless ==Directus== CMS **so she manages everything herself**, **augmented-reality** view of the paintings, ==WCAG 2.2 AA== accessibility. Self-hosted on my homelab, with continuous deployment.',
     },
     tags: ['Astro', 'Directus', 'PostgreSQL', 'Docker', 'Portainer'],
     live: 'https://artlilou.com',
@@ -450,8 +379,8 @@ export const projects: Project[] = [
   {
     name: 'musee.artlilou.com',
     description: {
-      fr: "Un musée virtuel en 3D relié au site : salle modélisée et pré-éclairée dans Blender, visite libre au clavier ou au joystick sur mobile, œuvres et cadres (12 styles) choisis par l'artiste depuis le CMS.",
-      en: 'A 3D virtual museum linked to the site: a room modelled and pre-lit in Blender, free walk with the keyboard or a joystick on mobile, artworks and frames (12 styles) picked by the artist from the CMS.',
+      fr: "Un **musée virtuel en 3D** relié au site : salle modélisée et pré-éclairée dans ==Blender==, visite libre au clavier ou au joystick sur mobile, œuvres et cadres (12 styles) choisis par l'artiste depuis le CMS.",
+      en: 'A **3D virtual museum** linked to the site: a room modelled and pre-lit in ==Blender==, free walk with the keyboard or a joystick on mobile, artworks and frames (12 styles) picked by the artist from the CMS.',
     },
     tags: ['three.js', 'Blender', 'TypeScript', 'WebGL', 'Directus'],
     live: 'https://musee.artlilou.com',
@@ -459,8 +388,8 @@ export const projects: Project[] = [
   {
     name: 'Homelab',
     description: {
-      fr: "Cluster Proxmox multi-machines, TrueNAS Scale, réseau 10 Gbps : l'infrastructure qui héberge ce site et mes services.",
-      en: 'Multi-machine Proxmox cluster, TrueNAS Scale, 10 Gbps networking: the infrastructure hosting this website and my services.',
+      fr: "Cluster Proxmox multi-machines, TrueNAS Scale, réseau ==10 Gbps== : **l'infrastructure qui héberge ce site** et mes services.",
+      en: 'Multi-machine Proxmox cluster, TrueNAS Scale, ==10 Gbps== networking: **the infrastructure hosting this website** and my services.',
     },
     tags: ['Proxmox', 'TrueNAS', '10GbE', 'Docker'],
     anchor: '#homelab',
@@ -468,8 +397,8 @@ export const projects: Project[] = [
   {
     name: 'mathisbecher.com',
     description: {
-      fr: 'Ce portfolio : Astro + GSAP, conteneurisé avec Docker, buildé par GitHub Actions et auto-hébergé sur mon homelab.',
-      en: 'This portfolio: Astro + GSAP, containerized with Docker, built by GitHub Actions and self-hosted on my homelab.',
+      fr: 'Ce portfolio : ==Astro + GSAP==, conteneurisé avec Docker, buildé par GitHub Actions et **auto-hébergé sur mon homelab**.',
+      en: 'This portfolio: ==Astro + GSAP==, containerized with Docker, built by GitHub Actions and **self-hosted on my homelab**.',
     },
     tags: ['Astro', 'GSAP', 'Docker', 'GitHub Actions'],
     url: 'https://github.com/4Sitam4/Portfolio-mathisbecher.com',

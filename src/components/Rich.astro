@@ -1,0 +1,22 @@
+---
+/** Renders a text with **key ideas** and ==facts== emphasised (see i18n/rich.ts). */
+import { parseRich } from '../i18n/rich';
+
+interface Props {
+  text: string;
+}
+
+const segments = parseRich(Astro.props.text);
+---
+
+{
+  segments.map((s) =>
+    s.kind === 'strong' ? (
+      <strong class="rich-strong">{s.text}</strong>
+    ) : s.kind === 'key' ? (
+      <strong class="rich-key">{s.text}</strong>
+    ) : (
+      s.text
+    )
+  )
+}
