@@ -1,0 +1,32 @@
+# Généré par la CI depuis main (portainer-stack.yml) : ne pas modifier ici.
+# Image épinglée sur le build de main 28d7cca.
+
+services:
+  portfolio:
+    image: ghcr.io/4sitam4/portfolio-mathisbecher.com:sha-28d7cca@sha256:de3473501af8e869e3ad8b61453a51f455bb9b1a98b5eecc96a954f54a6d486a
+    container_name: portfolio
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    # Option A — exposition directe d'un port (reverse proxy hors docker) :
+    ports:
+      - "8080:8080"
+
+    # Option B — reverse proxy dans docker (Traefik/NPM/Caddy) :
+    # supprime le bloc `ports` ci-dessus et attache le container au réseau
+    # partagé de ton proxy, par exemple :
+    # networks:
+    #   - proxy
+    #
+    # Exemple de labels Traefik :
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.portfolio.rule=Host(`mathisbecher.com`)
+    #   - traefik.http.routers.portfolio.entrypoints=websecure
+    #   - traefik.http.routers.portfolio.tls.certresolver=letsencrypt
+    #   - traefik.http.services.portfolio.loadbalancer.server.port=8080
+
+# networks:
+#   proxy:
+#     external: true
