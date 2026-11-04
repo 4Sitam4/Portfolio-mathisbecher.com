@@ -50,7 +50,9 @@ docker build -t portfolio .
 docker run --rm -p 8080:8080 portfolio   # http://localhost:8080
 ```
 
-L'image publiée : `ghcr.io/4sitam4/portfolio-mathisbecher.com:latest`. Le fichier [`portainer-stack.yml`](portainer-stack.yml) donne un exemple de stack (port exposé ou reverse proxy type Traefik).
+L'image publiée : `ghcr.io/4sitam4/portfolio-mathisbecher.com`, avec un tag `latest` et un tag par commit (`sha-xxxxxxx`). Le fichier [`portainer-stack.yml`](portainer-stack.yml) donne un exemple de stack (port exposé ou reverse proxy type Traefik).
+
+**Déploiement continu** : Portainer CE ne redéploie que lorsque le dépôt Git change, et ne retire jamais un tag qui bouge comme `latest`. Une fois l'image publiée, la CI écrit donc `portainer-stack.yml` sur la branche [`deploy`](../../tree/deploy), avec l'image de ce build épinglée par son tag et son empreinte (`sha-xxxxxxx@sha256:…`). La stack Portainer suit cette branche : chaque commit y déploie exactement l'image construite, et revenir en arrière revient à revenir à un commit précédent.
 
 ## Structure
 

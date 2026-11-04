@@ -1,3 +1,6 @@
+# Stack de référence. La CI en publie une copie sur la branche `deploy`, avec
+# l'image de chaque build épinglée (sha-xxxxxxx@sha256:…) : c'est cette branche
+# que suit la stack Portainer. Garder ici `:latest` sur la ligne image.
 services:
   portfolio:
     image: ghcr.io/4sitam4/portfolio-mathisbecher.com:latest

@@ -22,6 +22,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
 
     steps:
       # Actions are pinned to a full commit SHA (the tag is in the comment):
@@ -51,6 +53,7 @@ jobs:
             type=sha,prefix=sha-
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
@@ -59,3 +62,49 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # Portainer CE only redeploys when Git changes and never re-pulls a mutable
+  # tag such as :latest. Once the image is on GHCR, pin it (tag + digest) in
+  # portainer-stack.yml on the `deploy` branch, which the Portainer stack
+  # follows: a new commit there means exactly this image gets deployed.
+  deploy-manifest:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main (stack template)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          path: src
+          persist-credentials: false
+
+      - name: Checkout deploy branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: deploy
+          path: deploy
+
+      - name: Pin the image of this build
+        env:
+          DIGEST: ${{ needs.build-and-push.outputs.digest }}
+        run: |
+          set -euo pipefail
+          short="${GITHUB_SHA::7}"
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "unexpected digest: $DIGEST"; exit 1; }
+          {
+            printf '# Généré par la CI depuis main (portainer-stack.yml) : ne pas modifier ici.\n'
+            printf '# Image épinglée sur le build de main %s.\n\n' "$short"
+            sed -E "s#^(\s*image:\s*ghcr\.io/[^:@]+):latest\s*\$#\1:sha-${short}@${DIGEST}#" src/portainer-stack.yml
+          } > deploy/portainer-stack.yml
+          grep -q "@${DIGEST}" deploy/portainer-stack.yml || { echo "image line not found in portainer-stack.yml"; exit 1; }
+
+          cd deploy
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add portainer-stack.yml
+          if git diff --cached --quiet; then echo 'already up to date'; exit 0; fi
+          git commit -m "deploy: image sha-${short}"
+          git push origin HEAD:deploy
