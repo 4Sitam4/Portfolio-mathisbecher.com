@@ -59,3 +59,8 @@ src/
 └── styles/       design tokens (global.css) et styles des effets
 nginx.conf, nginx/security-headers.conf   serveur et en-têtes de sécurité
 ```
+
+## Licence
+
+- **Code** (composants, scripts, styles, configuration) : [MIT](LICENSE). Réutilisez les effets, le terminal ou la config librement.
+- **Contenu personnel** (textes, nom, parcours, descriptions de projets et toute information me concernant) : tous droits réservés. Merci de ne pas le reprendre tel quel.
