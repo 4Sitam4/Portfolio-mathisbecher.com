@@ -65,18 +65,23 @@ const setState = (el: HTMLElement, s: State): void => void (el.dataset.pv = s);
 /** The fixed side nav follows its own open/close cycle, not the scroll. */
 const pinned = (el: HTMLElement): boolean => el.closest('.nav') !== null;
 
-/** IntersectionObserver rootMargin for a band of `margin` × viewport height. */
-const zoneMargin = (margin: number): string => {
-  const band = Math.round(window.innerHeight * margin);
-  return `-${band}px 0px -${band}px 0px`;
-};
-
-/** Inside the enter zone now, for decisions made before the observers report. */
-function inZoneNow(el: HTMLElement): boolean {
+/**
+ * Where a resource sits relative to the zone, from its bounding box.
+ * getBoundingClientRect() ignores the element's own clip-path, so the
+ * reveal/erase/glitch clipping can never make it look like it left the
+ * zone (IntersectionObserver does take it into account, and also ignores
+ * rootMargin inside cross-origin iframes such as VS Code's browser —
+ * both made edge resources loop between destroy and restore).
+ */
+function where(el: HTMLElement): { enter: boolean; inside: boolean; visible: boolean } {
   const r = el.getBoundingClientRect();
-  const band = window.innerHeight * ENTER_MARGIN;
-  return r.bottom > band && r.top < window.innerHeight - band;
+  const vh = window.innerHeight;
+  const inBand = (m: number) => r.bottom > vh * m && r.top < vh * (1 - m);
+  return { enter: inBand(ENTER_MARGIN), inside: inBand(LEAVE_MARGIN), visible: inBand(0) };
 }
+
+/** Inside the enter zone now. */
+const inZoneNow = (el: HTMLElement): boolean => where(el).enter;
 
 export class Provisioner {
   private readonly targets: HTMLElement[];
@@ -84,17 +89,6 @@ export class Provisioner {
   private readonly destroying = new Map<HTMLElement, { tl: gsap.core.Timeline; layer: HTMLElement; done: () => void }>();
   /** Whether each resource is still within the leave line (true once it entered). */
   private readonly zone = new Map<HTMLElement, boolean>();
-  /** Fires when a resource gets 12 % inside: build (or restore). */
-  private readonly enterObserver: IntersectionObserver;
-  /** Fires when a resource gets past the 6 % line: destroy. */
-  private readonly leaveObserver: IntersectionObserver;
-  /** Resets resources that end up fully off screen without a zone exit. */
-  private readonly offscreen = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      const el = entry.target as HTMLElement;
-      if (!entry.isIntersecting && stateOf(el) === 'done' && this.zone.get(el) === false) setState(el, 'pending');
-    }
-  });
   private queue: HTMLElement[] = [];
   private flushTimer = 0;
   private intro: gsap.core.Timeline | null = null;
@@ -103,28 +97,6 @@ export class Provisioner {
 
   constructor() {
     this.targets = [...document.querySelectorAll<HTMLElement>('[data-provision]')];
-    this.enterObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          this.zone.set(el, true);
-          this.onEnter(el);
-        }
-      },
-      { rootMargin: zoneMargin(ENTER_MARGIN) }
-    );
-    this.leaveObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          this.zone.set(el, false);
-          this.onLeave(el);
-        }
-      },
-      { rootMargin: zoneMargin(LEAVE_MARGIN) }
-    );
   }
 
   /** True while something is drawing — the ambient loop waits for it. */
@@ -199,11 +171,36 @@ export class Provisioner {
   private observe(): void {
     if (this.observing) return;
     this.observing = true;
+    let frame = 0;
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        this.track();
+      });
+    };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    // Layout can move without scrolling (nav push, terminal output, fonts).
+    new ResizeObserver(schedule).observe(document.body);
+    this.track();
+  }
+
+  /** Compare every resource with the zone and react to the changes (hysteresis). */
+  private track(): void {
     for (const el of this.targets) {
       if (pinned(el)) continue;
-      this.enterObserver.observe(el);
-      this.leaveObserver.observe(el);
-      this.offscreen.observe(el);
+      const w = where(el);
+      const was = this.zone.get(el);
+      if (w.enter && was !== true) {
+        this.zone.set(el, true);
+        this.onEnter(el);
+      } else if (!w.inside && was !== false) {
+        this.zone.set(el, false);
+        this.onLeave(el);
+      }
+      // Fully off screen without a visible exit: reset quietly.
+      if (!w.visible && stateOf(el) === 'done' && this.zone.get(el) === false) setState(el, 'pending');
     }
   }
 
