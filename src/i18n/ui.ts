@@ -73,6 +73,7 @@ export const ui = {
     'projects.solution': 'La solution',
     'projects.role': 'Mon rôle',
     'projects.private': 'Repo privé',
+    'projects.live': 'Voir en ligne',
 
     'homelab.title': 'homelab',
     'homelab.intro':
@@ -168,6 +169,7 @@ export const ui = {
     'projects.solution': 'The solution',
     'projects.role': 'My role',
     'projects.private': 'Private repo',
+    'projects.live': 'See it live',
 
     'homelab.title': 'homelab',
     'homelab.intro':
@@ -404,7 +406,10 @@ export interface Project {
   name: string;
   description: { fr: string; en: string };
   tags: string[];
+  /** source code */
   url?: string;
+  /** the project running online (when the source is private) */
+  live?: string;
   /** in-page anchor, for projects documented on this page */
   anchor?: string;
   stars?: number;
@@ -432,6 +437,24 @@ export const projects: Project[] = [
     tags: ['JavaScript', 'Docker', 'Self-hosting'],
     url: 'https://github.com/4Sitam4/Torrentarr',
     stars: 2,
+  },
+  {
+    name: 'artlilou.com',
+    description: {
+      fr: "Le site de ma sœur, artiste peintre : 187 œuvres migrées depuis WordPress, CMS headless Directus pour qu'elle gère tout elle-même, vue des toiles en réalité augmentée, accessibilité WCAG 2.2 AA. Auto-hébergé sur mon homelab, avec déploiement continu.",
+      en: 'My sister\'s website, a painter: 187 artworks migrated from WordPress, a headless Directus CMS so she manages everything herself, augmented-reality view of the paintings, WCAG 2.2 AA accessibility. Self-hosted on my homelab, with continuous deployment.',
+    },
+    tags: ['Astro', 'Directus', 'PostgreSQL', 'Docker', 'Portainer'],
+    live: 'https://artlilou.com',
+  },
+  {
+    name: 'musee.artlilou.com',
+    description: {
+      fr: "Un musée virtuel en 3D relié au site : salle modélisée et pré-éclairée dans Blender, visite libre au clavier ou au joystick sur mobile, œuvres et cadres (12 styles) choisis par l'artiste depuis le CMS.",
+      en: 'A 3D virtual museum linked to the site: a room modelled and pre-lit in Blender, free walk with the keyboard or a joystick on mobile, artworks and frames (12 styles) picked by the artist from the CMS.',
+    },
+    tags: ['three.js', 'Blender', 'TypeScript', 'WebGL', 'Directus'],
+    live: 'https://musee.artlilou.com',
   },
   {
     name: 'Homelab',

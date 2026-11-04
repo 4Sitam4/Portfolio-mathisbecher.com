@@ -70,8 +70,9 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
     <ul class="projects">
       {
         rest.map((project, i) => {
-          const href = project.anchor ?? project.url;
-          const external = !project.anchor && Boolean(project.url);
+          const href = project.anchor ?? project.url ?? project.live;
+          const external = !project.anchor && Boolean(project.url ?? project.live);
+          const cta = project.anchor ? t('projects.homelab') : project.url ? t('projects.source') : t('projects.live');
           return (
             <li class="project" data-provision={`projects.repo[${i}]`}>
               <h4 class="project__name">
@@ -96,7 +97,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
               </ul>
               {href && (
                 <span class="project__cta mono" aria-hidden="true">
-                  {project.anchor ? t('projects.homelab') : t('projects.source')}
+                  {cta}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     {project.anchor ? <path d="M12 5v14M5 12l7 7 7-7" /> : <><path d="M7 17 17 7" /><path d="M8 7h9v9" /></>}
                   </svg>
