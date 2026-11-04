@@ -97,7 +97,7 @@ export const easterEggs: Record<string, Command> = {
     if (!/^(mathisbecher\.com|localhost)$/.test(host)) {
       io.out({ text: L(io, `ping: ${host} : seul mathisbecher.com répond d'ici.`, `ping: ${host}: only mathisbecher.com answers from here.`), cls: 'dim' });
     }
-    io.out(L(io, 'PING mathisbecher.com — 4 requêtes HTTP réelles vers mon homelab', 'PING mathisbecher.com — 4 real HTTP requests to my homelab'));
+    io.out(L(io, 'PING mathisbecher.com — 4 vraies requêtes HTTP, via Cloudflare jusqu’à mon homelab', 'PING mathisbecher.com — 4 real HTTP requests, through Cloudflare to my homelab'));
     const times: number[] = [];
     for (let seq = 1; seq <= 4; seq++) {
       const t0 = performance.now();

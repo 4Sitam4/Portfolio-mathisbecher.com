@@ -295,6 +295,21 @@ p {
   border-color: var(--accent-hover);
 }
 
+/* Secondary action: text-like, stays in the background next to a primary. */
+.btn--quiet {
+  padding-inline: var(--s-3);
+  color: var(--text-2);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn--quiet:hover {
+  color: var(--text);
+  background: var(--raised);
+  border-color: var(--line-strong);
+}
+
 .btn svg {
   width: 18px;
   height: 18px;

@@ -2,6 +2,7 @@
 /** The one-page portfolio, shared by the FR (/) and EN (/en/) routes. */
 import Base from '../layouts/Base.astro';
 import Navbar from './Navbar.astro';
+import ReadingMode from './ReadingMode.astro';
 import Hero from './Hero.astro';
 import About from './About.astro';
 import Experience from './Experience.astro';
@@ -23,6 +24,7 @@ const t = useTranslations(lang);
 
 <Base lang={lang} title={t('meta.title')} description={t('meta.description')}>
   <Navbar lang={lang} />
+  <ReadingMode lang={lang} />
   <main id="main">
     <Hero lang={lang} />
     <About lang={lang} />

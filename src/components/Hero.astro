@@ -3,6 +3,7 @@ import MatrixRain from './MatrixRain.astro';
 import Window from './Window.astro';
 import Rich from './Rich.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { cvPdf } from '../i18n/cv';
 
 interface Props {
   lang: Lang;
@@ -12,7 +13,7 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 // The physical path a request takes to reach this page (see the homelab section).
-const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
+const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
 ---
 
 <section id="top" class="hero">
@@ -37,8 +38,14 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
       <p class="hero__status" data-hero data-provision="hero.status">{t('hero.status')}</p>
 
       <div class="hero__actions" data-hero data-provision="hero.actions">
-        <a href="#projects" class="btn btn--primary">{t('hero.cta.projects')}</a>
-        <a href="#terminal" class="btn">
+        <a href={cvPdf[lang]} class="btn btn--primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 4v11" /><path d="m7 10 5 5 5-5" /><path d="M5 20h14" />
+          </svg>
+          {t('hero.cta.cv')}
+        </a>
+        <a href="#projects" class="btn btn--quiet">{t('hero.cta.projects')}</a>
+        <a href="#terminal" class="btn btn--quiet">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m4 17 6-6-6-6" /><path d="M12 19h8" />
           </svg>
@@ -157,8 +164,13 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-3);
+    gap: var(--s-2);
     margin-top: var(--s-6);
+  }
+
+  /* a little more air between the primary action and the quiet ones */
+  .hero__actions .btn--primary {
+    margin-right: var(--s-2);
   }
 
   /* --- The moment: a live trace of the visitor's own request --- */
@@ -289,7 +301,8 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
     }
 
     .hero__grid {
-      padding-block: var(--s-7) var(--s-8);
+      /* clear the fixed menu and reading-mode buttons */
+      padding-block: calc(var(--s-4) + 2.75rem + var(--s-5)) var(--s-8);
     }
 
     .hero__actions {
@@ -298,6 +311,7 @@ const route = [t('trace.you'), 'firewall', '10GbE', 'proxmox', 'nginx'];
 
     .hero__actions .btn {
       flex: 1 1 100%;
+      margin-right: 0;
     }
 
     .trace__body {

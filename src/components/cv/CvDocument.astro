@@ -1,0 +1,470 @@
+---
+/**
+ * One-page A4 CV (content: i18n/cv.ts). Rendered at /cv/ and /en/cv/, and
+ * printed to PDF at build time; the build fails if it no longer fits one page.
+ */
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import Rich from '../Rich.astro';
+import { contactLinks, useTranslations, type Lang } from '../../i18n/ui';
+import { cv, cvPdf, cvText } from '../../i18n/cv';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const c = cvText[lang];
+const home = lang === 'fr' ? '/' : '/en/';
+const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const updated = new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{c.title}</title>
+    <meta name="description" content={t('meta.description')} />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <nav class="bar" aria-label="CV">
+      <a href={home}>← {c.back}</a>
+      <a class="bar__pdf" href={cvPdf[lang]} download>{c.download}</a>
+    </nav>
+
+    <main class="sheet">
+      <header class="head">
+        <div>
+          <p class="prompt">$ whoami</p>
+          <h1>Mathis Becher</h1>
+          <p class="role">{t('hero.role')}</p>
+        </div>
+        <ul class="plain contact">
+          <li><a href={`mailto:${contactLinks.email}`}>{contactLinks.email}</a></li>
+          <li><a href="https://mathisbecher.com">mathisbecher.com</a></li>
+          <li><a href={contactLinks.github}>{host(contactLinks.github)}</a></li>
+          <li><a href={contactLinks.linkedin}>{host(contactLinks.linkedin)}</a></li>
+          <li>Strasbourg, France</li>
+        </ul>
+      </header>
+
+      <section class="profile">
+        <p><Rich text={cv.profile[lang]} /></p>
+      </section>
+
+      <div class="grid">
+        <div class="main">
+          <section>
+            <h2>{c.experience}</h2>
+            {
+              cv.jobs.map((job) => (
+                <article class="entry">
+                  <div class="entry__head">
+                    <h3>{job.title[lang]}</h3>
+                    <span class="when">{job.period[lang]}</span>
+                  </div>
+                  <p class="meta">
+                    <span class="org-name">{job.org}</span> · {job.meta[lang]}
+                  </p>
+                  {job.text && (
+                    <p>
+                      <Rich text={job.text[lang]} />
+                    </p>
+                  )}
+                  {job.items && (
+                    <ul class="items">
+                      {job.items.map((item) => (
+                        <li>
+                          <b class="item__name">{item.name}</b> <Rich text={item.text[lang]} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {job.tags && <p class="tags">{job.tags.map((tag) => tag.replaceAll(' ', ' ')).join(' · ')}</p>}
+                </article>
+              ))
+            }
+          </section>
+
+          <section>
+            <h2>{c.personal}</h2>
+            {
+              cv.projects.map((p) => (
+                <p class="project">
+                  <b class="item__name">{p.name}</b>
+                  {p.stars && <span class="stars"> ★ {p.stars}</span>} <Rich text={p.text[lang]} />
+                </p>
+              ))
+            }
+          </section>
+
+          <section>
+            <h2>{c.education}</h2>
+            {
+              cv.education.map((e) => (
+                <div class="edu">
+                  <div class="entry__head">
+                    <h3>
+                      {e.title[lang]} <span class="org">· {e.org}</span>
+                    </h3>
+                    <span class="when">{e.period[lang]}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </section>
+        </div>
+
+        <aside class="side">
+          <section>
+            <h2>{c.skills}</h2>
+            {
+              cv.skills.map((g) => (
+                <div class="skills">
+                  <h3>{g.name[lang]}</h3>
+                  <p>{g.items}</p>
+                </div>
+              ))
+            }
+          </section>
+
+          <section>
+            <h2>{c.homelab}</h2>
+            <p><Rich text={cv.homelab[lang]} /></p>
+          </section>
+
+          <section>
+            <h2>{c.languages}</h2>
+            <p>{cv.languages[lang]}</p>
+          </section>
+
+          <section>
+            <h2>{c.interests}</h2>
+            <p>{cv.interests[lang]}</p>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="foot">
+        {c.generated} · {c.updated} {updated}
+      </footer>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  @page {
+    size: A4;
+    margin: 12mm 13mm 11mm;
+  }
+
+  :root {
+    --ink: #101814;
+    --ink-2: #3b4a43;
+    --ink-3: #6a7a72;
+    --rule: #d9e2dd;
+    --green: #00875a;
+    --wash: rgba(0, 191, 118, 0.14);
+    color-scheme: light;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #e7ece9;
+    color: var(--ink-2);
+    font: 400 10.2pt/1.5 'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 14px 4px;
+    font: 500 13px 'JetBrains Mono', monospace;
+  }
+
+  .bar a:hover {
+    color: var(--green);
+  }
+
+  .bar__pdf {
+    color: var(--green);
+  }
+
+  .sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 40px;
+    padding: 13mm 14mm 10mm;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8mm;
+    padding-bottom: 5mm;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .prompt,
+  .role,
+  h2,
+  .when,
+  .foot {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .prompt {
+    color: var(--green);
+    font-size: 9pt;
+  }
+
+  h1 {
+    color: var(--ink);
+    font: 500 25pt/1.1 'JetBrains Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+
+  .role {
+    margin-top: 1.5mm;
+    color: var(--ink);
+    font-size: 11pt;
+  }
+
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 58mm;
+    gap: 8mm;
+    margin-top: 6mm;
+  }
+
+  section + section {
+    margin-top: 5.5mm;
+  }
+
+  h2 {
+    margin-bottom: 2.4mm;
+    padding-bottom: 1mm;
+    border-bottom: 1px solid var(--rule);
+    color: var(--green);
+    font-size: 8.4pt;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+  }
+
+  h2::before {
+    content: '~/';
+    color: var(--ink-3);
+  }
+
+  h3 {
+    color: var(--ink);
+    font-size: 9.8pt;
+    font-weight: 600;
+  }
+
+  .org {
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+
+  .main p + p {
+    margin-top: 1.6mm;
+  }
+
+  .entry {
+    break-inside: avoid;
+  }
+
+  .entry + .entry {
+    margin-top: 3.8mm;
+  }
+
+  .entry__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4mm;
+    margin-bottom: 0.8mm;
+  }
+
+  .when {
+    flex: none;
+    color: var(--ink-3);
+    font-size: 7.8pt;
+  }
+
+
+
+  .side {
+    font-size: 9.4pt;
+  }
+
+  .side h3 {
+    font-size: 9pt;
+  }
+
+  .plain {
+    list-style: none;
+  }
+
+  .plain li + li {
+    margin-top: 0.8mm;
+  }
+
+  .skills + .skills {
+    margin-top: 2.6mm;
+  }
+
+  .foot {
+    margin-top: 6mm;
+    padding-top: 2mm;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-3);
+    font-size: 7.4pt;
+    text-align: center;
+  }
+
+  .contact {
+    text-align: right;
+    font-size: 8.6pt;
+    line-height: 1.5;
+  }
+
+  .profile {
+    margin-top: 4.5mm;
+    font-size: 10pt;
+  }
+
+  .meta {
+    margin-bottom: 1.6mm;
+    color: var(--ink-3);
+    font-size: 8.8pt;
+  }
+
+  .org-name {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .items {
+    padding-left: 4mm;
+  }
+
+  .items li + li {
+    margin-top: 1.6mm;
+  }
+
+  .items li::marker {
+    color: var(--green);
+  }
+
+  .item__name {
+    color: var(--ink);
+    font: 500 8.8pt 'JetBrains Mono', monospace;
+  }
+
+  .tags {
+    margin-top: 1.6mm;
+    color: var(--ink-3);
+    font: 400 7.8pt 'JetBrains Mono', monospace;
+  }
+
+  .project + .project {
+    margin-top: 1.8mm;
+  }
+
+  .stars {
+    color: var(--ink-3);
+    font: 400 8.4pt 'JetBrains Mono', monospace;
+  }
+
+  .edu + .edu {
+    margin-top: 2.2mm;
+  }
+
+  /* Emphasis markup (same as the site, print palette). */
+  .rich-strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .rich-key {
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  @media print {
+    body {
+      background: #fff;
+    }
+
+    .bar {
+      display: none;
+    }
+
+    .sheet {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+  }
+
+  @media screen and (max-width: 820px) {
+    .sheet {
+      width: auto;
+      min-height: 0;
+      margin: 0 0 24px;
+      padding: 20px 16px;
+    }
+
+    .bar {
+      padding: 14px 16px;
+    }
+
+    .head,
+    .grid {
+      display: block;
+    }
+
+    .contact {
+      margin-top: 8px;
+      text-align: left;
+    }
+
+    .side {
+      margin-top: 20px;
+    }
+  }
+</style>

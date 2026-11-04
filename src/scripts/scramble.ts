@@ -8,8 +8,10 @@ const GLYPHS =
 
 const randomGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 
+/** No motion: the OS setting, or the site's reading mode (see ReadingMode.astro). */
 export const prefersReducedMotion = (): boolean =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+  document.documentElement.dataset.calm === 'true';
 
 interface ScrambleOptions {
   /** total duration in ms */

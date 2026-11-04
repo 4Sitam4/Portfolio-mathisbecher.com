@@ -16,6 +16,8 @@ Autres détails :
 - **Terminal interactif** : un petit shell sur un système de fichiers virtuel. `ls`, `cd`, `tree`, `cat`, `mkdir`, `touch`, `rm`, `mv`, `cp`, `echo … > fichier`, un éditeur `nano` (`^O` / `^X`), la complétion avec Tab et l'historique. Ce que vous créez reste uniquement dans votre navigateur (`reset` pour tout effacer). Quelques easter eggs sont à découvrir…
 - **Pluie matrix** en canvas, avec un double tampon pour que les traînées disparaissent complètement.
 - **Navigation latérale** cachée, qui pousse la page et se construit / se déconstruit.
+- **CV PDF généré depuis le site** : la page `/cv/` (une sélection cloud / DevOps, dans `src/i18n/cv.ts`) est imprimée en PDF au build, en FR et en EN, avec Chrome headless. Le build échoue si le CV dépasse une page A4. L'image d'aperçu des liens (`og.png`) est générée de la même façon.
+- **Mode lecture** : un bouton coupe toutes les animations pour ceux qui veulent juste lire (choix mémorisé dans le navigateur).
 - **Accessible** : contenu lisible sans JavaScript, `prefers-reduced-motion` respecté (aucune animation), navigation au clavier.
 - **Bilingue** FR / EN.
 
@@ -27,16 +29,16 @@ Autres détails :
 | Polices | IBM Plex Sans, JetBrains Mono (auto-hébergées via Fontsource) |
 | Conteneur | Build multi-stage → `nginx-unprivileged` (non-root), en-têtes de sécurité, CSP |
 | CI | GitHub Actions : build de l'image et publication sur GHCR à chaque push sur `main` |
-| Hébergement | Homelab Proxmox, container géré par Portainer derrière un reverse proxy TLS |
+| Hébergement | Homelab Proxmox, container géré par Portainer, derrière Cloudflare (proxy) et un reverse proxy TLS |
 
 ## Lancer en local
 
-Prérequis : Node.js ≥ 22.23.
+Prérequis : Node.js ≥ 22.23, et Chrome ou Chromium pour générer le CV PDF et l'image d'aperçu (sinon cette étape est sautée avec un avertissement ; chemin personnalisé via `CHROME_BIN`).
 
 ```bash
 npm ci
 npm run dev      # http://localhost:4321
-npm run build    # site statique dans dist/
+npm run build    # site statique dans dist/, CV PDF et og.png compris
 npm run preview  # sert dist/
 npx astro check  # vérification des types
 ```
@@ -55,11 +57,13 @@ L'image publiée : `ghcr.io/4sitam4/portfolio-mathisbecher.com:latest`. Le fichi
 ```
 src/
 ├── components/   sections de la page (Hero, Projects, Homelab, Terminal…)
-├── i18n/ui.ts    tous les textes FR / EN et les données (parcours, projets…)
+├── i18n/        textes FR / EN et données : ui.ts, timeline.ts (parcours), cv.ts
+│                (**gras** et ==vert== dans les textes : voir rich.ts)
 ├── layouts/      squelette HTML, SEO, décision du boot avant le premier rendu
 ├── scripts/      effets : provision*.ts (construction / effacement), matrix, trace
 │   └── term/     terminal : système de fichiers, complétion, nano, easter eggs
 └── styles/       design tokens (global.css) et styles des effets
+scripts/render-assets.mjs                 CV PDF et og.png, après le build
 nginx.conf, nginx/security-headers.conf   serveur et en-têtes de sécurité
 ```
 

@@ -24,13 +24,19 @@ export const ui = {
     'nav.menu': 'menu',
     'nav.close': 'fermer',
     'nav.switch': 'Read this page in English',
+    'calm.on': 'mode lecture',
+    'calm.off': 'effets',
+    'calm.label': 'Mode lecture : couper les animations',
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
       "Je construis des **infrastructures cloud**, j'**automatise** tout ce qui peut l'être… et j'**auto-héberge le reste**.",
     'hero.status': 'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027)',
-    'hero.cta.projects': 'Voir mes projets',
+    'hero.cta.projects': 'Mes projets',
     'hero.cta.terminal': 'Ouvrir le terminal',
+    'hero.cta.cv': 'Télécharger mon CV',
+    'cv.channel': 'CV',
+    'cv.channel.value': 'PDF, 2 pages',
 
     'trace.title': 'votre requête',
     'trace.pending': 'mesure en cours…',
@@ -88,7 +94,7 @@ export const ui = {
     'homelab.stat4.label': 'auto-hébergé',
     'homelab.here': 'vous êtes ici',
     'homelab.diagram':
-      'Schéma du homelab : internet, routeur et pare-feu, switch 10GbE, cluster Proxmox, TrueNAS Scale, puis les VMs et containers Docker dont le nginx qui sert ce site.',
+      'Schéma du homelab : internet, proxy Cloudflare, routeur et pare-feu, switch 10GbE, cluster Proxmox, TrueNAS Scale, puis les VMs et containers Docker dont le nginx qui sert ce site.',
 
     'term.title': 'terminal',
     'term.hint': 'Un vrai petit shell pour explorer ce portfolio. Tapez une commande ou essayez :',
@@ -120,13 +126,19 @@ export const ui = {
     'nav.menu': 'menu',
     'nav.close': 'close',
     'nav.switch': 'Lire cette page en français',
+    'calm.on': 'reading mode',
+    'calm.off': 'effects',
+    'calm.label': 'Reading mode: turn animations off',
 
     'hero.role': 'Cloud Infrastructure Engineer',
     'hero.tagline':
       'I build **cloud infrastructure**, **automate** everything that can be automated… and **self-host the rest**.',
     'hero.status': 'Apprentice at Open Lake Technology, student at Epitech (class of 2027)',
-    'hero.cta.projects': 'View my projects',
+    'hero.cta.projects': 'My projects',
     'hero.cta.terminal': 'Open the terminal',
+    'hero.cta.cv': 'Download résumé',
+    'cv.channel': 'Résumé',
+    'cv.channel.value': 'PDF, 2 pages',
 
     'trace.title': 'your request',
     'trace.pending': 'measuring…',
@@ -184,7 +196,7 @@ export const ui = {
     'homelab.stat4.label': 'self-hosted',
     'homelab.here': 'you are here',
     'homelab.diagram':
-      'Homelab diagram: internet, router and firewall, 10GbE switch, Proxmox cluster, TrueNAS Scale, then the VMs and Docker containers including the nginx serving this site.',
+      'Homelab diagram: internet, Cloudflare proxy, router and firewall, 10GbE switch, Proxmox cluster, TrueNAS Scale, then the VMs and Docker containers including the nginx serving this site.',
 
     'term.title': 'terminal',
     'term.hint': 'A small working shell to explore this portfolio. Type a command or try:',

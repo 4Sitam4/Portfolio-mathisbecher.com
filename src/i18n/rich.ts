@@ -17,7 +17,9 @@ export function parseRich(input: string): Segment[] {
   let last = 0;
   for (const m of input.matchAll(MARKUP)) {
     if (m.index > last) out.push({ text: input.slice(last, m.index), kind: 'plain' });
-    out.push(m[1] !== undefined ? { text: m[1], kind: 'strong' } : { text: m[2]!, kind: 'key' });
+    const seg: Segment = m[1] !== undefined ? { text: m[1], kind: 'strong' } : { text: m[2]!, kind: 'key' };
+    if (/\*\*|==/.test(seg.text)) throw new Error(`rich: nested emphasis is not supported in ${JSON.stringify(input)}`);
+    out.push(seg);
     last = m.index + m[0].length;
   }
   if (last < input.length) out.push({ text: input.slice(last), kind: 'plain' });

@@ -2,6 +2,13 @@
 FROM node:24-alpine AS build
 WORKDIR /app
 
+# Headless Chromium prints the CV to PDF and renders the link-preview image
+# after the Astro build (scripts/render-assets.mjs). Build stage only: none
+# of it reaches the final image.
+RUN apk add --no-cache chromium font-dejavu
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV RENDER_REQUIRED=1
+
 COPY package.json package-lock.json ./
 RUN npm ci
 

@@ -19,6 +19,8 @@ const slug = (name: string): string =>
 
 const TOPOLOGY = String.raw`INTERNET
    |
+cloudflare (proxy)
+   |
 router / firewall
    | 10 Gbps
 switch 10GbE

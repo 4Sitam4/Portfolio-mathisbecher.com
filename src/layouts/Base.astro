@@ -19,6 +19,7 @@ interface Props {
 const { lang, title, description } = Astro.props;
 const t = useTranslations(lang);
 const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
+const ogImage = new URL('/og.png', Astro.site).href;
 ---
 
 <!doctype html>
@@ -40,6 +41,18 @@ const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'fr' ? 'en_US' : 'fr_FR'} />
+    <meta property="og:site_name" content="mathisbecher.com" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Mathis Becher — Cloud Infrastructure Engineer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="author" content="Mathis Becher" />
 
     <script
       is:inline
@@ -50,6 +63,11 @@ const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
         name: 'Mathis Becher',
         url: 'https://mathisbecher.com',
         jobTitle: 'Cloud Infrastructure Engineer',
+        image: ogImage,
+        email: 'mailto:contact@mathisbecher.com',
+        address: { '@type': 'PostalAddress', addressLocality: 'Strasbourg', addressCountry: 'FR' },
+        knowsLanguage: ['fr', 'en'],
+        knowsAbout: ['Terraform', 'Terramate', 'Microsoft Azure', 'Kubernetes', 'Docker', 'Proxmox', 'Go', 'Infrastructure as Code'],
         worksFor: { '@type': 'Organization', name: 'Open Lake Technology' },
         sameAs: ['https://github.com/4Sitam4', 'https://www.linkedin.com/in/mathisbecher/'],
       })}
@@ -61,11 +79,17 @@ const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
       (function () {
         var root = document.documentElement;
         root.classList.add('js');
+        // Reading mode, chosen by the visitor (ReadingMode.astro).
+        var calm = false;
+        try {
+          calm = localStorage.getItem('mb-calm') === '1';
+        } catch (e) {}
+        if (calm) root.dataset.calm = 'true';
         // Every visit: boot + "terraform apply" build, so every resource starts
         // hidden ('pv'). With reduced motion there is no show at all.
         // animations.ts takes over this class; the timeout is a safety net so
         // content can never stay hidden if the script fails to load.
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (calm || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           root.dataset.booted = 'true';
         } else {
           root.classList.add('pv');
