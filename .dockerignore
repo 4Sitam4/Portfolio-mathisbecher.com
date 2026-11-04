@@ -10,3 +10,11 @@ dist
 .env.*
 Dockerfile
 .dockerignore
+.claude
+.cate
+.codex
+.opencode
+.vscode
+.idea
+*.md
+portainer-stack.yml

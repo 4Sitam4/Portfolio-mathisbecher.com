@@ -35,7 +35,9 @@ export function toRows(status: number, statusText: string, protocol: string, hea
   const text = statusText || STATUS_TEXT[status] || '';
   const rows: TraceRow[] = [{ key: `${proto} ${status}`, value: text, kind: 'status' }];
   for (const name of SHOWN_HEADERS) {
-    const value = headers.get(name);
+    let value = headers.get(name);
+    // Show the server software, never its version (e.g. "nginx/1.30.6 (Ubuntu)" → "nginx").
+    if (value && name === 'server') value = value.split(/[/\s]/)[0] ?? value;
     if (value) rows.push({ key: `${name}:`, value });
   }
   return rows;

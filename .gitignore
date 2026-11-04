@@ -12,3 +12,11 @@ node_modules/
 # misc
 *.log
 .DS_Store
+
+# local tooling / editor config (never published)
+.claude/
+.cate/
+.codex/
+.opencode/
+.vscode/
+.idea/
