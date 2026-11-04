@@ -12,7 +12,7 @@ RUN npm run build
 # Unprivileged nginx: the server runs as the "nginx" user (uid 101), never as
 # root, and listens on 8080. Only the built static site and the nginx config
 # end up in the final image.
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 
 # Pull the latest security fixes of the Alpine base packages.
 USER root
