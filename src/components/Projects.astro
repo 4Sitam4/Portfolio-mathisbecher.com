@@ -1,5 +1,6 @@
 ---
 import SectionHeading from './SectionHeading.astro';
+import WorkCases from './WorkCases.astro';
 import { useTranslations, projects, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -18,14 +19,24 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
   <div class="container">
     <SectionHeading title={t('projects.title')} name="projects" />
 
+    <h3 class="subpath" data-provision="projects.work.title">
+      <span class="subpath__root" aria-hidden="true">~/{t('projects.title')}/</span>{t('projects.work')}
+    </h3>
+    <p class="subpath__lede" data-provision="projects.work.lede">{t('projects.work.lede')}</p>
+    <WorkCases lang={lang} />
+
+    <h3 class="subpath subpath--next" data-provision="projects.perso.title">
+      <span class="subpath__root" aria-hidden="true">~/{t('projects.title')}/</span>{t('projects.perso')}
+    </h3>
+
     {
       featured && (
         <article class="feature" data-provision="projects.featured">
           <div class="feature__text">
-            <h3 class="feature__name">
+            <h4 class="feature__name">
               {featured.name}
               {featured.archived && <span class="archived">{t('projects.archived')}</span>}
-            </h3>
+            </h4>
             <p class="feature__desc">{featured.description[lang]}</p>
             <ul class="tags" aria-label="Technologies">
               {featured.tags.map((tag) => (
@@ -63,7 +74,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
           const external = !project.anchor && Boolean(project.url);
           return (
             <li class="project" data-provision={`projects.repo[${i}]`}>
-              <h3 class="project__name">
+              <h4 class="project__name">
                 {href ? (
                   <a
                     class="project__link"
@@ -76,7 +87,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
                 ) : (
                   project.name
                 )}
-              </h3>
+              </h4>
               <p class="project__desc">{project.description[lang]}</p>
               <ul class="tags" aria-label="Technologies">
                 {project.tags.map((tag) => (
@@ -100,6 +111,31 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
 </section>
 
 <style>
+  /* --- Sub-paths: ~/projets/open-lake, ~/projets/perso --- */
+
+  .subpath {
+    margin-bottom: var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xl);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .subpath--next {
+    margin-top: var(--s-8);
+    margin-bottom: var(--s-5);
+  }
+
+  .subpath__root {
+    color: var(--text-3);
+  }
+
+  .subpath__lede {
+    max-width: 62ch;
+    margin-bottom: var(--s-5);
+    color: var(--text-2);
+  }
+
   /* --- Featured project: the one figure that matters --- */
 
   .feature {

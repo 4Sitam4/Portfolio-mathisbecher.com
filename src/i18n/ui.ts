@@ -65,6 +65,14 @@ export const ui = {
     'projects.archived': 'archivé',
     'projects.stars': 'étoiles sur GitHub',
     'projects.homelab': 'Voir le homelab',
+    'projects.work': 'open-lake',
+    'projects.work.lede':
+      "Les deux plus gros projets de mon alternance. À chaque fois, j'ai identifié le besoin, choisi la solution, puis conçu, développé et livré le projet de bout en bout.",
+    'projects.perso': 'perso',
+    'projects.need': 'Le besoin',
+    'projects.solution': 'La solution',
+    'projects.role': 'Mon rôle',
+    'projects.private': 'Repo privé',
 
     'homelab.title': 'homelab',
     'homelab.intro':
@@ -152,6 +160,14 @@ export const ui = {
     'projects.archived': 'archived',
     'projects.stars': 'stars on GitHub',
     'projects.homelab': 'See the homelab',
+    'projects.work': 'open-lake',
+    'projects.work.lede':
+      'The two biggest projects of my apprenticeship. Each time, I identified the need, chose the solution, then designed, built and shipped the project end to end.',
+    'projects.perso': 'personal',
+    'projects.need': 'The need',
+    'projects.solution': 'The solution',
+    'projects.role': 'My role',
+    'projects.private': 'Private repo',
 
     'homelab.title': 'homelab',
     'homelab.intro':
@@ -212,10 +228,10 @@ export const timeline: TimelineEntry[] = [
     org: 'Open Lake Technology',
     location: { fr: 'Paris · full remote', en: 'Paris · full remote' },
     description: {
-      fr: "Infrastructure cloud Azure en Infrastructure-as-Code : Terraform, Terramate, pipelines CI/CD avec GitHub Actions.",
-      en: 'Azure cloud infrastructure as code: Terraform, Terramate, CI/CD pipelines with GitHub Actions.',
+      fr: "Infrastructure cloud Azure en Infrastructure-as-Code. J'ai porté de bout en bout deux projets majeurs : la plateforme Terramate qui gère les environnements clients, et Shipyard, l'outil de déploiement on-prem hors ligne.",
+      en: 'Azure cloud infrastructure as code. I led two major projects end to end: the Terramate platform that manages customer environments, and Shipyard, the offline on-prem deployment tool.',
     },
-    tags: ['Azure', 'Terraform', 'Terramate', 'GitHub Actions', 'CI/CD'],
+    tags: ['Azure', 'Terraform', 'Terramate', 'Go', 'Docker', 'GitHub Actions'],
   },
   {
     type: 'edu',
@@ -287,12 +303,77 @@ export const skillGroups: SkillGroup[] = [
   {
     key: 'skills.dev',
     prompt: 'git push origin main',
-    items: ['Python', 'JavaScript', 'HTML/CSS', 'PHP', 'YAML/JSON', 'Bash'],
+    items: ['Go', 'Python', 'JavaScript', 'HTML/CSS', 'PHP', 'YAML/JSON', 'Bash'],
   },
   {
     key: 'skills.net',
     prompt: 'ip link set eth0 up',
     items: ['Networking 10GbE', 'Hardware', 'Self-hosting', 'DNS/DHCP', 'Firewalling'],
+  },
+];
+
+/**
+ * Work projects at Open Lake Technology (private repos). Written from the
+ * code, docs and history of each repo — technique only, never customers.
+ */
+export interface WorkProject {
+  name: string;
+  subtitle: { fr: string; en: string };
+  period: { fr: string; en: string };
+  need: { fr: string; en: string };
+  solution: { fr: string; en: string };
+  role: { fr: string; en: string };
+  /** a few figures that show the scale (numbers only) */
+  figures: { value: string; label: { fr: string; en: string } }[];
+  tags: string[];
+}
+
+export const workProjects: WorkProject[] = [
+  {
+    name: 'Terramate',
+    subtitle: { fr: 'Plateforme IaC multi-environnements', en: 'Multi-environment IaC platform' },
+    period: { fr: 'mars — août 2026', en: 'Mar — Aug 2026' },
+    need: {
+      fr: "Chaque environnement client avait son propre repo Terraform : la même infrastructure était copiée dans des dizaines de repos et chaque changement commun devait être refait partout, à la main.",
+      en: 'Every customer environment had its own Terraform repo: the same infrastructure was copied across dozens of repos, and every shared change had to be redone everywhere, by hand.',
+    },
+    solution: {
+      fr: "Un monorepo Terramate et un catalogue de modules Terraform versionnés. Chaque environnement est une stack isolée qui hérite de ses valeurs sur trois niveaux et active ce dont il a besoin par feature flags ; le code Terraform est généré, et la détection de changements git ne cible que les stacks concernées. La migration s'est faite à côté de la production : déploiement en parallèle, validation, bascule DNS, puis décommissionnement de l'ancien.",
+      en: 'A Terramate monorepo plus a catalogue of versioned Terraform modules. Each environment is an isolated stack that inherits its values over three levels and turns on what it needs through feature flags; the Terraform code is generated, and git change detection only targets the affected stacks. The migration ran next to production: parallel deployment, validation, DNS cutover, then decommissioning of the old setup.',
+    },
+    role: {
+      fr: "J'ai identifié le problème, proposé Terramate, conçu l'architecture, écrit la grande majorité du code et des modules, mené la migration et documenté le tout.",
+      en: 'I identified the problem, proposed Terramate, designed the architecture, wrote the vast majority of the code and modules, ran the migration and documented it all.',
+    },
+    figures: [
+      { value: '16', label: { fr: 'environnements de production migrés', en: 'production environments migrated' } },
+      { value: '45', label: { fr: 'modules Terraform partagés', en: 'shared Terraform modules' } },
+      { value: '~50', label: { fr: 'feature flags pour composer chaque stack', en: 'feature flags to compose each stack' } },
+    ],
+    tags: ['Terramate', 'Terraform', 'Azure', 'Container Apps', 'Entra ID', 'AKS', 'Private networking'],
+  },
+  {
+    name: 'Shipyard',
+    subtitle: { fr: 'Kits de déploiement on-prem hors ligne', en: 'Offline on-prem deployment kits' },
+    period: { fr: 'sept. — nov. 2026', en: 'Sep — Nov 2026' },
+    need: {
+      fr: "Installer la stack produit chez des clients sur des VM durcies, sans accès Internet et sous politiques de sécurité strictes, reposait sur environ 3 000 lignes de scripts bash et PowerShell.",
+      en: 'Installing the product stack at customers on hardened VMs, with no internet access and under strict security policies, relied on about 3,000 lines of bash and PowerShell scripts.',
+    },
+    solution: {
+      fr: "Une application web en Go (SSO Entra ID) qui génère en quelques minutes un kit d'installation autonome : images épinglées par digest, sommes SHA256 vérifiées, double-clic sur Windows Server ou une commande sur Linux. Un moteur d'installation en Go, idempotent et reprenable, remplace les scripts ; chaque révision livrée est conservée pour appliquer un correctif en quelques secondes.",
+      en: 'A Go web app (Entra ID SSO) that builds a self-contained install kit in minutes: images pinned by digest, verified SHA256 sums, a double-click on Windows Server or one command on Linux. An idempotent, resumable Go install engine replaces the scripts; every delivered revision is kept so a hotfix can be applied in seconds.',
+    },
+    role: {
+      fr: "Seul développeur : besoin, architecture (décisions documentées en ADR), code, tests, pipeline CI DevSecOps, infrastructure Azure en Terraform et validation sur un lab de VM Windows et Linux. En production chez des clients depuis la V1.0.",
+      en: 'Sole developer: need, architecture (decisions recorded as ADRs), code, tests, DevSecOps CI pipeline, Azure infrastructure in Terraform and validation on a lab of Windows and Linux VMs. In production at customers since V1.0.',
+    },
+    figures: [
+      { value: '~18k', label: { fr: 'lignes de Go', en: 'lines of Go' } },
+      { value: '124', label: { fr: 'tests automatisés', en: 'automated tests' } },
+      { value: '2', label: { fr: "familles d'OS : Windows Server et Linux", en: 'OS families: Windows Server and Linux' } },
+    ],
+    tags: ['Go', 'Docker', 'Portainer', 'WSL2', 'Azure Container Apps', 'Terraform', 'GitHub Actions', 'Trivy'],
   },
 ];
 

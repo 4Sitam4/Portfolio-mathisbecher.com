@@ -1,0 +1,205 @@
+---
+/**
+ * Case studies of the work projects at Open Lake Technology: need, solution,
+ * role, a few figures and the stack. Private repos, so no links.
+ */
+import { useTranslations, workProjects, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="cases">
+  {
+    workProjects.map((p, i) => (
+      <article class="case" data-provision={`projects.olt[${i}]`}>
+        <header class="case__head">
+          <h4 class="case__name">{p.name}</h4>
+          <p class="case__subtitle">{p.subtitle[lang]}</p>
+          <p class="case__meta mono">
+            <span class="num">{p.period[lang]}</span>
+            <span class="case__private">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="11" width="16" height="10" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              {t('projects.private')}
+            </span>
+          </p>
+        </header>
+
+        <dl class="case__story">
+          <div>
+            <dt>{t('projects.need')}</dt>
+            <dd>{p.need[lang]}</dd>
+          </div>
+          <div>
+            <dt>{t('projects.solution')}</dt>
+            <dd>{p.solution[lang]}</dd>
+          </div>
+          <div>
+            <dt>{t('projects.role')}</dt>
+            <dd>{p.role[lang]}</dd>
+          </div>
+        </dl>
+
+        <aside class="case__side">
+          <ul class="case__figures">
+            {p.figures.map((f) => (
+              <li>
+                <span class="case__value mono num">{f.value}</span>
+                <span class="case__label">{f.label[lang]}</span>
+              </li>
+            ))}
+          </ul>
+          <ul class="tags" aria-label="Technologies">
+            {p.tags.map((tag) => (
+              <li class="tag">{tag}</li>
+            ))}
+          </ul>
+        </aside>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .cases {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .case {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-areas:
+      'head side'
+      'story side';
+    gap: var(--s-5) var(--s-8);
+    padding: var(--s-7);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+  }
+
+  .case__head {
+    grid-area: head;
+  }
+
+  .case__name {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xl);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .case__subtitle {
+    margin-top: var(--s-1);
+    font-size: var(--fs-lg);
+    color: var(--text-2);
+  }
+
+  .case__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+    margin-top: var(--s-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .case__private {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-1);
+  }
+
+  .case__private svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .case__story {
+    grid-area: story;
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .case__story dt {
+    margin-bottom: var(--s-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--accent);
+  }
+
+  .case__story dd {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--text-2);
+  }
+
+  .case__side {
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-6);
+    padding-left: var(--s-6);
+    border-left: 1px solid var(--line);
+  }
+
+  .case__figures {
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .case__figures li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+  }
+
+  .case__value {
+    font-size: clamp(2rem, 1.4rem + 1.6vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .case__figures li:first-child .case__value {
+    color: var(--accent);
+  }
+
+  .case__label {
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  @media (max-width: 900px) {
+    .case {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'head'
+        'side'
+        'story';
+      padding: var(--s-5);
+    }
+
+    .case__side {
+      padding-left: 0;
+      border-left: 0;
+      padding-bottom: var(--s-5);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .case__figures {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s-3);
+    }
+  }
+</style>
