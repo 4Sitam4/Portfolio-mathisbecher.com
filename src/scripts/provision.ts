@@ -24,6 +24,8 @@ import {
   glitch,
   inViewport,
   isVisible,
+  NAV_SPEED,
+  SPEED,
   sweep,
   trail,
 } from './provision-dom';
@@ -40,7 +42,7 @@ const T_FILL = 0.45; // scan line reveals the element
 const T_HOLD = 0.3; // frame stays a moment after the fill
 const T_OUT = 0.4; // frame and guides fade out
 const T_ERASE = 0.45; // destroy: scan line erases the element
-const T_GLITCH = 0.32; // matches the .pv-glitch animation (it also animates clip-path)
+const T_GLITCH = 0.32; // .pv-glitch length at speed 1 (it also animates clip-path)
 const AGENT_BUSY = T_REACH + T_DRAG + 0.05;
 
 interface RunOptions {
@@ -77,6 +79,13 @@ export class Provisioner {
   /** Last zone status reported by the observer, per element. */
   private readonly zone = new Map<HTMLElement, boolean>();
   private readonly observer: IntersectionObserver;
+  /** Resets resources that end up fully off screen without a zone exit. */
+  private readonly offscreen = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const el = entry.target as HTMLElement;
+      if (!entry.isIntersecting && stateOf(el) === 'done' && this.zone.get(el) === false) setState(el, 'pending');
+    }
+  });
   private queue: HTMLElement[] = [];
   private flushTimer = 0;
   private intro: gsap.core.Timeline | null = null;
@@ -171,7 +180,11 @@ export class Provisioner {
   private observe(): void {
     if (this.observing) return;
     this.observing = true;
-    for (const el of this.targets) if (!pinned(el)) this.observer.observe(el);
+    for (const el of this.targets) {
+      if (pinned(el)) continue;
+      this.observer.observe(el);
+      this.offscreen.observe(el);
+    }
   }
 
   private onEnter(el: HTMLElement): void {
@@ -203,11 +216,15 @@ export class Provisioner {
 
   /* --- apply -------------------------------------------------------------- */
 
+  /**
+   * A build that has started always finishes and the resource stays up: it
+   * is only destroyed on a later exit. If it ended up completely off screen
+   * meanwhile, it is quietly reset so it builds again when it comes back.
+   */
   private complete(el: HTMLElement, animate: boolean): void {
     setState(el, 'done');
     if (animate) el.querySelectorAll<HTMLElement>('[data-decrypt]').forEach((d) => scramble(d));
-    // Scrolled away while it was being built: it goes right back down.
-    if (this.zone.get(el) === false) window.setTimeout(() => this.onLeave(el), 0);
+    if (!pinned(el) && this.zone.get(el) === false && !inViewport(el)) setState(el, 'pending');
   }
 
   private runIntro(targets: HTMLElement[]): void {
@@ -239,6 +256,8 @@ export class Provisioner {
       },
     });
     this.running.add(tl);
+    const speed = o.fixed ? NAV_SPEED : SPEED;
+    tl.timeScale(speed);
 
     // Hidden or collapsed resources (e.g. the closed mobile menu) are done at once.
     const visible = list.filter((el) => {
@@ -299,7 +318,7 @@ export class Provisioner {
       );
       tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_FILL, ease: 'power2.inOut', immediateRender: false }, tFill);
       tl.to(scan, { opacity: 0, duration: 0.15 }, tFill + T_FILL);
-      tl.call(() => glitch(el), [], tFill + T_FILL);
+      tl.call(() => glitch(el, speed), [], tFill + T_FILL);
       tl.to([frame, gx, gy], { opacity: 0, duration: T_OUT, ease: 'power1.in' }, tFill + T_FILL + T_HOLD);
     });
 
@@ -325,7 +344,8 @@ export class Provisioner {
     const { frame, marks } = createFrame(layer, box, `module.${el.dataset.provision}: Destroying...`, 'pv-frame--destroy');
     const scan = createScan(layer, box);
     scan.classList.add('pv-scan--destroy');
-    glitch(el);
+    const speed = fixed ? NAV_SPEED : SPEED;
+    glitch(el, speed);
 
     let done!: () => void;
     const gone = new Promise<void>((resolve) => (done = resolve));
@@ -338,6 +358,7 @@ export class Provisioner {
         done();
       },
     });
+    tl.timeScale(speed);
     tl.set(frame, { opacity: 1 });
     tl.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.12 }, 0);
     tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(100% 0% 0% 0%)', duration: T_ERASE, ease: 'power2.in' }, T_GLITCH);

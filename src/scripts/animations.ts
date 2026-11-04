@@ -32,9 +32,9 @@ function heroEntrance(): void {
     {
       opacity: 1,
       y: 0,
-      duration: 0.5,
+      duration: 0.4,
       ease: 'power3.out',
-      stagger: 0.06,
+      stagger: 0.048,
       clearProps: 'transform',
     }
   );
@@ -49,7 +49,7 @@ function startCalm(): void {
 window.addEventListener('trace:ready', (e) => {
   const rows = (e as CustomEvent<HTMLElement[]>).detail;
   if (reduced || !rows?.length) return;
-  gsap.from(rows, { opacity: 0, x: -6, duration: 0.3, ease: 'power2.out', stagger: 0.05 });
+  gsap.from(rows, { opacity: 0, x: -6, duration: 0.24, ease: 'power2.out', stagger: 0.04 });
 });
 
 // The side nav: built when it opens, destroyed (and awaited) when it closes.

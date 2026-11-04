@@ -7,6 +7,13 @@
 
 import gsap from 'gsap';
 
+/** Playback speed of the effects (1 = the original timings). */
+export const SPEED = 1.25;
+/** The side nav is snappier still. */
+export const NAV_SPEED = 1.5;
+
+const GLITCH_MS = 320; // base length of the .pv-glitch animation
+
 /** Shades from the page palette — the agents never introduce a new hue. */
 export const AGENT_COLORS = ['#00ff9d', '#e4ede8', '#7dffcb', '#a3b6ad', '#38e8a8', '#c9fbe6', '#5effc0'];
 
@@ -125,8 +132,9 @@ export function createScan(layer: HTMLElement, box: Box): HTMLElement {
   return scan;
 }
 
-/** Brief chromatic split on an element (palette colors only). */
-export function glitch(el: HTMLElement): void {
+/** Brief chromatic split on an element (palette colors only), at `speed`. */
+export function glitch(el: HTMLElement, speed = SPEED): void {
+  el.style.setProperty('--pv-glitch-dur', `${Math.round(GLITCH_MS / speed)}ms`);
   el.classList.remove('pv-glitch');
   void el.offsetWidth; // restart the animation
   el.classList.add('pv-glitch');
@@ -142,6 +150,6 @@ export function sweep(): void {
   gsap.fromTo(
     s,
     { yPercent: -100 },
-    { yPercent: 100, duration: 1.1, ease: 'power2.inOut', onComplete: () => s.remove() }
+    { yPercent: 100, duration: 1.1 / SPEED, ease: 'power2.inOut', onComplete: () => s.remove() }
   );
 }

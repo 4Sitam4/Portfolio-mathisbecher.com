@@ -157,14 +157,14 @@ const langs = [
     transform: translateX(-100%);
     visibility: hidden;
     transition:
-      transform 320ms var(--ease),
-      visibility 0s linear 320ms;
+      transform var(--nav-dur) var(--ease),
+      visibility 0s linear var(--nav-dur);
   }
 
   :global(html[data-nav='open']) .nav__panel {
     transform: none;
     visibility: visible;
-    transition: transform 320ms var(--ease);
+    transition: transform var(--nav-dur) var(--ease);
   }
 
   .nav__logo {
@@ -301,7 +301,8 @@ const langs = [
   const EDGE = 16; // px from the left edge that opens the nav
   const LEAVE = 64; // px beyond the panel before it closes
   const CLOSE_DELAY = 250;
-  const MAX_WAIT = 1500;
+  const MAX_WAIT = 1200;
+  const SLIDE_MS = 215; // --nav-dur in global.css
 
   let open = false;
   let by: 'hover' | 'click' | 'focus' | null = null;
@@ -323,7 +324,7 @@ const langs = [
     by = source;
     setOpen(true);
     // Build the items once the panel has slid in.
-    window.setTimeout(() => open && window.dispatchEvent(new CustomEvent('nav:opened')), 320);
+    window.setTimeout(() => open && window.dispatchEvent(new CustomEvent('nav:opened')), SLIDE_MS);
   }
 
   async function hide(): Promise<void> {

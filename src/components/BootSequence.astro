@@ -36,7 +36,7 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
   /* Stays displayed while it switches off, even though the page is booted. */
   :global(html.js) .boot.boot--off {
     display: flex;
-    animation: boot-off 560ms cubic-bezier(0.55, 0, 0.45, 1) forwards;
+    animation: boot-off 450ms cubic-bezier(0.55, 0, 0.45, 1) forwards;
   }
 
   @keyframes boot-off {
@@ -158,7 +158,7 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
       if (skipped) boot.style.opacity = '0';
       else boot.classList.add('boot--off');
       finish(skipped);
-      window.setTimeout(() => boot.remove(), skipped ? 0 : 600);
+      window.setTimeout(() => boot.remove(), skipped ? 0 : 480);
     };
 
     // Only Escape skips: clicks and other keys no longer cut the show short.
@@ -174,9 +174,9 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
 
     const plan = () => {
       line('', tag('dim', `Plan: `), tag('ok', `${resources} to add`), tag('dim', ', 0 to change, 0 to destroy.'));
-      after(250, () => {
+      after(200, () => {
         line('dim', 'Applying…');
-        after(350, () => end(false));
+        after(280, () => end(false));
       });
     };
 
@@ -188,10 +188,10 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
       let i = 0;
       const step = () => {
         typed.textContent = COMMAND.slice(0, ++i);
-        if (i < COMMAND.length) after(18 + Math.random() * 30, step);
-        else after(220, plan);
+        if (i < COMMAND.length) after(14 + Math.random() * 24, step);
+        else after(175, plan);
       };
-      after(200, step);
+      after(160, step);
     };
 
     let index = 0;
@@ -199,13 +199,13 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
       if (index >= lines.length) return typeCommand();
       line('', tag('ok', '[  OK  ] '), lines[index]!);
       index++;
-      after(55 + Math.random() * 90, next);
+      after(44 + Math.random() * 72, next);
     };
 
     window.addEventListener('keydown', onKey);
     next();
 
-    // Hard cap: never hold the visitor hostage for more than 5s.
-    window.setTimeout(() => end(false), 5000);
+    // Hard cap: never hold the visitor hostage for more than 4s.
+    window.setTimeout(() => end(false), 4000);
   }
 </script>

@@ -207,7 +207,7 @@
 
 /* Chromatic flicker once a resource is up (palette colors only). */
 .pv-glitch {
-  animation: pv-glitch 320ms steps(1) 1;
+  animation: pv-glitch var(--pv-glitch-dur, 320ms) steps(1) 1;
 }
 
 @keyframes pv-glitch {

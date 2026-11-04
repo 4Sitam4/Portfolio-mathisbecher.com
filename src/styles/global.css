@@ -57,6 +57,7 @@
   --container: 74rem;
   --gutter: clamp(1rem, 4vw, 2rem);
   --nav-w: 15.5rem; /* side nav, pushes the page when open */
+  --nav-dur: 215ms; /* side nav slide and page push (SLIDE_MS in Navbar.astro) */
 
   /* Radius — by size */
   --r-sm: 4px;
@@ -106,7 +107,7 @@ body {
 /* The side nav pushes the page aside when it opens (see Navbar.astro). */
 main,
 .footer {
-  transition: margin-left 320ms var(--ease);
+  transition: margin-left var(--nav-dur) var(--ease);
 }
 
 img,

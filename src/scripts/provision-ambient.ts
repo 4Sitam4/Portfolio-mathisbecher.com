@@ -9,7 +9,7 @@
  */
 
 import gsap from 'gsap';
-import { boxOf, createFrame, createLayer, createScan, h, isVisible } from './provision-dom';
+import { boxOf, createFrame, createLayer, createScan, h, isVisible, SPEED } from './provision-dom';
 
 interface Engine {
   readonly busy: boolean;
@@ -46,6 +46,7 @@ function drift(el: HTMLElement): void {
   const scan = createScan(layer, box);
 
   const tl = gsap.timeline({ onComplete: () => layer.remove() });
+  tl.timeScale(SPEED);
   tl.set(frame, { opacity: 1 });
   tl.fromTo(sel, { clipPath: 'inset(0% 100% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.4, ease: 'power2.inOut' });
   tl.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.2 }, '-=0.15');

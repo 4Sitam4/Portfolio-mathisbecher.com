@@ -30,7 +30,8 @@ export function scramble(el: HTMLElement, options: ScrambleOptions = {}): void {
     return;
   }
 
-  const duration = options.duration ?? Math.min(300 + target.length * 55, 1600);
+  // 25 % faster than the original 300 ms + 55 ms per char, capped at 1.6 s.
+  const duration = options.duration ?? Math.min(240 + target.length * 44, 1280);
   const prev = running.get(el);
   if (prev) cancelAnimationFrame(prev);
 
