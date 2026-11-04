@@ -12,3 +12,7 @@ node_modules/
 # misc
 *.log
 .DS_Store
+
+# editor config
+.vscode/
+.idea/
