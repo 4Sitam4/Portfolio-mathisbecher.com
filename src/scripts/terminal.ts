@@ -12,7 +12,7 @@ import { easterEggs } from './term/eggs';
 import type { Command, Io, Lang, Line } from './term/io';
 import { Nano } from './term/nano';
 import { tokenize } from './term/parse';
-import { HELP_ALL, NEOFETCH_LOGO, STR } from './term/strings';
+import { HELP_ALL, LOGO, STR } from './term/strings';
 import { FsError, HOME, VFS } from './term/vfs';
 
 const HISTORY_KEY = 'mb-term-history';
@@ -212,18 +212,24 @@ export function initTerminal(): void {
       io.out({ text: s.reset, cls: 'accent' });
     },
 
-    neofetch: (_, io) => {
-      io.out(NEOFETCH_LOGO.split('\n').map((text) => ({ text, cls: 'art' as const })));
+    fastfetch: (_, io) => {
+      io.out(LOGO.split('\n').map((text) => ({ text, cls: 'art' as const })));
       io.out([
         'visitor@mathisbecher.com',
-        '─────────────────────────',
+        '------------------------',
         'OS:       Homelab Linux x86_64',
         'Host:     Proxmox VE cluster',
         'Storage:  TrueNAS Scale',
         'Network:  10 Gbps',
         'Shell:    astro 7 / gsap 3',
+        'Terminal: mathisbecher.com',
         `Uptime:   ${s.uptime}`,
       ]);
+    },
+    // The original, archived in April 2024: point to its successor, then run it.
+    neofetch: (args, io) => {
+      io.out({ text: s.neofetch, cls: 'dim' });
+      return commands.fastfetch!(args, io);
     },
     projects: (_, io) => {
       io.out({ text: '~/projects', cls: 'dim' });

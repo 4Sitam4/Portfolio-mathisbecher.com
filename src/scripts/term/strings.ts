@@ -2,7 +2,7 @@
 
 import type { FsCode } from './vfs';
 
-export const NEOFETCH_LOGO = String.raw`
+export const LOGO = String.raw`
  ███╗   ███╗ ██████╗
  ████╗ ████║ ██╔══██╗
  ██╔████╔██║ ██████╔╝
@@ -16,7 +16,7 @@ export const STR = {
     help: [
       'fichiers  ls [-a]  cd  pwd  tree  cat  nano  mkdir [-p]  touch  rm [-r]  mv  cp',
       "          echo … > fichier   reset (efface vos fichiers)",
-      'infos     whoami  neofetch  projects  contact  history  date  uname  uptime',
+      'infos     whoami  fastfetch  projects  contact  history  date  uname  uptime',
       'site      lang  terraform apply  matrix  reboot  clear  exit',
       '???       il en reste quelques-unes à découvrir… ou tapez help -a pour tout voir',
     ],
@@ -43,6 +43,7 @@ export const STR = {
     exit: 'déconnexion. à bientôt.',
     langSwitch: 'bascule vers la version anglaise…',
     uptime: 'up depuis toujours (ou presque) — 99,9 % de disponibilité homelab',
+    neofetch: "neofetch est archivé depuis avril 2024. Place à son successeur, fastfetch :",
     reset: 'vos fichiers ont été effacés, le terminal est comme neuf.',
     reboot: 'Broadcast message from root@mathisbecher: le système redémarre MAINTENANT.',
     destroy: [
@@ -56,7 +57,7 @@ export const STR = {
     help: [
       'files     ls [-a]  cd  pwd  tree  cat  nano  mkdir [-p]  touch  rm [-r]  mv  cp',
       '          echo … > file   reset (wipes your files)',
-      'info      whoami  neofetch  projects  contact  history  date  uname  uptime',
+      'info      whoami  fastfetch  projects  contact  history  date  uname  uptime',
       'site      lang  terraform apply  matrix  reboot  clear  exit',
       '???       a few more are left to discover… or type help -a to see them all',
     ],
@@ -83,6 +84,7 @@ export const STR = {
     exit: 'logout. see you around.',
     langSwitch: 'switching to the French version…',
     uptime: 'up since forever (almost) — 99.9% homelab availability',
+    neofetch: 'neofetch has been archived since April 2024. Here is its successor, fastfetch:',
     reset: 'your files are gone, the terminal is as good as new.',
     reboot: 'Broadcast message from root@mathisbecher: the system is going down for reboot NOW.',
     destroy: [
@@ -118,7 +120,7 @@ export const HELP_ALL: Record<'fr' | 'en', { title: string; items: [string, stri
       items: [
         ['help [-a]', 'aide (-a : tout, secrets compris)'],
         ['whoami', 'qui suis-je'],
-        ['neofetch', 'infos système'],
+        ['fastfetch', 'infos système'],
         ['projects', 'mes projets'],
         ['contact', 'me contacter'],
         ['history', 'commandes précédentes (!! rejoue la dernière)'],
@@ -142,6 +144,7 @@ export const HELP_ALL: Record<'fr' | 'en', { title: string; items: [string, stri
         ['fortune', 'une citation infra au hasard'],
         ['cowsay [texte]', 'une vache qui parle'],
         ['sl', 'vous vouliez taper ls ?'],
+        ['neofetch', "l'ancien, archivé en 2024"],
         ['ping', 'vraie latence vers mon homelab'],
         ['docker ps', 'le conteneur de ce site'],
         ['kubectl get pods', 'Kubernetes à la maison ?'],
@@ -181,7 +184,7 @@ export const HELP_ALL: Record<'fr' | 'en', { title: string; items: [string, stri
       items: [
         ['help [-a]', 'help (-a: everything, secrets included)'],
         ['whoami', 'who am I'],
-        ['neofetch', 'system info'],
+        ['fastfetch', 'system info'],
         ['projects', 'my projects'],
         ['contact', 'reach me'],
         ['history', 'previous commands (!! replays the last one)'],
@@ -205,6 +208,7 @@ export const HELP_ALL: Record<'fr' | 'en', { title: string; items: [string, stri
         ['fortune', 'a random infra quote'],
         ['cowsay [text]', 'a talking cow'],
         ['sl', 'did you mean ls?'],
+        ['neofetch', 'the old one, archived in 2024'],
         ['ping', 'real latency to my homelab'],
         ['docker ps', 'the container serving this site'],
         ['kubectl get pods', 'Kubernetes at home?'],
