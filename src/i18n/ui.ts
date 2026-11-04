@@ -449,7 +449,7 @@ export const projects: Project[] = [
       en: 'This portfolio: Astro + GSAP, containerized with Docker, built by GitHub Actions and self-hosted on my homelab.',
     },
     tags: ['Astro', 'GSAP', 'Docker', 'GitHub Actions'],
-    url: 'https://github.com/4Sitam4',
+    url: 'https://github.com/4Sitam4/Portfolio-mathisbecher.com',
   },
 ];
 
@@ -457,4 +457,6 @@ export const contactLinks = {
   email: 'contact@mathisbecher.com',
   github: 'https://github.com/4Sitam4',
   linkedin: 'https://www.linkedin.com/in/mathisbecher/',
+  /** this site's source code */
+  source: 'https://github.com/4Sitam4/Portfolio-mathisbecher.com',
 };
