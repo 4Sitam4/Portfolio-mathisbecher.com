@@ -239,7 +239,7 @@ export function initTerminal(): void {
     contact: (_, io) => each(io, 'cat', [`${HOME}/contact.txt`], (abs) => io.out(fs.read(abs).split('\n'))),
     history: (_, io) => io.out(history.map((h, i) => `  ${String(i + 1).padStart(3)}  ${h}`)),
     date: (_, io) => io.out(new Date().toString()),
-    uname: (args, io) => io.out(args.includes('-a') ? 'Linux mathisbecher 6.8.12-pve #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux' : 'Linux'),
+    uname: (args, io) => io.out(args.includes('-a') ? 'Linux mathisbecher 6.x-homelab #1 SMP x86_64 GNU/Linux' : 'Linux'),
     uptime: (_, io) => io.out(s.uptime),
     lang: (_, io) => {
       io.out({ text: s.langSwitch, cls: 'accent' });
@@ -315,7 +315,11 @@ export function initTerminal(): void {
     if (!cmd) return print({ text: s.notFound(name), cls: 'error' });
 
     if (!redirect) {
-      await cmd(args, screen);
+      try {
+        await cmd(args, screen);
+      } catch (e) {
+        fail(screen, name, e);
+      }
       return;
     }
     const captured: string[] = [];
@@ -330,7 +334,12 @@ export function initTerminal(): void {
       },
       live: screen.live,
     };
-    await cmd(args, io);
+    try {
+      await cmd(args, io);
+    } catch (e) {
+      fail(screen, name, e);
+      return;
+    }
     if (errors.length) print(errors);
     try {
       fs.write(fs.resolve(redirect.path), captured.length ? `${captured.join('\n')}\n` : '', redirect.append);

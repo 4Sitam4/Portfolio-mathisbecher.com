@@ -1,7 +1,7 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
-import TechLogo from './TechLogo.astro';
+import Tags from './Tags.astro';
 import WorkCases from './WorkCases.astro';
 import { useTranslations, projects, type Lang } from '../i18n/ui';
 
@@ -37,14 +37,10 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
           <div class="feature__text">
             <h4 class="feature__name">
               {featured.name}
-              {featured.archived && <span class="archived">{t('projects.archived')}</span>}
+              {featured.archived && <span class="archived"><span class="visually-hidden">, </span>{t('projects.archived')}</span>}
             </h4>
             <p class="feature__desc"><Rich text={featured.description[lang]} /></p>
-            <ul class="tags" aria-label="Technologies">
-              {featured.tags.map((tag) => (
-                <li class="tag"><TechLogo name={tag} />{tag}</li>
-              ))}
-            </ul>
+            <Tags items={featured.tags} />
             {featured.url && (
               <a class="btn feature__link" href={featured.url} target="_blank" rel="noopener noreferrer">
                 {t('projects.source')}
@@ -92,11 +88,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
                 )}
               </h4>
               <p class="project__desc"><Rich text={project.description[lang]} /></p>
-              <ul class="tags" aria-label="Technologies">
-                {project.tags.map((tag) => (
-                  <li class="tag"><TechLogo name={tag} />{tag}</li>
-                ))}
-              </ul>
+              <Tags items={project.tags} />
               {href && (
                 <span class="project__cta mono" aria-hidden="true">
                   {cta}

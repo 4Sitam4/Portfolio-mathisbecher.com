@@ -2,6 +2,7 @@
 import MatrixRain from './MatrixRain.astro';
 import Window from './Window.astro';
 import Rich from './Rich.astro';
+import Icon from './Icon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { cvPdf } from '../i18n/cv';
 
@@ -25,7 +26,8 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
         <span class="hero__prompt-sign">$</span> whoami
       </p>
 
-      <h1 class="hero__name" aria-label="Mathis Becher" data-provision="hero.name">
+      <h1 class="hero__name" data-provision="hero.name">
+        <span class="visually-hidden">Mathis Becher</span>
         <span data-decrypt aria-hidden="true">Mathis Becher</span>
       </h1>
 
@@ -38,13 +40,13 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
       <p class="hero__status" data-hero data-provision="hero.status">{t('hero.status')}</p>
 
       <div class="hero__actions" data-hero data-provision="hero.actions">
-        <a href={cvPdf[lang]} class="btn btn--primary" target="_blank" rel="noopener">
+        <a href={cvPdf[lang]} class="btn btn--primary" download>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 4v11" /><path d="m7 10 5 5 5-5" /><path d="M5 20h14" />
           </svg>
           {t('hero.cta.cv')}
         </a>
-        <a href="#projects" class="btn btn--quiet">{t('hero.cta.projects')}</a>
+        <a href="#projects" class="btn btn--quiet"><Icon name="folder" />{t('hero.cta.projects')}</a>
         <a href="#terminal" class="btn btn--quiet">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m4 17 6-6-6-6" /><path d="M12 19h8" />
@@ -201,8 +203,8 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     color: var(--accent);
   }
 
-  /* 7 rows reserved while the response is pending, so the window does not jump. */
-  .trace__headers[data-pending] {
+  /* 7 rows reserved for good, so the window does not jump when they arrive. */
+  .trace__headers {
     min-height: 11.9em;
   }
 

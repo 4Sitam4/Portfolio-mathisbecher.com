@@ -36,7 +36,9 @@
   const canvas = document.getElementById('matrix-hero') as HTMLCanvasElement | null;
 
   if (canvas) {
-    const rain = new MatrixRain(canvas, { intensity: 0.45 });
+    // Phones: lighter rain (no hi-dpi buffers, fewer frames).
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const rain = new MatrixRain(canvas, { intensity: 0.45, fps: coarse ? 20 : 28, maxDpr: coarse ? 1 : 1.5 });
     const hero = canvas.parentElement!;
 
     hero.addEventListener('pointermove', (e) => {
@@ -46,11 +48,14 @@
     });
     hero.addEventListener('pointerleave', () => rain.setMouseX(-1));
 
-    // Only animate while the hero is on screen.
-    new IntersectionObserver(
-      ([entry]) => (entry?.isIntersecting ? rain.start() : rain.stop()),
-      { threshold: 0.05 }
-    ).observe(canvas);
+    // Only animate while the hero is on screen, and not under the boot
+    // overlay that hides it anyway.
+    const watch = () =>
+      new IntersectionObserver(([entry]) => (entry?.isIntersecting ? rain.start() : rain.stop()), {
+        threshold: 0.05,
+      }).observe(canvas);
+    if (document.documentElement.dataset.booted === 'true' || !document.getElementById('boot')) watch();
+    else window.addEventListener('boot:done', watch, { once: true });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) rain.stop();

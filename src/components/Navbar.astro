@@ -47,9 +47,10 @@ const langs = [
   </button>
 
   <div class="nav__edge" aria-hidden="true"></div>
+  <div class="nav__scrim" id="nav-scrim" aria-hidden="true"></div>
 
   <div class="nav__panel" id="nav-panel">
-    <a href="#top" class="nav__logo glitch" data-provision="nav.logo" data-text="mb@homelab:~$" aria-label="Mathis Becher">mb@homelab:~$</a>
+    <a href="#top" class="nav__logo glitch" data-provision="nav.logo" data-text="mb@homelab:~$" aria-label="mb@homelab, Mathis Becher">mb@homelab:~$</a>
 
     <nav aria-label={t('nav.label')}>
       <ul class="nav__links">
@@ -82,7 +83,7 @@ const langs = [
                 hreflang={l.code}
                 lang={l.code}
                 rel="alternate"
-                aria-label={t('nav.switch')}
+                aria-label={`${l.code}, ${t('nav.switch')}`}
               >
                 {l.code}
               </a>
@@ -279,6 +280,29 @@ const langs = [
   }
 
   /* Without JS: a plain list at the top of the page. */
+  /* Phones: the panel overlays the page, which dims behind it. */
+  .nav__scrim {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .nav__scrim {
+      position: fixed;
+      inset: 0;
+      z-index: calc(var(--z-nav) - 1);
+      display: block;
+      background: rgba(2, 4, 3, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--nav-dur) var(--ease);
+    }
+
+    :global(html[data-nav='open']) .nav__scrim {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
   :global(html:not(.js)) .nav__panel {
     position: static;
     width: auto;
@@ -343,7 +367,12 @@ const langs = [
 
   setOpen(false);
 
-  tab?.addEventListener('click', () => show('click'));
+  tab?.addEventListener('click', () => {
+    show('click');
+    // The tab fades out: move the focus into the menu.
+    panel?.querySelector<HTMLElement>('a[data-spy]')?.focus({ preventScroll: true });
+  });
+  document.getElementById('nav-scrim')?.addEventListener('click', () => void hide());
   closeBtn?.addEventListener('click', () => {
     void hide();
     tab?.focus();

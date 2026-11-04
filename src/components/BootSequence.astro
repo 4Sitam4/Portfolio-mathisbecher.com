@@ -8,11 +8,20 @@ interface Props {
 const { lang } = Astro.props;
 
 const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
+const skipButton = lang === 'fr' ? 'Passer' : 'Skip';
 ---
 
-<div id="boot" class="boot" aria-hidden="true">
-  <pre class="boot__log mono" id="boot-log"></pre>
-  <p class="boot__skip mono">{skipLabel}</p>
+<div id="boot" class="boot">
+  <pre class="boot__log mono" id="boot-log" aria-hidden="true"></pre>
+  <p class="boot__skip mono" aria-hidden="true">{skipLabel}</p>
+  <!-- Touch screens have no Escape key: a real button, and only there
+       (a tap anywhere else still does not cut the show short). -->
+  <button type="button" class="boot__skip-btn mono" id="boot-skip">
+    {skipButton}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m6 17 5-5-5-5" /><path d="m13 17 5-5-5-5" />
+    </svg>
+  </button>
 </div>
 
 <style>
@@ -80,12 +89,44 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
     font-size: var(--fs-xs);
     color: var(--text-3);
   }
+
+  .boot__skip-btn {
+    display: none;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .boot__skip {
+      display: none;
+    }
+
+    .boot__skip-btn {
+      position: absolute;
+      right: 1rem;
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s-2);
+      min-height: 2.75rem;
+      padding: 0 var(--s-4);
+      font-size: var(--fs-sm);
+      color: var(--text);
+      background: var(--raised);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-md);
+    }
+
+    .boot__skip-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 </style>
 
 
 <script>
   /**
-   * Boot sequence (first visit of the session): the homelab comes up, then
+   * Boot sequence (every visit; reading mode and reduced motion skip it):
+   * the homelab comes up, then
    * `terraform apply` is typed and the overlay fades into the page being
    * provisioned (provision.ts). Escape skips everything.
    */
@@ -150,8 +191,14 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
       document.body.style.overflow = '';
       window.removeEventListener('keydown', onKey);
       // The scroll lock swallowed any #anchor navigation — replay it now.
-      if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
-      // The page starts building underneath while the overlay fades away.
+      // By id, never as a selector: a crafted hash (#1x) must not throw here.
+      if (location.hash) {
+        try {
+          document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+        } catch {
+          /* malformed hash: ignore */
+        }
+      }
       // Natural end: the screen switches off like a CRT while the page
       // starts building underneath. Skipped: it just disappears.
       boot.style.pointerEvents = 'none';
@@ -203,6 +250,7 @@ const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
     };
 
     window.addEventListener('keydown', onKey);
+    document.getElementById('boot-skip')?.addEventListener('click', () => end(true), { once: true });
     next();
 
     // Hard cap: never hold the visitor hostage for more than 4s.

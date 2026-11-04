@@ -18,7 +18,11 @@ const t = useTranslations(Astro.props.lang);
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" /><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
   </svg>
-  <span>{t('calm.on')}</span>
+  <span class="calm-toggle__label">{t('calm.on')}</span>
+  <span class="calm-toggle__short" aria-hidden="true">{t('calm.short')}</span>
+  <svg class="calm-toggle__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
 </button>
 
 <style>
@@ -58,20 +62,34 @@ const t = useTranslations(Astro.props.lang);
     height: 18px;
   }
 
+  .calm-toggle__short,
+  .calm-toggle__check {
+    display: none;
+  }
+
+  .calm-toggle[aria-pressed='true'] .calm-toggle__check {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Phones: a short visible word (the full name stays the accessible name). */
   @media (max-width: 480px) {
     .calm-toggle {
-      width: 2.75rem;
-      padding: 0;
-      justify-content: center;
+      padding: 0 var(--s-3);
     }
 
-    .calm-toggle span {
+    .calm-toggle__label {
       position: absolute;
       width: 1px;
       height: 1px;
       overflow: hidden;
       clip: rect(0 0 0 0);
       white-space: nowrap;
+    }
+
+    .calm-toggle__short {
+      display: inline;
     }
   }
 

@@ -3,10 +3,10 @@
  * One-page A4 CV (content: i18n/cv.ts). Rendered at /cv/ and /en/cv/, and
  * printed to PDF at build time; the build fails if it no longer fits one page.
  */
-import '@fontsource/jetbrains-mono/500.css';
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
+import '@fontsource/ibm-plex-sans/latin-400.css';
+import '@fontsource/ibm-plex-sans/latin-500.css';
+import '@fontsource/ibm-plex-sans/latin-600.css';
 import Rich from '../Rich.astro';
 import { contactLinks, useTranslations, type Lang } from '../../i18n/ui';
 import { cv, cvPdf, cvText } from '../../i18n/cv';
@@ -174,7 +174,7 @@ const updated = new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB',
     --ink-2: #3b4a43;
     --ink-3: #6a7a72;
     --rule: #d9e2dd;
-    --green: #00875a;
+    --green: #00704a;
     --wash: rgba(0, 191, 118, 0.14);
     color-scheme: light;
   }
@@ -358,6 +358,13 @@ const updated = new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB',
     text-align: right;
     font-size: 8.6pt;
     line-height: 1.5;
+  }
+
+  @media screen {
+    .contact a {
+      display: inline-block;
+      padding-block: 4px;
+    }
   }
 
   .profile {

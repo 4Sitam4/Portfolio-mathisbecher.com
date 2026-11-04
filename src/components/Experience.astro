@@ -2,7 +2,7 @@
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
 import Icon from './Icon.astro';
-import TechLogo from './TechLogo.astro';
+import Tags from './Tags.astro';
 import { useTranslations, timeline, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -36,11 +36,7 @@ const t = useTranslations(lang);
                   {entry.org}<span class="xp__loc"><Icon name="pin" />{entry.location[lang]}</span>
                 </p>
                 <p class="xp__desc"><Rich text={entry.description[lang]} /></p>
-                <ul class="tags" aria-label="Technologies">
-                  {entry.tags.map((tag) => (
-                    <li class="tag"><TechLogo name={tag} />{tag}</li>
-                  ))}
-                </ul>
+                <Tags items={entry.tags} />
               </div>
             </li>
           );

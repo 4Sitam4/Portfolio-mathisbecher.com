@@ -6,7 +6,7 @@
 import { useTranslations, workProjects, type Lang } from '../i18n/ui';
 import Rich from './Rich.astro';
 import Icon from './Icon.astro';
-import TechLogo from './TechLogo.astro';
+import Tags from './Tags.astro';
 
 interface Props {
   lang: Lang;
@@ -50,7 +50,7 @@ const t = useTranslations(lang);
           </div>
         </dl>
 
-        <aside class="case__side">
+        <div class="case__side">
           <ul class="case__figures">
             {p.figures.map((f) => (
               <li>
@@ -59,12 +59,8 @@ const t = useTranslations(lang);
               </li>
             ))}
           </ul>
-          <ul class="tags" aria-label="Technologies">
-            {p.tags.map((tag) => (
-              <li class="tag"><TechLogo name={tag} />{tag}</li>
-            ))}
-          </ul>
-        </aside>
+          <Tags items={p.tags} />
+        </div>
       </article>
     ))
   }

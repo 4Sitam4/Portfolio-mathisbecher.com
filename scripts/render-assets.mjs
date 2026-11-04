@@ -14,7 +14,7 @@ import { execFile } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { promisify } from 'node:util';
 
 const run = promisify(execFile);
@@ -43,6 +43,8 @@ if (!browser) {
   const msg = 'render-assets: no Chrome/Chromium found (set CHROME_BIN)';
   if (required) throw new Error(msg);
   console.warn(`${msg} — CV PDF and og.png skipped.`);
+  // The preview source page must never ship, even when it was not rendered.
+  rmSync(join(DIST, 'og'), { recursive: true, force: true });
   process.exit(0);
 }
 
@@ -59,7 +61,7 @@ const TYPES = {
 // Minimal static server over dist/ (localhost only, for the duration of the step).
 const server = createServer((req, res) => {
   let file = normalize(join(DIST, decodeURIComponent(new URL(req.url, 'http://x').pathname)));
-  if (!file.startsWith(DIST)) return res.writeHead(403).end();
+  if (file !== DIST && !file.startsWith(DIST + sep)) return res.writeHead(403).end();
   if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
   if (!existsSync(file)) return res.writeHead(404).end();
   res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' });

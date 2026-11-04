@@ -27,13 +27,15 @@ export interface TraceRow {
   key: string;
   value: string;
   kind?: 'status' | 'muted';
+  /** status row only: a 2xx answer */
+  ok?: boolean;
 }
 
 /** Pure: turn a response into the rows the window displays. */
 export function toRows(status: number, statusText: string, protocol: string, headers: Headers): TraceRow[] {
   const proto = PROTOCOLS[protocol] ?? 'HTTP';
   const text = statusText || STATUS_TEXT[status] || '';
-  const rows: TraceRow[] = [{ key: `${proto} ${status}`, value: text, kind: 'status' }];
+  const rows: TraceRow[] = [{ key: `${proto} ${status}`, value: text, kind: 'status', ok: status >= 200 && status < 300 }];
   for (const name of SHOWN_HEADERS) {
     let value = headers.get(name);
     // Show the server software, never its version (e.g. "nginx/1.30.6 (Ubuntu)" → "nginx").
@@ -53,7 +55,7 @@ function renderRows(list: HTMLElement, rows: TraceRow[]): HTMLElement[] {
     const dd = document.createElement('dd');
     dt.textContent = row.key;
     dd.textContent = row.value;
-    if (row.kind === 'status') dd.className = 'trace__ok';
+    if (row.kind === 'status' && row.ok) dd.className = 'trace__ok';
     dd.title = row.value;
     wrap.append(dt, dd);
     list.append(wrap);

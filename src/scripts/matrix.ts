@@ -30,6 +30,8 @@ export interface MatrixOptions {
   fontSize?: number;
   /** frames per second cap */
   fps?: number;
+  /** device pixel ratio cap (fill cost and memory grow with its square) */
+  maxDpr?: number;
 }
 
 interface Buffer {
@@ -56,6 +58,7 @@ export class MatrixRain {
   private boostUntil = 0;
   private readonly fontSize: number;
   private readonly fps: number;
+  private readonly maxDpr: number;
   intensity: number;
 
   private onResize = () => this.resize();
@@ -66,6 +69,7 @@ export class MatrixRain {
     this.intensity = options.intensity ?? 0.5;
     this.fontSize = options.fontSize ?? 16;
     this.fps = options.fps ?? 28;
+    this.maxDpr = options.maxDpr ?? 1.5;
     const buffer = (): Buffer => {
       const c = document.createElement('canvas');
       return { canvas: c, ctx: c.getContext('2d')! };
@@ -85,7 +89,7 @@ export class MatrixRain {
   }
 
   private resize(): void {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dpr = Math.min(window.devicePixelRatio || 1, this.maxDpr);
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
     for (const { canvas, ctx } of [{ canvas: this.canvas, ctx: this.ctx }, ...this.buffers]) {

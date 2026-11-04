@@ -12,6 +12,7 @@ export const ui = {
     'meta.title': 'Mathis Becher, Cloud Infrastructure Engineer',
     'meta.description':
       'Mathis Becher, Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio auto-hébergé sur mon homelab.',
+    'meta.ogAlt': 'Mathis Becher, Cloud Infrastructure Engineer : aperçu du portfolio',
     'skip': 'Aller au contenu',
     'nav.label': 'Navigation principale',
     'nav.about': 'à propos',
@@ -25,7 +26,7 @@ export const ui = {
     'nav.close': 'fermer',
     'nav.switch': 'Read this page in English',
     'calm.on': 'mode lecture',
-    'calm.off': 'effets',
+    'calm.short': 'lecture',
     'calm.label': 'Mode lecture : couper les animations',
 
     'hero.role': 'Cloud Infrastructure Engineer',
@@ -36,7 +37,7 @@ export const ui = {
     'hero.cta.terminal': 'Ouvrir le terminal',
     'hero.cta.cv': 'Télécharger mon CV',
     'cv.channel': 'CV',
-    'cv.channel.value': 'PDF, 2 pages',
+    'cv.channel.value': 'PDF, 1 page',
 
     'trace.title': 'votre requête',
     'trace.pending': 'mesure en cours…',
@@ -114,6 +115,7 @@ export const ui = {
     'meta.title': 'Mathis Becher, Cloud Infrastructure Engineer',
     'meta.description':
       'Mathis Becher, Cloud Infrastructure Engineer. Terraform, Azure, Docker, Proxmox. Portfolio self-hosted on my homelab.',
+    'meta.ogAlt': 'Mathis Becher, Cloud Infrastructure Engineer: portfolio preview',
     'skip': 'Skip to content',
     'nav.label': 'Main navigation',
     'nav.about': 'about',
@@ -127,7 +129,7 @@ export const ui = {
     'nav.close': 'close',
     'nav.switch': 'Lire cette page en français',
     'calm.on': 'reading mode',
-    'calm.off': 'effects',
+    'calm.short': 'read',
     'calm.label': 'Reading mode: turn animations off',
 
     'hero.role': 'Cloud Infrastructure Engineer',
@@ -138,7 +140,7 @@ export const ui = {
     'hero.cta.terminal': 'Open the terminal',
     'hero.cta.cv': 'Download résumé',
     'cv.channel': 'Résumé',
-    'cv.channel.value': 'PDF, 2 pages',
+    'cv.channel.value': 'PDF, 1 page',
 
     'trace.title': 'your request',
     'trace.pending': 'measuring…',
@@ -332,7 +334,7 @@ export const workProjects: WorkProject[] = [
     },
     role: {
       fr: "J'ai **conçu la plateforme**, écrit tout le code Terraform et les scripts d'exploitation, mené la migration jusqu'au décommissionnement de l'ancienne infrastructure, puis **optimisé les coûts** et dimensionné la capacité. En production depuis ==octobre 2026==.",
-      en: 'I **designed the platform**, wrote all the Terraform code and operations scripts, ran the migration through to decommissioning the old infrastructure, then **optimised costs** and planned capacity. In production since ==October 2026==.',
+      en: 'I **designed the platform**, wrote all the Terraform code and operations scripts, ran the migration through to decommissioning the old infrastructure, then **optimized costs** and planned capacity. In production since ==October 2026==.',
     },
     figures: [
       { value: '10', label: { fr: 'tenants isolés sur un seul cluster', en: 'isolated tenants on one cluster' } },

@@ -292,5 +292,31 @@ const suggestions = ['help', 'ls', 'cd projects', 'tree', 'nano notes.txt', 'fas
 </style>
 
 <script>
-  import '../scripts/terminal';
+  // The shell (~20 KB) is kept off the critical path: it loads when its
+  // section gets close, on the first interaction with it, or once the
+  // browser is idle after the page load — whichever comes first.
+  const section = document.getElementById('terminal');
+  let loaded = false;
+  const load = () => {
+    if (loaded) return;
+    loaded = true;
+    void import('../scripts/terminal');
+  };
+  if (!section || !('IntersectionObserver' in window)) {
+    load();
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        load();
+      },
+      { rootMargin: '800px 0px' }
+    );
+    io.observe(section);
+    section.addEventListener('pointerdown', load, { once: true });
+    section.addEventListener('focusin', load, { once: true });
+    const idle = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 1));
+    window.addEventListener('load', () => window.setTimeout(() => idle(load), 3000), { once: true });
+  }
 </script>

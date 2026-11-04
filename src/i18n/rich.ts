@@ -23,6 +23,9 @@ export function parseRich(input: string): Segment[] {
     last = m.index + m[0].length;
   }
   if (last < input.length) out.push({ text: input.slice(last), kind: 'plain' });
+  // An unbalanced ** or == would show up as raw markup: fail the build instead.
+  const stray = out.find((seg) => seg.kind === 'plain' && /\*\*|==/.test(seg.text));
+  if (stray) throw new Error(`rich: unbalanced emphasis markup in ${JSON.stringify(input)}`);
   return out;
 }
 

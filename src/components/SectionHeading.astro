@@ -13,7 +13,8 @@ const { title, name } = Astro.props;
 const icon = SECTION_ICON[name];
 ---
 
-<h2 class="section-heading" aria-label={title} data-provision={`${name}.title`}>
-  {icon && <span class="section-heading__icon"><Icon name={icon} /></span>}
+<h2 class="section-heading" data-provision={`${name}.title`}>
+  <span class="visually-hidden">{title}</span>
+  {icon && <span class="section-heading__icon" aria-hidden="true"><Icon name={icon} /></span>}
   <span class="section-heading__path" aria-hidden="true">~/</span><span data-decrypt aria-hidden="true">{title}</span>
 </h2>

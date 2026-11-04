@@ -15,6 +15,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Let new releases age a week before proposing them (supply-chain safety).
+    cooldown:
+      default-days: 7
     groups:
       npm-dependencies:
         patterns: ['*']

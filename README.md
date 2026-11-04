@@ -64,7 +64,9 @@ src/
 ├── layouts/      squelette HTML, SEO, décision du boot avant le premier rendu
 ├── scripts/      effets : provision*.ts (construction / effacement), matrix, trace
 │   └── term/     terminal : système de fichiers, complétion, nano, easter eggs
-└── styles/       design tokens (global.css) et styles des effets
+├── pages/        accueil FR / EN, CV (/cv/), sitemap, sprite des logos, source de og.png
+└── styles/       design tokens (global.css), effets et icônes (effects.css),
+                  polices de secours ajustées (fonts.css), effets de construction
 scripts/render-assets.mjs                 CV PDF et og.png, après le build
 nginx.conf, nginx/security-headers.conf   serveur et en-têtes de sécurité
 ```

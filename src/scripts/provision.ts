@@ -195,14 +195,28 @@ export class Provisioner {
     window.addEventListener('resize', schedule);
     // Layout can move without scrolling (nav push, terminal output, fonts).
     new ResizeObserver(schedule).observe(document.body);
+    // Keyboard focus must never land on something invisible: show it at once.
+    document.addEventListener('focusin', (e) => {
+      const el = (e.target as Element | null)?.closest<HTMLElement>('[data-provision]');
+      if (!el || stateOf(el) === 'done') return;
+      this.cancelDestroy(el);
+      this.zone.set(el, true);
+      setState(el, 'done');
+    });
     this.track();
   }
 
   /** Compare every resource with the zone and react to the changes (hysteresis). */
   private track(): void {
-    for (const el of this.targets) {
-      if (pinned(el)) continue;
-      const w = where(el);
+    // Read every position first, then react: interleaving reads with the DOM
+    // writes of a destroy/apply would force a layout per resource.
+    const seen = this.targets.filter((el) => !pinned(el)).map((el) => [el, where(el)] as const);
+    for (const [el, w] of seen) {
+      // The block holding the keyboard focus stays up, wherever it is.
+      if (stateOf(el) === 'done' && el.matches(':focus-within')) {
+        this.zone.set(el, true);
+        continue;
+      }
       const was = this.zone.get(el);
       if (w.enter && was !== true) {
         this.zone.set(el, true);
@@ -231,8 +245,9 @@ export class Provisioner {
   }
 
   private onLeave(el: HTMLElement): void {
-    // A resource still being built is checked again once it is up.
-    if (stateOf(el) === 'done') this.destroy(el);
+    // A resource still being built is checked again once it is up; one that
+    // holds the keyboard focus stays.
+    if (stateOf(el) === 'done' && !el.matches(':focus-within')) this.destroy(el);
   }
 
   private enqueue(el: HTMLElement): void {

@@ -8,6 +8,12 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    # Static site: no capability, read-only filesystem, nginx only writes to /tmp.
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
 
     # Option A — exposition directe d'un port (reverse proxy hors docker) :
     ports:

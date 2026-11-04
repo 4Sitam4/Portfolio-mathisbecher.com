@@ -1,11 +1,16 @@
 ---
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/500.css';
-import '@fontsource/jetbrains-mono/600.css';
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
+import '@fontsource/jetbrains-mono/latin-600.css';
+import '@fontsource/ibm-plex-sans/latin-400.css';
+import '@fontsource/ibm-plex-sans/latin-500.css';
+import '@fontsource/ibm-plex-sans/latin-600.css';
+// Latin subsets only: the only ones the site's texts use.
+import monoLatin400 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url';
+import sansLatin400 from '@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url';
+import '../styles/fonts.css';
 import '../styles/global.css';
+import '../styles/effects.css';
 import '../styles/provision.css';
 import BootSequence from '../components/BootSequence.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
@@ -14,9 +19,13 @@ interface Props {
   lang: Lang;
   title: string;
   description: string;
+  /** pages that are not content (404): no canonical/hreflang, not indexed */
+  noindex?: boolean;
+  /** play the boot sequence and the build effect (home pages) */
+  boot?: boolean;
 }
 
-const { lang, title, description } = Astro.props;
+const { lang, title, description, noindex = false, boot = true } = Astro.props;
 const t = useTranslations(lang);
 const canonical = new URL(lang === 'fr' ? '/' : '/en/', Astro.site);
 const ogImage = new URL('/og.png', Astro.site).href;
@@ -30,16 +39,27 @@ const ogImage = new URL('/og.png', Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="fr" href={new URL('/', Astro.site)} />
-    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site)} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site)} />
+    <!-- the two faces visible first: boot log / headings (mono) and body text (sans) -->
+    <link rel="preload" href={monoLatin400} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansLatin400} as="font" type="font/woff2" crossorigin />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex" />
+      ) : (
+        <>
+          <link rel="canonical" href={canonical} />
+          <link rel="alternate" hreflang="fr" href={new URL('/', Astro.site)} />
+          <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site)} />
+          <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site)} />
+        </>
+      )
+    }
     <meta name="theme-color" content="#070b09" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {!noindex && <meta property="og:url" content={canonical} />}
     <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_US'} />
     <meta property="og:locale:alternate" content={lang === 'fr' ? 'en_US' : 'fr_FR'} />
     <meta property="og:site_name" content="mathisbecher.com" />
@@ -47,7 +67,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Mathis Becher — Cloud Infrastructure Engineer" />
+    <meta property="og:image:alt" content={t('meta.ogAlt')} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -75,7 +95,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
 
     <!-- Decide before first paint whether the boot sequence should run
          (every visit, except with reduced motion). -->
-    <script is:inline>
+    <script is:inline define:vars={{ boot }}>
       (function () {
         var root = document.documentElement;
         root.classList.add('js');
@@ -89,7 +109,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
         // hidden ('pv'). With reduced motion there is no show at all.
         // animations.ts takes over this class; the timeout is a safety net so
         // content can never stay hidden if the script fails to load.
-        if (calm || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (!boot || calm || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           root.dataset.booted = 'true';
         } else {
           root.classList.add('pv');
@@ -110,7 +130,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
   </head>
   <body>
     <a href="#main" class="skip-link">{t('skip')}</a>
-    <BootSequence lang={lang} />
+    {boot && <BootSequence lang={lang} />}
     <slot />
     <script src="../scripts/animations.ts"></script>
   </body>

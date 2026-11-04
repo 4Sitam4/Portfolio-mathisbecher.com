@@ -1,0 +1,19 @@
+---
+/** A row of technology tags, each with its logo when one exists. */
+import TechLogo from './TechLogo.astro';
+
+interface Props {
+  items: string[];
+}
+---
+
+<ul class="tags">
+  {
+    Astro.props.items.map((tag) => (
+      <li class="tag">
+        <TechLogo name={tag} />
+        {tag}
+      </li>
+    ))
+  }
+</ul>

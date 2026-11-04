@@ -2,9 +2,9 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base lang="fr" title="404, Mathis Becher" description="Page introuvable / Page not found">
+<Base lang="fr" title="404, Mathis Becher" description="Page introuvable / Page not found" noindex boot={false}>
   <main id="main" class="notfound container">
-    <p class="notfound__code mono num">404</p>
+    <h1 class="notfound__code mono num">404<span class="visually-hidden"> : page introuvable</span></h1>
     <pre class="notfound__pre mono"><span class="notfound__sign">$</span> curl -sI mathisbecher.com<span id="nf-path"></span>
 HTTP/1.1 404 Not Found</pre>
     <!-- The page is built once, so the requested path is only known in the browser. -->

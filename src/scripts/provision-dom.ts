@@ -35,6 +35,8 @@ export function h<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, pa
 export const isVisible = (el: HTMLElement): boolean => {
   const r = el.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) return false;
+  // One native check instead of a getComputedStyle per ancestor.
+  if (typeof el.checkVisibility === 'function') return el.checkVisibility({ visibilityProperty: true });
   for (let n: HTMLElement | null = el; n; n = n.parentElement) {
     if (getComputedStyle(n).visibility === 'hidden') return false;
   }
