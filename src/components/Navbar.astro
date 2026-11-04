@@ -1,4 +1,10 @@
 ---
+/**
+ * Side navigation, hidden by default. It opens when the pointer reaches the
+ * left edge (or from the small tab, for touch and keyboard), pushes the page
+ * aside, and its items are built / destroyed by the terraform effects
+ * (provision.ts listens to `nav:opened` and `nav:closing`).
+ */
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -24,16 +30,32 @@ const langs = [
 ] as const;
 ---
 
-<header class="nav">
-  <div class="container nav__inner">
+<header class="nav" id="nav">
+  <button
+    id="nav-tab"
+    class="nav__tab"
+    type="button"
+    aria-expanded="false"
+    aria-controls="nav-panel"
+    aria-label={t('nav.menu')}
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m4 17 6-6-6-6" /><path d="M12 19h8" />
+    </svg>
+  </button>
+
+  <div class="nav__edge" aria-hidden="true"></div>
+
+  <div class="nav__panel" id="nav-panel">
     <a href="#top" class="nav__logo glitch" data-provision="nav.logo" data-text="mb@homelab:~$" aria-label="Mathis Becher">mb@homelab:~$</a>
 
-    <nav class="nav__menu" aria-label={t('nav.label')} data-provision="nav.links">
-      <ul id="nav-links" class="nav__links">
+    <nav aria-label={t('nav.label')}>
+      <ul class="nav__links">
         {
-          links.map((link) => (
-            <li>
+          links.map((link, i) => (
+            <li data-provision={`nav.link[${i}]`}>
               <a href={`#${link.id}`} data-spy={link.id}>
+                <span class="nav__path" aria-hidden="true">~/</span>
                 {link.label}
               </a>
             </li>
@@ -42,7 +64,7 @@ const langs = [
       </ul>
     </nav>
 
-    <div class="nav__end" data-provision="nav.controls">
+    <div class="nav__foot" data-provision="nav.lang">
       <div class="nav__lang" role="group" aria-label="Langue / Language">
         {
           langs.map((l) =>
@@ -65,96 +87,133 @@ const langs = [
           )
         }
       </div>
-
-      <button
-        id="nav-toggle"
-        class="nav__toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="nav-links"
-        data-open-label={t('nav.menu')}
-        data-close-label={t('nav.close')}
-      >
-        <span class="nav__toggle-icon" aria-hidden="true"><i></i><i></i></span>
-        <span class="nav__toggle-label">{t('nav.menu')}</span>
+      <button type="button" class="nav__close" id="nav-close" aria-label={t('nav.close')}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
       </button>
     </div>
   </div>
 </header>
 
 <style>
-  .nav {
+  /* The small tab: always reachable, for touch and keyboard. */
+  .nav__tab {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: var(--s-4);
+    left: var(--s-4);
     z-index: var(--z-nav);
-    background: rgba(7, 11, 9, 0.86);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--text-2);
+    background: rgba(12, 18, 15, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-md);
+    transition: opacity var(--dur-base) var(--ease), color var(--dur-fast) var(--ease);
   }
 
-  .nav__inner {
+  .nav__tab:hover {
+    color: var(--accent);
+  }
+
+  .nav__tab svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  :global(html[data-nav='open']) .nav__tab {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Invisible hot zone along the left edge (the script watches the pointer). */
+  .nav__edge {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 12px;
+    z-index: var(--z-nav);
+  }
+
+  .nav__panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--z-nav);
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: var(--s-6);
-    height: var(--nav-h);
+    width: var(--nav-w);
+    padding: var(--s-6) var(--s-5) var(--s-5);
+    background: var(--bg-deep);
+    border-right: 1px solid var(--line);
+    box-shadow: 24px 0 48px rgba(0, 0, 0, 0.35);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 320ms var(--ease),
+      visibility 0s linear 320ms;
+  }
+
+  :global(html[data-nav='open']) .nav__panel {
+    transform: none;
+    visibility: visible;
+    transition: transform 320ms var(--ease);
   }
 
   .nav__logo {
+    align-self: flex-start;
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
     font-weight: 500;
     color: var(--text);
-    white-space: nowrap;
-  }
-
-  .nav__menu {
-    margin-left: auto;
   }
 
   .nav__links {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: var(--s-1);
     font-family: var(--font-mono);
     font-size: var(--fs-sm);
   }
 
   .nav__links a {
-    position: relative;
     display: flex;
     align-items: center;
-    height: 2.25rem;
+    height: 2.5rem;
     padding: 0 var(--s-3);
     color: var(--text-3);
     border-radius: var(--r-md);
     transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
   }
 
+  .nav__path {
+    color: var(--text-3);
+    opacity: 0.6;
+  }
+
   .nav__links a:hover {
     color: var(--text);
+    background: var(--surface);
   }
 
   .nav__links a[aria-current='true'] {
     color: var(--text);
+    background: var(--raised);
+    box-shadow: inset 2px 0 0 var(--accent);
   }
 
-  .nav__links a[aria-current='true']::after {
-    content: '';
-    position: absolute;
-    left: var(--s-3);
-    right: var(--s-3);
-    bottom: 4px;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  .nav__end {
+  .nav__foot {
     display: flex;
     align-items: center;
-    gap: var(--s-2);
+    justify-content: space-between;
+    margin-top: auto;
   }
 
   .nav__lang {
@@ -170,12 +229,11 @@ const langs = [
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 2.25rem;
-    height: 1.75rem;
+    min-width: 2.5rem;
+    height: 2rem;
     padding: 0 var(--s-2);
     border-radius: 6px;
     color: var(--text-3);
-    text-transform: lowercase;
     transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
   }
 
@@ -189,166 +247,166 @@ const langs = [
     background: var(--raised);
   }
 
-  .nav__toggle {
-    display: none;
-    align-items: center;
-    gap: var(--s-2);
+  .nav__close {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
     height: 2.75rem;
-    padding: 0 var(--s-3);
+    color: var(--text-3);
     background: none;
     border: 1px solid var(--line);
     border-radius: var(--r-md);
-    font-family: var(--font-mono);
-    font-size: var(--fs-sm);
+  }
+
+  .nav__close:hover {
     color: var(--text);
   }
 
-  .nav__toggle-icon {
-    display: grid;
-    gap: 4px;
-    width: 14px;
+  .nav__close svg {
+    width: 18px;
+    height: 18px;
   }
 
-  .nav__toggle-icon i {
-    height: 1.5px;
-    background: currentColor;
-    transition: transform var(--dur-base) var(--ease);
-  }
-
-  .nav__toggle[aria-expanded='true'] .nav__toggle-icon i:first-child {
-    transform: translateY(2.75px) rotate(45deg);
-  }
-
-  .nav__toggle[aria-expanded='true'] .nav__toggle-icon i:last-child {
-    transform: translateY(-2.75px) rotate(-45deg);
-  }
-
-  @media (max-width: 1100px) {
-    .nav__inner {
-      gap: var(--s-4);
-    }
-
-    .nav__menu {
-      position: absolute;
-      top: var(--nav-h);
-      left: 0;
-      right: 0;
-      background: var(--bg);
-      border-bottom: 1px solid var(--line);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-4px);
-      transition:
-        opacity var(--dur-base) var(--ease),
-        transform var(--dur-base) var(--ease),
-        visibility 0s linear var(--dur-base);
-    }
-
-    .nav__menu.is-open {
-      opacity: 1;
-      visibility: visible;
-      transform: none;
-      transition:
-        opacity var(--dur-base) var(--ease),
-        transform var(--dur-base) var(--ease);
-    }
-
-    .nav__links {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding: var(--s-2) var(--gutter) var(--s-4);
-      font-size: var(--fs-base);
-    }
-
-    .nav__links a {
-      height: 3rem;
-      padding: 0;
-      border-radius: 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .nav__links li:last-child a {
-      border-bottom: 0;
-    }
-
-    .nav__links a[aria-current='true']::after {
-      display: none;
-    }
-
-    .nav__end {
-      margin-left: auto;
-    }
-
-    .nav__toggle {
-      display: flex;
+  /* Push the page aside while the nav is open (wide screens only). */
+  @media (min-width: 768px) {
+    :global(html[data-nav='open'] main),
+    :global(html[data-nav='open'] .footer) {
+      margin-left: var(--nav-w);
     }
   }
 
-  @media (max-width: 380px) {
-    .nav__toggle-label {
-      display: none;
-    }
+  /* Without JS: a plain list at the top of the page. */
+  :global(html:not(.js)) .nav__panel {
+    position: static;
+    width: auto;
+    transform: none;
+    visibility: visible;
+  }
+
+  :global(html:not(.js)) .nav__tab,
+  :global(html:not(.js)) .nav__close {
+    display: none;
   }
 </style>
 
 <script>
-  const toggle = document.getElementById('nav-toggle');
-  const menu = document.querySelector<HTMLElement>('.nav__menu');
-  const label = toggle?.querySelector('.nav__toggle-label');
+  /**
+   * Open/close logic. Closing waits for the destroy effect: listeners of
+   * `nav:closing` may push promises into `detail.wait`.
+   */
+  const root = document.documentElement;
+  const tab = document.getElementById('nav-tab') as HTMLButtonElement | null;
+  const panel = document.getElementById('nav-panel');
+  const closeBtn = document.getElementById('nav-close');
+  const EDGE = 16; // px from the left edge that opens the nav
+  const LEAVE = 64; // px beyond the panel before it closes
+  const CLOSE_DELAY = 250;
+  const MAX_WAIT = 1500;
 
-  const setOpen = (open: boolean): void => {
-    if (!toggle || !menu) return;
-    menu.classList.toggle('is-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    if (label) label.textContent = (open ? toggle.dataset.closeLabel : toggle.dataset.openLabel) ?? '';
-  };
+  let open = false;
+  let by: 'hover' | 'click' | 'focus' | null = null;
+  let seq = 0;
+  let leaveTimer = 0;
 
-  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  const panelWidth = () => panel?.getBoundingClientRect().width ?? 0;
 
-  // Close after navigating, on Escape, or when clicking outside the header.
-  menu?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  function setOpen(next: boolean): void {
+    open = next;
+    root.dataset.nav = next ? 'open' : 'closed';
+    tab?.setAttribute('aria-expanded', String(next));
+  }
+
+  function show(source: 'hover' | 'click' | 'focus'): void {
+    clearTimeout(leaveTimer);
+    seq++;
+    if (open) return;
+    by = source;
+    setOpen(true);
+    // Build the items once the panel has slid in.
+    window.setTimeout(() => open && window.dispatchEvent(new CustomEvent('nav:opened')), 320);
+  }
+
+  async function hide(): Promise<void> {
+    if (!open) return;
+    const mine = ++seq;
+    const wait: Promise<unknown>[] = [];
+    window.dispatchEvent(new CustomEvent('nav:closing', { detail: { wait } }));
+    await Promise.race([Promise.all(wait), new Promise((r) => setTimeout(r, MAX_WAIT))]);
+    if (mine !== seq) return; // reopened meanwhile
+    by = null;
+    setOpen(false);
+  }
+
+  setOpen(false);
+
+  tab?.addEventListener('click', () => show('click'));
+  closeBtn?.addEventListener('click', () => {
+    void hide();
+    tab?.focus();
   });
+
+  // Pointer near the left edge opens it; moving well away closes it.
+  let frame = 0;
+  window.addEventListener(
+    'pointermove',
+    (e) => {
+      if (e.pointerType !== 'mouse') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (!open && e.clientX <= EDGE) return show('hover');
+        if (open && by !== 'focus') {
+          if (e.clientX > panelWidth() + LEAVE) {
+            clearTimeout(leaveTimer);
+            leaveTimer = window.setTimeout(() => void hide(), CLOSE_DELAY);
+          } else {
+            clearTimeout(leaveTimer);
+          }
+        }
+      });
+    },
+    { passive: true }
+  );
+
+  // Keyboard: focusing a link opens it, leaving the nav closes it.
+  panel?.addEventListener('focusin', () => show('focus'));
+  panel?.addEventListener('focusout', (e) => {
+    if (!panel.contains(e.relatedTarget as Node | null) && by === 'focus') void hide();
+  });
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
-      setOpen(false);
-      toggle.focus();
+    if (e.key === 'Escape' && open) {
+      void hide();
+      tab?.focus();
     }
   });
+
+  // Touch / click outside closes it.
   document.addEventListener('click', (e) => {
-    if (!(e.target as HTMLElement).closest('.nav')) setOpen(false);
+    if (open && by !== 'hover' && !(e.target as HTMLElement).closest('.nav')) void hide();
+  });
+
+  // Following a link closes it (the page moves anyway).
+  panel?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a[href^="#"]')) void hide();
   });
 
   // Scroll spy: mark the link of the section currently in view.
   const spyLinks = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('[data-spy]').forEach((a) => spyLinks.set(a.dataset.spy!, a));
-
   const setCurrent = (id: string | null): void => {
     spyLinks.forEach((a, key) => {
       if (key === id) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     });
   };
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) setCurrent(entry.target.id);
-      }
-    },
-    // A thin band a third of the way down the viewport decides the current section.
-    { rootMargin: '-33% 0px -66% 0px' }
-  );
-
+  const band = { rootMargin: '-33% 0px -66% 0px' };
+  const spy = new IntersectionObserver((entries) => {
+    for (const entry of entries) if (entry.isIntersecting) setCurrent(entry.target.id);
+  }, band);
   const top = document.getElementById('top');
-  if (top) {
-    new IntersectionObserver(([entry]) => entry?.isIntersecting && setCurrent(null), {
-      rootMargin: '-33% 0px -66% 0px',
-    }).observe(top);
-  }
+  if (top) new IntersectionObserver(([e]) => e?.isIntersecting && setCurrent(null), band).observe(top);
   spyLinks.forEach((_, id) => {
     const section = document.getElementById(id);
-    if (section) observer.observe(section);
+    if (section) spy.observe(section);
   });
 </script>

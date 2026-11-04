@@ -33,6 +33,11 @@
   z-index: calc(var(--z-nav) + 1);
 }
 
+.pv-layer--fixed {
+  position: fixed;
+  inset: 0;
+}
+
 .pv-guide {
   position: absolute;
   opacity: 0;

@@ -9,7 +9,8 @@
  *  - destroy: when it leaves the active zone of the screen, a red frame
  *    ("Destroying...") appears and a red scan line erases it.
  * The intro builds what is on screen when the boot sequence ends, then a
- * full-screen sweep marks "Apply complete".
+ * full-screen sweep marks "Apply complete". The side nav is built when it
+ * opens and destroyed when it closes (applyNav / destroyNav).
  */
 
 import gsap from 'gsap';
@@ -46,23 +47,20 @@ interface RunOptions {
   stagger: number;
   from: 'bottom' | 'left';
   intro: boolean;
+  /** drawn in viewport coordinates, above the nav (the nav's own resources) */
+  fixed?: boolean;
 }
 
 const stateOf = (el: HTMLElement): State => (el.dataset.pv as State | undefined) ?? 'done';
 const setState = (el: HTMLElement, s: State): void => void (el.dataset.pv = s);
 
-/** Fixed chrome (the nav) never scrolls out: built once, never destroyed. */
+/** The fixed side nav follows its own open/close cycle, not the scroll. */
 const pinned = (el: HTMLElement): boolean => el.closest('.nav') !== null;
 
-/**
- * Zone edges in px from the top and bottom of the viewport. The top edge
- * starts below the fixed nav, so a resource is erased while still visible
- * under it, not hidden behind it.
- */
+/** Zone edges in px from the top and bottom of the viewport. */
 function zoneInsets(): { top: number; bottom: number } {
-  const nav = document.querySelector('.nav')?.getBoundingClientRect().height ?? 0;
-  const band = window.innerHeight * ZONE_MARGIN;
-  return { top: Math.round(nav + band), bottom: Math.round(band) };
+  const band = Math.round(window.innerHeight * ZONE_MARGIN);
+  return { top: band, bottom: band };
 }
 
 /** Same test as the observer's zone, for decisions made before it reports. */
@@ -75,7 +73,7 @@ function inZoneNow(el: HTMLElement): boolean {
 export class Provisioner {
   private readonly targets: HTMLElement[];
   private readonly running = new Set<gsap.core.Timeline>();
-  private readonly destroying = new Map<HTMLElement, { tl: gsap.core.Timeline; layer: HTMLElement }>();
+  private readonly destroying = new Map<HTMLElement, { tl: gsap.core.Timeline; layer: HTMLElement; done: () => void }>();
   /** Last zone status reported by the observer, per element. */
   private readonly zone = new Map<HTMLElement, boolean>();
   private readonly observer: IntersectionObserver;
@@ -116,13 +114,13 @@ export class Provisioner {
 
   /** Show everything immediately (boot skipped); scrolling still applies/destroys. */
   revealAll(): void {
-    for (const el of this.targets) setState(el, 'done');
+    for (const el of this.targets) setState(el, pinned(el) ? 'pending' : 'done');
     this.observe();
   }
 
   /** Build what is in the active zone now; from then on, follow the scroll. */
   start(): void {
-    this.runIntro(this.targets.filter((el) => stateOf(el) === 'pending' && (pinned(el) || inZoneNow(el))));
+    this.runIntro(this.targets.filter((el) => stateOf(el) === 'pending' && !pinned(el) && inZoneNow(el)));
     this.observe();
   }
 
@@ -135,6 +133,37 @@ export class Provisioner {
 
   skip(): void {
     this.intro?.progress(1);
+  }
+
+  /* --- side nav ------------------------------------------------------------ */
+
+  private navRun: gsap.core.Timeline | null = null;
+  private readonly navTargets = () => this.targets.filter(pinned);
+
+  /** The nav has opened: build its items (or restore those being destroyed). */
+  applyNav(): void {
+    const build: HTMLElement[] = [];
+    for (const el of this.navTargets()) {
+      this.zone.set(el, true);
+      const s = stateOf(el);
+      if (s === 'destroying') {
+        this.cancelDestroy(el);
+        setState(el, 'done');
+      } else if (s === 'pending') {
+        build.push(el);
+      }
+    }
+    if (build.length) this.navRun = this.run(build, { stagger: 0.07, from: 'left', intro: false, fixed: true });
+  }
+
+  /** The nav is closing: destroy its items; resolves once they are gone. */
+  destroyNav(): Promise<void> {
+    const els = this.navTargets();
+    for (const el of els) this.zone.set(el, false);
+    // Items still being built finish at once, then go down with the others.
+    this.navRun?.progress(1);
+    this.navRun = null;
+    return Promise.all(els.filter((el) => stateOf(el) === 'done').map((el) => this.destroy(el))).then(() => undefined);
   }
 
   /* --- scroll ------------------------------------------------------------- */
@@ -197,7 +226,7 @@ export class Provisioner {
   }
 
   private run(list: HTMLElement[], o: RunOptions): gsap.core.Timeline {
-    const layer = createLayer(o.intro);
+    const layer = createLayer(o.intro || o.fixed, o.fixed);
     const tl = gsap.timeline({
       onComplete: () => {
         layer.remove();
@@ -224,7 +253,7 @@ export class Provisioner {
     const trails = agents.map((a) => trail(a, layer));
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const sy = window.scrollY;
+    const sy = o.fixed ? 0 : window.scrollY;
     agents.forEach((a, i) =>
       gsap.set(
         a,
@@ -235,7 +264,7 @@ export class Provisioner {
     );
 
     visible.forEach((el, i) => {
-      const box = boxOf(el);
+      const box = boxOf(el, o.fixed);
       const name = el.dataset.provision ?? 'resource';
       const { frame, sel, marks, gx, gy } = createFrame(layer, box, `module.${name}`);
       const scan = createScan(layer, box);
@@ -282,26 +311,31 @@ export class Provisioner {
 
   /* --- destroy ------------------------------------------------------------ */
 
-  private destroy(el: HTMLElement): void {
+  /** Resolves once the resource is gone (or restored by cancelDestroy). */
+  private destroy(el: HTMLElement): Promise<void> {
     // Already off screen: nothing to show, just reset it.
     if (!inViewport(el) || !isVisible(el)) {
       setState(el, 'pending');
-      return;
+      return Promise.resolve();
     }
     setState(el, 'destroying');
-    const layer = createLayer();
-    const box = boxOf(el);
+    const fixed = pinned(el);
+    const layer = createLayer(fixed, fixed);
+    const box = boxOf(el, fixed);
     const { frame, marks } = createFrame(layer, box, `module.${el.dataset.provision}: Destroying...`, 'pv-frame--destroy');
     const scan = createScan(layer, box);
     scan.classList.add('pv-scan--destroy');
     glitch(el);
 
+    let done!: () => void;
+    const gone = new Promise<void>((resolve) => (done = resolve));
     const tl = gsap.timeline({
       onComplete: () => {
         layer.remove();
         this.destroying.delete(el);
         gsap.set(el, { clearProps: 'clipPath' });
         setState(el, 'pending');
+        done();
       },
     });
     tl.set(frame, { opacity: 1 });
@@ -309,7 +343,8 @@ export class Provisioner {
     tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(100% 0% 0% 0%)', duration: T_ERASE, ease: 'power2.in' }, T_GLITCH);
     tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_ERASE, ease: 'power2.in', immediateRender: false }, T_GLITCH);
     tl.to([frame, scan], { opacity: 0, duration: 0.25 }, T_GLITCH + T_ERASE);
-    this.destroying.set(el, { tl, layer });
+    this.destroying.set(el, { tl, layer, done });
+    return gone;
   }
 
   private cancelDestroy(el: HTMLElement): void {
@@ -319,5 +354,6 @@ export class Provisioner {
     d.layer.remove();
     this.destroying.delete(el);
     gsap.set(el, { clearProps: 'clipPath' });
+    d.done();
   }
 }

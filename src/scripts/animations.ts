@@ -52,6 +52,13 @@ window.addEventListener('trace:ready', (e) => {
   gsap.from(rows, { opacity: 0, x: -6, duration: 0.3, ease: 'power2.out', stagger: 0.05 });
 });
 
+// The side nav: built when it opens, destroyed (and awaited) when it closes.
+window.addEventListener('nav:opened', () => provisioner?.applyNav());
+window.addEventListener('nav:closing', (e) => {
+  const wait = (e as CustomEvent<{ wait: Promise<unknown>[] }>).detail?.wait;
+  if (provisioner && wait) wait.push(provisioner.destroyNav());
+});
+
 // `terraform apply` in the terminal.
 window.addEventListener('provision:replay', () => provisioner?.replay());
 

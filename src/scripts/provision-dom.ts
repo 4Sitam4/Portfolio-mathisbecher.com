@@ -39,20 +39,23 @@ export const inViewport = (el: HTMLElement): boolean => {
   return r.bottom > 0 && r.top < window.innerHeight;
 };
 
-/** Element box in document coordinates. */
-export function boxOf(el: HTMLElement): Box {
+/** Element box in document coordinates (or viewport coordinates when `fixed`). */
+export function boxOf(el: HTMLElement, fixed = false): Box {
   const r = el.getBoundingClientRect();
+  if (fixed) return { x: r.left, y: r.top, w: r.width, h: r.height };
   return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
 }
 
 /**
- * Absolute overlay covering the whole document, removed by the caller.
- * It passes under the fixed nav, unless `aboveNav` (the intro builds the nav).
+ * Overlay for the effects, removed by the caller. By default it covers the
+ * whole document and passes under the nav; `aboveNav` lifts it over the nav,
+ * `fixed` pins it to the viewport (for the nav's own resources).
  */
-export function createLayer(aboveNav = false): HTMLElement {
-  const layer = h('div', aboveNav ? 'pv-layer pv-layer--top' : 'pv-layer');
+export function createLayer(aboveNav = false, fixed = false): HTMLElement {
+  const cls = ['pv-layer', aboveNav && 'pv-layer--top', fixed && 'pv-layer--fixed'].filter(Boolean).join(' ');
+  const layer = h('div', cls);
   layer.setAttribute('aria-hidden', 'true');
-  layer.style.height = `${document.documentElement.scrollHeight}px`;
+  if (!fixed) layer.style.height = `${document.documentElement.scrollHeight}px`;
   document.body.append(layer);
   return layer;
 }
