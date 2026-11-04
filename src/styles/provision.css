@@ -4,14 +4,16 @@
 
 /* Before first paint (class set in Base.astro), then per element. */
 .pv [data-provision],
-[data-pv='pending'] {
+[data-pv='pending'],
+[data-pv='building'] {
   opacity: 0;
   pointer-events: none;
 }
 
 @media print {
   .pv [data-provision],
-  [data-pv='pending'] {
+  [data-pv='pending'],
+  [data-pv='building'] {
     opacity: 1;
   }
 }
@@ -24,6 +26,10 @@
   width: 100%;
   overflow: hidden;
   pointer-events: none;
+  z-index: calc(var(--z-nav) - 1);
+}
+
+.pv-layer--top {
   z-index: calc(var(--z-nav) + 1);
 }
 
@@ -298,111 +304,27 @@
   border: 1px solid var(--line-strong);
 }
 
-/* --- Status bar ------------------------------------------------------------ */
+/* --- terraform destroy: red frame and scan ---------------------------------- */
 
-.pv-status {
-  position: fixed;
-  left: 50%;
-  bottom: var(--s-4);
-  z-index: calc(var(--z-nav) + 2);
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  width: max-content;
-  max-width: calc(100% - 2 * var(--s-4));
-  height: 2.75rem;
-  padding: 0 var(--s-2) 0 var(--s-4);
-  translate: -50% 0;
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  color: var(--text-2);
-  background: rgba(12, 18, 15, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+.pv-frame--destroy .pv-frame__box {
+  border-color: var(--negative);
+  background: rgba(229, 72, 77, 0.05);
 }
 
-.pv-status__progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--accent);
-  transform-origin: left center;
-  transform: scaleX(0);
+.pv-frame--destroy .pv-frame__tag {
+  background: var(--negative);
+  color: #fff;
 }
 
-.pv-status[hidden] {
-  display: none;
+.pv-frame--destroy .pv-frame__handle {
+  border-color: var(--negative);
 }
 
-.pv-status__dots {
-  display: flex;
-  gap: 4px;
+.pv-scan--destroy {
+  background: var(--negative);
+  box-shadow: 0 0 12px rgba(229, 72, 77, 0.55);
 }
 
-.pv-status__dots i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--raised);
-  border: 1px solid var(--line-strong);
-  transition: background-color var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
-}
-
-.pv-status__dots i.is-on {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.pv-status__cmd {
-  color: var(--text);
-}
-
-.pv-status__msg {
-  min-width: 0;
-  max-width: 34rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pv-status.is-complete .pv-status__msg {
-  color: var(--accent);
-}
-
-.pv-status__count,
-.pv-status__time {
-  color: var(--text-3);
-}
-
-.pv-status__btn {
-  height: 2rem;
-  padding: 0 var(--s-3);
-  font-family: var(--font-sans);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--text);
-  background: var(--raised);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--r-md);
-  transition: background-color var(--dur-fast) var(--ease);
-}
-
-.pv-status__btn:hover {
-  background: #18221d;
-}
-
-@media (max-width: 640px) {
-  .pv-status {
-    gap: var(--s-2);
-  }
-
-  .pv-status__cmd,
-  .pv-status__time {
-    display: none;
-  }
+.pv-scan--destroy::before {
+  background: linear-gradient(to top, rgba(229, 72, 77, 0.16), transparent);
 }

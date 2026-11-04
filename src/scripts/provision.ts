@@ -1,11 +1,15 @@
 /**
- * "terraform apply" — the page provisions itself, on every visit.
+ * "terraform apply / destroy" — the page builds itself, and keeps doing it
+ * as you scroll.
  *
- * Every element marked `data-provision="<resource>"` is a resource. While it is
- * pending it is invisible; a squad of cursor agents drags a selection frame
- * around it (resource name, dimensions, guides), then a scan line reveals it.
- * The first run covers what is on screen when the boot sequence ends; the rest
- * is provisioned as it scrolls into view. A status bar mirrors terraform output.
+ * Every element marked `data-provision="<resource>"` is a resource with a
+ * state (data-pv): pending → building → done → destroying → pending…
+ *  - apply: a squad of cursor agents drags a selection frame around it
+ *    (resource name, dimensions, guides), then a scan line reveals it;
+ *  - destroy: when it leaves the active zone of the screen, a red frame
+ *    ("Destroying...") appears and a red scan line erases it.
+ * The intro builds what is on screen when the boot sequence ends, then a
+ * full-screen sweep marks "Apply complete".
  */
 
 import gsap from 'gsap';
@@ -22,7 +26,11 @@ import {
   sweep,
   trail,
 } from './provision-dom';
-import { STR, StatusBar, type Lang } from './provision-status';
+
+type State = 'pending' | 'building' | 'done' | 'destroying';
+
+/** The active zone: the viewport minus a thin band at the top and bottom. */
+const ZONE_MARGIN = 0.06;
 
 /* --- timing (seconds) ----------------------------------------------------- */
 const T_REACH = 0.35; // agent flies to the top-left corner
@@ -30,77 +38,96 @@ const T_DRAG = 0.35; // agent drags the selection to the bottom-right corner
 const T_FILL = 0.45; // scan line reveals the element
 const T_HOLD = 0.3; // frame stays a moment after the fill
 const T_OUT = 0.4; // frame and guides fade out
+const T_ERASE = 0.45; // destroy: scan line erases the element
+const T_GLITCH = 0.32; // matches the .pv-glitch animation (it also animates clip-path)
 const AGENT_BUSY = T_REACH + T_DRAG + 0.05;
 
 interface RunOptions {
   stagger: number;
-  from: 'bar' | 'left';
+  from: 'bottom' | 'left';
   intro: boolean;
+}
+
+const stateOf = (el: HTMLElement): State => (el.dataset.pv as State | undefined) ?? 'done';
+const setState = (el: HTMLElement, s: State): void => void (el.dataset.pv = s);
+
+/** Fixed chrome (the nav) never scrolls out: built once, never destroyed. */
+const pinned = (el: HTMLElement): boolean => el.closest('.nav') !== null;
+
+/**
+ * Zone edges in px from the top and bottom of the viewport. The top edge
+ * starts below the fixed nav, so a resource is erased while still visible
+ * under it, not hidden behind it.
+ */
+function zoneInsets(): { top: number; bottom: number } {
+  const nav = document.querySelector('.nav')?.getBoundingClientRect().height ?? 0;
+  const band = window.innerHeight * ZONE_MARGIN;
+  return { top: Math.round(nav + band), bottom: Math.round(band) };
+}
+
+/** Same test as the observer's zone, for decisions made before it reports. */
+function inZoneNow(el: HTMLElement): boolean {
+  const r = el.getBoundingClientRect();
+  const z = zoneInsets();
+  return r.bottom > z.top && r.top < window.innerHeight - z.bottom;
 }
 
 export class Provisioner {
   private readonly targets: HTMLElement[];
-  private readonly done = new Set<HTMLElement>();
   private readonly running = new Set<gsap.core.Timeline>();
+  private readonly destroying = new Map<HTMLElement, { tl: gsap.core.Timeline; layer: HTMLElement }>();
+  /** Last zone status reported by the observer, per element. */
+  private readonly zone = new Map<HTMLElement, boolean>();
   private readonly observer: IntersectionObserver;
-  private readonly bar: StatusBar;
-  private readonly s: (typeof STR)[Lang];
   private queue: HTMLElement[] = [];
   private flushTimer = 0;
   private intro: gsap.core.Timeline | null = null;
   private introCleanup: (() => void) | null = null;
-  private swept = false;
+  private observing = false;
 
-  constructor(lang: Lang) {
-    this.s = STR[lang];
+  constructor() {
     this.targets = [...document.querySelectorAll<HTMLElement>('[data-provision]')];
-    this.bar = new StatusBar(this.s, () => (this.bar.mode === 'skip' ? this.skip() : this.replay()));
+    const z = zoneInsets();
     this.observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          this.observer.unobserve(entry.target);
-          this.enqueue(entry.target as HTMLElement);
+          const el = entry.target as HTMLElement;
+          this.zone.set(el, entry.isIntersecting);
+          if (entry.isIntersecting) this.onEnter(el);
+          else this.onLeave(el);
         }
       },
-      { rootMargin: '0px 0px -12% 0px' }
+      { rootMargin: `-${z.top}px 0px -${z.bottom}px 0px` }
     );
   }
 
-  get total(): number {
-    return this.targets.length;
-  }
-
-  /** True while a build is drawing — the ambient loop waits for it. */
+  /** True while something is drawing — the ambient loop waits for it. */
   get busy(): boolean {
-    return this.running.size > 0;
+    return this.running.size > 0 || this.destroying.size > 0;
   }
 
   /** Hide every resource until it is built. */
   arm(): void {
-    this.done.clear();
-    this.swept = false;
-    for (const el of this.targets) el.dataset.pv = 'pending';
-  }
-
-  /** Show everything immediately, without animation (skip at boot, fallback). */
-  revealAll(): void {
-    this.observer.disconnect();
-    for (const el of this.targets) this.complete(el, false);
-  }
-
-  /** Build what is on screen now, then the rest as it scrolls into view. */
-  start(): void {
-    const now = this.targets.filter((el) => !this.done.has(el) && inViewport(el));
     for (const el of this.targets) {
-      if (!this.done.has(el) && !now.includes(el)) this.observer.observe(el);
+      this.cancelDestroy(el);
+      setState(el, 'pending');
     }
-    this.runIntro(now);
+  }
+
+  /** Show everything immediately (boot skipped); scrolling still applies/destroys. */
+  revealAll(): void {
+    for (const el of this.targets) setState(el, 'done');
+    this.observe();
+  }
+
+  /** Build what is in the active zone now; from then on, follow the scroll. */
+  start(): void {
+    this.runIntro(this.targets.filter((el) => stateOf(el) === 'pending' && (pinned(el) || inZoneNow(el))));
+    this.observe();
   }
 
   replay(): void {
     this.running.forEach((tl) => tl.progress(1));
-    this.observer.disconnect();
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     this.arm();
     requestAnimationFrame(() => this.start());
@@ -110,33 +137,55 @@ export class Provisioner {
     this.intro?.progress(1);
   }
 
-  /* ----------------------------------------------------------------------- */
+  /* --- scroll ------------------------------------------------------------- */
 
-  private complete(el: HTMLElement, animate: boolean): void {
-    el.dataset.pv = 'done';
-    this.done.add(el);
-    if (animate) el.querySelectorAll<HTMLElement>('[data-decrypt]').forEach((d) => scramble(d));
+  private observe(): void {
+    if (this.observing) return;
+    this.observing = true;
+    for (const el of this.targets) if (!pinned(el)) this.observer.observe(el);
+  }
+
+  private onEnter(el: HTMLElement): void {
+    const s = stateOf(el);
+    if (s === 'destroying') {
+      // Back before it was gone: restore it as it is.
+      this.cancelDestroy(el);
+      setState(el, 'done');
+    } else if (s === 'pending') {
+      this.enqueue(el);
+    }
+  }
+
+  private onLeave(el: HTMLElement): void {
+    // A resource still being built is checked again once it is up.
+    if (stateOf(el) === 'done') this.destroy(el);
   }
 
   private enqueue(el: HTMLElement): void {
-    if (this.done.has(el)) return;
     this.queue.push(el);
     // Elements entering together are built by one squad.
     clearTimeout(this.flushTimer);
     this.flushTimer = window.setTimeout(() => {
-      const batch = this.queue.filter((t) => !this.done.has(t));
+      const batch = [...new Set(this.queue)].filter((t) => stateOf(t) === 'pending' && this.zone.get(t));
       this.queue = [];
       if (batch.length) this.run(batch, { stagger: 0.12, from: 'left', intro: false });
     }, 60);
   }
 
+  /* --- apply -------------------------------------------------------------- */
+
+  private complete(el: HTMLElement, animate: boolean): void {
+    setState(el, 'done');
+    if (animate) el.querySelectorAll<HTMLElement>('[data-decrypt]').forEach((d) => scramble(d));
+    // Scrolled away while it was being built: it goes right back down.
+    if (this.zone.get(el) === false) window.setTimeout(() => this.onLeave(el), 0);
+  }
+
   private runIntro(targets: HTMLElement[]): void {
     window.dispatchEvent(new CustomEvent('matrix:boost', { detail: 4500 }));
-    this.bar.setMode('skip');
-    this.intro = this.run(targets, { stagger: 0.14, from: 'bar', intro: true });
+    this.intro = this.run(targets, { stagger: 0.14, from: 'bottom', intro: true });
 
-    // Only a deliberate gesture skips the show: Escape or the bar's button.
-    // (Clicks, scrolling and other keys used to skip it by accident.)
+    // Only a deliberate gesture skips the show: Escape.
     const skipKeys = (e: KeyboardEvent) => {
       if (e.key === 'Escape') this.skip();
     };
@@ -147,26 +196,8 @@ export class Provisioner {
     };
   }
 
-  private finishRun(intro: boolean): void {
-    const n = this.done.size;
-    this.bar.setMode('replay');
-    if (n === this.total) {
-      this.bar.update(`Apply complete! Resources: ${n} added, 0 changed, 0 destroyed.`, n, this.total);
-      this.bar.hideAfter(6000);
-      if (!this.swept) {
-        this.swept = true;
-        sweep();
-      }
-    } else {
-      if (intro) this.bar.update(`${n} created — ${this.s.rest}`, n, this.total);
-      this.bar.hideAfter(intro ? 4500 : 2200);
-    }
-  }
-
   private run(list: HTMLElement[], o: RunOptions): gsap.core.Timeline {
-    const startedAt = performance.now();
-    const elapsed = () => (performance.now() - startedAt) / 1000;
-    const layer = createLayer();
+    const layer = createLayer(o.intro);
     const tl = gsap.timeline({
       onComplete: () => {
         layer.remove();
@@ -174,8 +205,8 @@ export class Provisioner {
         if (o.intro) {
           this.introCleanup?.();
           this.introCleanup = null;
+          sweep(); // "Apply complete!"
         }
-        this.finishRun(o.intro);
       },
     });
     this.running.add(tl);
@@ -186,9 +217,7 @@ export class Provisioner {
       this.complete(el, false);
       return false;
     });
-
-    this.bar.show();
-    this.bar.update(`Creating ${visible.length} resources…`, this.done.size, this.total, 0);
+    visible.forEach((el) => setState(el, 'building'));
 
     const squad = Math.max(1, Math.min(visible.length, Math.ceil(AGENT_BUSY / o.stagger) + 1));
     const agents = Array.from({ length: squad }, (_, i) => createAgent(layer, i));
@@ -199,7 +228,7 @@ export class Provisioner {
     agents.forEach((a, i) =>
       gsap.set(
         a,
-        o.from === 'bar'
+        o.from === 'bottom'
           ? { x: vw / 2 + (i - squad / 2) * 18, y: sy + vh - 48 }
           : { x: -24, y: sy + vh * (0.25 + 0.5 * Math.random()) }
       )
@@ -218,7 +247,6 @@ export class Provisioner {
       const tFill = tDrag + T_DRAG;
 
       tl.to(agent, { x: box.x, y: box.y, duration: T_REACH, ease: 'power3.inOut', onUpdate }, t0);
-      tl.call(() => this.bar.update(`module.${name}: Creating...`, this.done.size, this.total, elapsed()), [], tDrag);
       // The selection is dragged open by the agent.
       tl.set(frame, { opacity: 1 }, tDrag);
       tl.fromTo(
@@ -233,14 +261,7 @@ export class Provisioner {
       tl.fromTo(gy, { opacity: 0.9, scaleY: 0 }, { scaleY: 1, duration: T_DRAG, ease: 'power2.out', immediateRender: false }, tDrag);
 
       // The resource comes up under a scan line, then flickers into place.
-      tl.call(
-        () => {
-          this.complete(el, true);
-          this.bar.update(`module.${name}: Creation complete`, this.done.size, this.total, elapsed());
-        },
-        [],
-        tFill
-      );
+      tl.call(() => this.complete(el, true), [], tFill);
       tl.fromTo(
         el,
         { clipPath: 'inset(0% 0% 100% 0%)' },
@@ -257,5 +278,46 @@ export class Provisioner {
     const end = (visible.length - 1) * o.stagger + T_REACH + T_DRAG + 0.2;
     tl.to(agents, { opacity: 0, duration: 0.3, stagger: 0.03 }, Math.max(0, end));
     return tl;
+  }
+
+  /* --- destroy ------------------------------------------------------------ */
+
+  private destroy(el: HTMLElement): void {
+    // Already off screen: nothing to show, just reset it.
+    if (!inViewport(el) || !isVisible(el)) {
+      setState(el, 'pending');
+      return;
+    }
+    setState(el, 'destroying');
+    const layer = createLayer();
+    const box = boxOf(el);
+    const { frame, marks } = createFrame(layer, box, `module.${el.dataset.provision}: Destroying...`, 'pv-frame--destroy');
+    const scan = createScan(layer, box);
+    scan.classList.add('pv-scan--destroy');
+    glitch(el);
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        layer.remove();
+        this.destroying.delete(el);
+        gsap.set(el, { clearProps: 'clipPath' });
+        setState(el, 'pending');
+      },
+    });
+    tl.set(frame, { opacity: 1 });
+    tl.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.12 }, 0);
+    tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(100% 0% 0% 0%)', duration: T_ERASE, ease: 'power2.in' }, T_GLITCH);
+    tl.fromTo(scan, { opacity: 1, y: 0 }, { y: box.h, duration: T_ERASE, ease: 'power2.in', immediateRender: false }, T_GLITCH);
+    tl.to([frame, scan], { opacity: 0, duration: 0.25 }, T_GLITCH + T_ERASE);
+    this.destroying.set(el, { tl, layer });
+  }
+
+  private cancelDestroy(el: HTMLElement): void {
+    const d = this.destroying.get(el);
+    if (!d) return;
+    d.tl.kill();
+    d.layer.remove();
+    this.destroying.delete(el);
+    gsap.set(el, { clearProps: 'clipPath' });
   }
 }

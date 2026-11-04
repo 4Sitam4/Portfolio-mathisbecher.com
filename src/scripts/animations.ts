@@ -14,10 +14,9 @@ import { Provisioner } from './provision';
 import { startAmbient } from './provision-ambient';
 
 const root = document.documentElement;
-const lang = root.lang === 'fr' ? 'fr' : 'en';
 const reduced = prefersReducedMotion();
 const buildMode = root.classList.contains('pv');
-const provisioner = reduced ? null : new Provisioner(lang);
+const provisioner = reduced ? null : new Provisioner();
 
 // Take over from the pre-paint class: from here on, each resource carries
 // its own pending/done state.
@@ -53,7 +52,7 @@ window.addEventListener('trace:ready', (e) => {
   gsap.from(rows, { opacity: 0, x: -6, duration: 0.3, ease: 'power2.out', stagger: 0.05 });
 });
 
-// `terraform apply` in the terminal, or the status bar button.
+// `terraform apply` in the terminal.
 window.addEventListener('provision:replay', () => provisioner?.replay());
 
 if (root.dataset.booted === 'true') {

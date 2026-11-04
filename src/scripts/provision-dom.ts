@@ -45,9 +45,12 @@ export function boxOf(el: HTMLElement): Box {
   return { x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height };
 }
 
-/** Absolute overlay covering the whole document, removed by the caller. */
-export function createLayer(): HTMLElement {
-  const layer = h('div', 'pv-layer');
+/**
+ * Absolute overlay covering the whole document, removed by the caller.
+ * It passes under the fixed nav, unless `aboveNav` (the intro builds the nav).
+ */
+export function createLayer(aboveNav = false): HTMLElement {
+  const layer = h('div', aboveNav ? 'pv-layer pv-layer--top' : 'pv-layer');
   layer.setAttribute('aria-hidden', 'true');
   layer.style.height = `${document.documentElement.scrollHeight}px`;
   document.body.append(layer);
