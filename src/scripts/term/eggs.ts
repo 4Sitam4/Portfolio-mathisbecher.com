@@ -105,6 +105,7 @@ export const easterEggs: Record<string, Command> = {
         await fetch(location.pathname, { method: 'HEAD', cache: 'no-store' });
         const ms = Math.max(1, Math.round(performance.now() - t0));
         times.push(ms);
+        window.dispatchEvent(new CustomEvent('homelab:ping'));
         io.out(L(io, `réponse de mathisbecher.com : seq=${seq} temps=${ms} ms`, `reply from mathisbecher.com: seq=${seq} time=${ms} ms`));
       } catch {
         io.out({ text: L(io, `seq=${seq} : délai dépassé`, `seq=${seq}: request timed out`), cls: 'error' });

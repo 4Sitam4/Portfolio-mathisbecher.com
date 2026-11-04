@@ -1,0 +1,116 @@
+---
+/**
+ * The hero monogram. A still render (Blender) first; with effects on and
+ * WebGL available, the live three.js version replaces it (scripts/logo3d.ts):
+ * built by a Matrix rain after the boot, then free to turn in every direction.
+ */
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useTranslations(Astro.props.lang);
+---
+
+<div class="logo3d" id="logo3d" role="img" aria-label={t('logo3d.label')}>
+  <img class="logo3d__still" src="/mb-logo.webp" alt="" width="960" height="600" decoding="async" />
+</div>
+
+<style>
+  .logo3d {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Phones: a flatter box, so the monogram does not push the name down. */
+  @media (max-width: 699px) {
+    .logo3d {
+      aspect-ratio: 2 / 1;
+    }
+  }
+
+  .logo3d__still {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Live version: the canvas takes over and can be grabbed. */
+  .logo3d:global(.is-live) {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .logo3d:global(.is-live.is-dragging) {
+    cursor: grabbing;
+  }
+
+  .logo3d:global(.is-live) .logo3d__still {
+    display: none;
+  }
+
+  /* The canvas spills 30 % past each edge of the box (OVERDRAW in
+     logo3d.ts): a turned monogram is never cut. It lets clicks through;
+     the box itself is what you grab. */
+  .logo3d :global(.logo3d__canvas) {
+    position: absolute;
+    inset: -30%;
+    width: 160%;
+    height: 160%;
+    max-width: none; /* the global reset caps media at 100 % */
+    pointer-events: none;
+    /* the phosphor glow, around pixels and glyphs alike */
+    filter: drop-shadow(0 0 8px rgba(0, 255, 157, 0.45));
+  }
+
+  .logo3d:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--r-md);
+  }
+</style>
+
+<script>
+  import { prefersReducedMotion } from '../scripts/scramble';
+
+  const host = document.getElementById('logo3d');
+  const webgl = (() => {
+    try {
+      const c = document.createElement('canvas');
+      return Boolean(c.getContext('webgl2') ?? c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  })();
+
+  // Reading mode, reduced motion or no WebGL: the still render stays.
+  if (host && webgl && !prefersReducedMotion()) {
+    void (async () => {
+      const { mountLogo3D } = await import('../scripts/logo3d');
+      const logo = mountLogo3D(host);
+      host.tabIndex = 0; // arrow keys turn it too
+
+      // Like every block of the page, the monogram is built when it comes into
+      // view and destroyed when it leaves (provision.ts): each new build
+      // replays the Matrix rain from an empty grid.
+      const block = host.closest<HTMLElement>('[data-provision]');
+      let last = '';
+      const sync = () => {
+        const state = block?.dataset.pv ?? '';
+        if (state === last) return;
+        last = state;
+        if (state === 'done') logo.build();
+        else if (state === 'pending') logo.reset();
+      };
+      if (block) new MutationObserver(sync).observe(block, { attributes: true, attributeFilter: ['data-pv'] });
+      sync();
+      // No build engine driving the block (it never got a state): build once
+      // the boot screen is gone.
+      const fallback = () => window.setTimeout(() => !block?.dataset.pv && logo.build(), 60);
+      if (document.documentElement.dataset.booted === 'true') fallback();
+      else window.addEventListener('boot:done', fallback, { once: true });
+    })();
+  }
+</script>

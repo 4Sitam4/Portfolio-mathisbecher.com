@@ -1,5 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The MB monogram on the 5x7 terminal grid (same layout as the 3D logo). -->
   <rect width="64" height="64" rx="12" fill="#060a08"/>
-  <path d="M14 20l14 12-14 12" stroke="#00ff9d" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="34" y="40" width="16" height="6" rx="2" fill="#00ff9d"/>
+  <g fill="#00ff9d">
+    <rect x="4.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="9.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="19.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="14.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="14.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="4.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="24.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="39.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="44.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="49.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="54.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="54.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="39.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="44.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="49.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="54.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="54.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="34.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="39.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="44.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+    <rect x="49.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+  </g>
 </svg>

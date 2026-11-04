@@ -81,6 +81,12 @@ function where(el: HTMLElement): { enter: boolean; inside: boolean; visible: boo
   return { enter: inBand(ENTER_MARGIN), inside: inBand(LEAVE_MARGIN), visible: inBand(0) };
 }
 
+/** Keyboard focus is inside (a mouse click that focused something does not count). */
+const holdsKeyboardFocus = (el: HTMLElement): boolean => {
+  const active = document.activeElement;
+  return Boolean(active && el.contains(active) && active.matches(':focus-visible'));
+};
+
 /** Inside the enter zone now. */
 const inZoneNow = (el: HTMLElement): boolean => where(el).enter;
 
@@ -213,7 +219,7 @@ export class Provisioner {
     const seen = this.targets.filter((el) => !pinned(el)).map((el) => [el, where(el)] as const);
     for (const [el, w] of seen) {
       // The block holding the keyboard focus stays up, wherever it is.
-      if (stateOf(el) === 'done' && el.matches(':focus-within')) {
+      if (stateOf(el) === 'done' && holdsKeyboardFocus(el)) {
         this.zone.set(el, true);
         continue;
       }
@@ -247,7 +253,7 @@ export class Provisioner {
   private onLeave(el: HTMLElement): void {
     // A resource still being built is checked again once it is up; one that
     // holds the keyboard focus stays.
-    if (stateOf(el) === 'done' && !el.matches(':focus-within')) this.destroy(el);
+    if (stateOf(el) === 'done' && !holdsKeyboardFocus(el)) this.destroy(el);
   }
 
   private enqueue(el: HTMLElement): void {

@@ -30,6 +30,7 @@ export const ui = {
     'calm.label': 'Mode lecture : couper les animations',
 
     'hero.role': 'Cloud Infrastructure Engineer',
+    'logo3d.label': 'Monogramme MB en 3D, construit par une pluie de caractères façon Matrix. Faites-le tourner à la souris, au doigt ou avec les flèches.',
     'hero.tagline':
       "Le jour, j'**automatise** des ==infrastructures cloud==. Le soir, j'**héberge les miennes** à la maison.",
     'hero.status': 'Alternant chez Open Lake Technology, étudiant à Epitech (promo 2027)',
@@ -93,6 +94,7 @@ export const ui = {
     'homelab.stat3.label': 'backbone réseau',
     'homelab.stat4.value': '100 %',
     'homelab.stat4.label': 'auto-hébergé',
+    'rack.label': 'Mon rack en 3D : switch, homelab de ma compagne, deux nœuds Proxmox et le serveur TrueNAS. Faites-le tourner à la souris, au doigt ou avec les flèches.',
     'homelab.here': 'vous êtes ici',
     'homelab.diagram':
       'Schéma du homelab : internet, proxy Cloudflare, routeur et pare-feu, switch 10GbE, cluster Proxmox, TrueNAS Scale, puis les VMs et containers Docker dont le nginx qui sert ce site.',
@@ -133,6 +135,7 @@ export const ui = {
     'calm.label': 'Reading mode: turn animations off',
 
     'hero.role': 'Cloud Infrastructure Engineer',
+    'logo3d.label': '3D MB monogram, built by a Matrix-style rain of characters. Turn it with the mouse, a finger or the arrow keys.',
     'hero.tagline':
       'By day, I **automate** ==cloud infrastructure==. By night, I **host my own** at home.',
     'hero.status': 'Apprentice at Open Lake Technology, student at Epitech (class of 2027)',
@@ -196,6 +199,7 @@ export const ui = {
     'homelab.stat3.label': 'network backbone',
     'homelab.stat4.value': '100%',
     'homelab.stat4.label': 'self-hosted',
+    'rack.label': "My rack in 3D: switch, my partner's homelab, two Proxmox nodes and the TrueNAS server. Turn it with the mouse, a finger or the arrow keys.",
     'homelab.here': 'you are here',
     'homelab.diagram':
       'Homelab diagram: internet, Cloudflare proxy, router and firewall, 10GbE switch, Proxmox cluster, TrueNAS Scale, then the VMs and Docker containers including the nginx serving this site.',

@@ -14,3 +14,4 @@ Dockerfile
 .idea
 *.md
 portainer-stack.yml
+assets

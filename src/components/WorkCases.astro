@@ -200,5 +200,30 @@ const t = useTranslations(lang);
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--s-3);
     }
+
+    .case__label {
+      hyphens: auto;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  /* Small phones: three columns are too narrow for the labels; one figure
+     per line, the number beside its label. */
+  @media (max-width: 480px) {
+    .case__figures {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-3);
+    }
+
+    .case__figures li {
+      display: grid;
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+      align-items: baseline;
+      gap: var(--s-3);
+    }
+
+    .case__value {
+      font-size: 1.75rem;
+    }
   }
 </style>

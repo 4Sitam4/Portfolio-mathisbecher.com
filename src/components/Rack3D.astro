@@ -1,0 +1,138 @@
+---
+/**
+ * The homelab rack. A still render (Blender) first; with effects on and WebGL
+ * available, the live model replaces it when the section gets close
+ * (scripts/rack3d.ts). Like every block, it is built (machines racked one by
+ * one) when it comes into view and emptied when it leaves.
+ */
+import { useTranslations, type Lang } from '../i18n/ui';
+import { mugTexts, rackCards } from '../i18n/rack';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const labels = rackCards[lang];
+---
+
+<div class="rack3d" id="rack3d" role="img" aria-label={t('rack.label')} data-labels={JSON.stringify(labels)}
+  data-mug={JSON.stringify(mugTexts[lang])}>
+  <img class="rack3d__still" src="/homelab-rack.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" />
+</div>
+
+<style>
+  .rack3d {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    max-height: 44rem;
+  }
+
+  .rack3d__still {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Live: only horizontal turns, so vertical swipes still scroll the page. */
+  .rack3d:global(.is-live) {
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .rack3d:global(.is-live.is-dragging) {
+    cursor: grabbing;
+  }
+
+  .rack3d:global(.is-live) .rack3d__still {
+    display: none;
+  }
+
+  .rack3d :global(.rack3d__canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  .rack3d :global(.rack3d__tag) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: var(--s-2) var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+    white-space: nowrap;
+    background: rgba(5, 8, 6, 0.9);
+    border: 1px solid rgba(0, 255, 157, 0.4);
+    border-radius: var(--r-sm);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  .rack3d :global(.rack3d__tag.is-on) {
+    opacity: 1;
+  }
+
+  .rack3d :global(.rack3d__tag strong) {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .rack3d:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--r-md);
+  }
+</style>
+
+<script>
+  import { prefersReducedMotion } from '../scripts/scramble';
+
+  const host = document.getElementById('rack3d');
+  const webgl = (() => {
+    try {
+      const c = document.createElement('canvas');
+      return Boolean(c.getContext('webgl2') ?? c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  })();
+
+  if (host && webgl && !prefersReducedMotion()) {
+    const start = async () => {
+      const { mountRack3D } = await import('../scripts/rack3d');
+      const rack = await mountRack3D(host, JSON.parse(host.dataset.labels ?? '{}'), JSON.parse(host.dataset.mug ?? '{}'));
+      host.tabIndex = 0; // arrow keys turn it
+      // Built when its block is built, emptied when the block is destroyed.
+      const block = host.closest<HTMLElement>('[data-provision]');
+      let last = '';
+      const sync = () => {
+        const state = block?.dataset.pv ?? 'done';
+        if (state === last) return;
+        last = state;
+        if (state === 'done') rack.build();
+        else if (state === 'pending') rack.reset();
+      };
+      if (block) new MutationObserver(sync).observe(block, { attributes: true, attributeFilter: ['data-pv'] });
+      sync();
+    };
+    // Fetched (three.js + model) only when the section gets close.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        void start();
+      },
+      { rootMargin: '600px 0px' }
+    );
+    io.observe(host);
+  }
+</script>

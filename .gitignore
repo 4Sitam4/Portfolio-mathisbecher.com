@@ -16,3 +16,6 @@ node_modules/
 # editor config
 .vscode/
 .idea/
+
+# Blender backups
+*.blend1

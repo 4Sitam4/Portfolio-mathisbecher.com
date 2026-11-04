@@ -1,5 +1,6 @@
 ---
 import MatrixRain from './MatrixRain.astro';
+import Logo3D from './Logo3D.astro';
 import Window from './Window.astro';
 import Rich from './Rich.astro';
 import Icon from './Icon.astro';
@@ -21,6 +22,10 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
   <MatrixRain />
 
   <div class="container hero__grid">
+    <div class="hero__logo" data-provision="hero.logo">
+      <Logo3D lang={lang} />
+    </div>
+
     <div class="hero__text">
       <p class="hero__prompt mono" data-hero data-provision="hero.prompt">
         <span class="hero__prompt-sign">$</span> whoami
@@ -112,10 +117,38 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     position: relative;
     z-index: 2;
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas:
+      'text logo'
+      'text trace';
     align-items: center;
-    gap: var(--s-8);
+    column-gap: var(--s-8);
+    row-gap: var(--s-4);
     padding-block: var(--s-9);
+  }
+
+  /* Text and trace stay above the 3D canvas, which may spill behind them. */
+  .hero__text {
+    grid-area: text;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero__logo {
+    grid-area: logo;
+    position: relative;
+    z-index: 1;
+    align-self: end;
+    width: 100%;
+    max-width: 30rem;
+    justify-self: center;
+  }
+
+  .hero__visual {
+    grid-area: trace;
+    position: relative;
+    z-index: 2;
+    align-self: start;
   }
 
   .hero__text {
@@ -285,15 +318,66 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     color: var(--text-3);
   }
 
-  @media (max-width: 1100px) {
+  /* Tablets in landscape, small laptops: a little more room for the text
+     column so the three actions stay on one line. */
+  @media (min-width: 1180px) and (max-width: 1279px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      column-gap: var(--s-7);
+    }
+  }
+
+  /* Tablets in portrait, small laptops, phones in landscape: the monogram
+     beside the text, the live trace full width underneath. */
+  @media (max-width: 1179px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      grid-template-areas:
+        'logo text'
+        'trace trace';
+      column-gap: var(--s-7);
+      row-gap: var(--s-8);
+      padding-block: var(--s-9);
+    }
+
+    .hero__logo {
+      align-self: center;
+      max-width: none;
+    }
+
+    .hero__visual {
+      align-self: auto;
+    }
+  }
+
+  /* Phones in portrait: one column, the monogram centred on top. */
+  @media (max-width: 699px) {
     .hero__grid {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'logo'
+        'text'
+        'trace';
       gap: var(--s-7);
       padding-block: var(--s-8) var(--s-9);
     }
 
-    .hero__visual {
-      max-width: 40rem;
+    .hero__logo {
+      max-width: 20rem;
+      justify-self: center;
+      margin-bottom: calc(var(--s-4) - var(--s-7)); /* closer to the name */
+    }
+  }
+
+  /* Short screens (phones in landscape): the hero is not forced to full
+     height and its content clears the fixed menu / reading buttons. */
+  @media (max-height: 560px) and (orientation: landscape) {
+    .hero {
+      min-height: 0;
+    }
+
+    .hero__grid {
+      padding-block: calc(var(--s-4) + 2.75rem + var(--s-4)) var(--s-7);
     }
   }
 

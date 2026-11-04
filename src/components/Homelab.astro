@@ -1,6 +1,7 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
+import Rack3D from './Rack3D.astro';
 import Icon from './Icon.astro';
 import type { UiIcon } from './icons';
 import Window from './Window.astro';
@@ -76,6 +77,10 @@ const specs = [
         }
       </dl>
 
+      <div class="homelab__rack" data-provision="homelab.rack">
+        <Rack3D lang={lang} />
+      </div>
+
       <figure class="homelab__diagram" data-provision="homelab.topology">
         <Window title="~/homelab/topology.txt">
           <pre class="diagram ascii" aria-hidden="true">{diagram.map((line) => (
@@ -89,11 +94,30 @@ const specs = [
 </section>
 
 <style>
+  /* The figures in a band, then the rack and the topology side by side. */
   .homelab {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
-    gap: var(--s-8);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      'specs specs'
+      'rack diagram';
+    gap: var(--s-7) var(--s-8);
+    align-items: center;
+  }
+
+  .homelab .specs {
+    grid-area: specs;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--s-6);
+  }
+
+  .homelab__rack {
+    grid-area: rack;
+  }
+
+  .homelab__diagram {
+    grid-area: diagram;
   }
 
   .specs {
@@ -148,13 +172,30 @@ const specs = [
   @media (max-width: 1000px) {
     .homelab {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'specs'
+        'rack'
+        'diagram';
       gap: var(--s-7);
     }
 
-    .specs {
-      display: grid;
+    .homelab .specs {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: var(--s-5);
+    }
+
+    .homelab__rack {
+      max-width: 32rem;
+      width: 100%;
+      justify-self: center;
+    }
+  }
+
+  /* Phones: values one size down so "TrueNAS Scale" stays on one line. */
+  @media (max-width: 480px) {
+    .specs__value {
+      font-size: var(--fs-lg);
+      white-space: nowrap;
     }
   }
 </style>

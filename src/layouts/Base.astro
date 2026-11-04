@@ -39,6 +39,8 @@ const ogImage = new URL('/og.png', Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- the two faces visible first: boot log / headings (mono) and body text (sans) -->
     <link rel="preload" href={monoLatin400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansLatin400} as="font" type="font/woff2" crossorigin />
