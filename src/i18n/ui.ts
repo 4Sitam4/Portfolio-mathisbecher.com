@@ -67,7 +67,7 @@ export const ui = {
     'projects.homelab': 'Voir le homelab',
     'projects.work': 'open-lake',
     'projects.work.lede':
-      "Les deux plus gros projets de mon alternance. À chaque fois, j'ai identifié le besoin, choisi la solution, puis conçu, développé et livré le projet de bout en bout.",
+      "Les trois projets majeurs de mon alternance. À chaque fois, j'ai identifié le besoin, choisi la solution, puis conçu, développé et livré le projet de bout en bout.",
     'projects.perso': 'perso',
     'projects.need': 'Le besoin',
     'projects.solution': 'La solution',
@@ -162,7 +162,7 @@ export const ui = {
     'projects.homelab': 'See the homelab',
     'projects.work': 'open-lake',
     'projects.work.lede':
-      'The two biggest projects of my apprenticeship. Each time, I identified the need, chose the solution, then designed, built and shipped the project end to end.',
+      'The three major projects of my apprenticeship. Each time, I identified the need, chose the solution, then designed, built and shipped the project end to end.',
     'projects.perso': 'personal',
     'projects.need': 'The need',
     'projects.solution': 'The solution',
@@ -228,10 +228,10 @@ export const timeline: TimelineEntry[] = [
     org: 'Open Lake Technology',
     location: { fr: 'Paris · full remote', en: 'Paris · full remote' },
     description: {
-      fr: "Infrastructure cloud Azure en Infrastructure-as-Code. J'ai porté de bout en bout deux projets majeurs : la plateforme Terramate qui gère les environnements clients, et Shipyard, l'outil de déploiement on-prem hors ligne.",
-      en: 'Azure cloud infrastructure as code. I led two major projects end to end: the Terramate platform that manages customer environments, and Shipyard, the offline on-prem deployment tool.',
+      fr: "Infrastructure cloud Azure en Infrastructure-as-Code. J'ai porté de bout en bout trois projets majeurs : la plateforme Terramate qui gère les environnements clients, une plateforme de monitoring multi-tenant sur AKS, et Shipyard, l'outil de déploiement on-prem hors ligne.",
+      en: 'Azure cloud infrastructure as code. I led three major projects end to end: the Terramate platform that manages customer environments, a multi-tenant monitoring platform on AKS, and Shipyard, the offline on-prem deployment tool.',
     },
-    tags: ['Azure', 'Terraform', 'Terramate', 'Go', 'Docker', 'GitHub Actions'],
+    tags: ['Azure', 'Terraform', 'Terramate', 'Kubernetes', 'Go', 'Docker'],
   },
   {
     type: 'edu',
@@ -298,7 +298,7 @@ export const skillGroups: SkillGroup[] = [
   {
     key: 'skills.infra',
     prompt: 'docker compose up -d',
-    items: ['Docker', 'Docker Compose', 'Proxmox VE', 'TrueNAS Scale', 'Linux'],
+    items: ['Docker', 'Docker Compose', 'Kubernetes (AKS)', 'Helm', 'Proxmox VE', 'TrueNAS Scale', 'Linux'],
   },
   {
     key: 'skills.dev',
@@ -374,6 +374,29 @@ export const workProjects: WorkProject[] = [
       { value: '2', label: { fr: "familles d'OS : Windows Server et Linux", en: 'OS families: Windows Server and Linux' } },
     ],
     tags: ['Go', 'Docker', 'Portainer', 'WSL2', 'Azure Container Apps', 'Terraform', 'GitHub Actions', 'Trivy'],
+  },
+  {
+    name: 'AKS multi-tenant',
+    subtitle: { fr: 'Plateforme de monitoring sur Kubernetes', en: 'Monitoring platform on Kubernetes' },
+    period: { fr: "déc. 2025 — aujourd'hui", en: 'Dec 2025 — present' },
+    need: {
+      fr: "Chaque tenant d'un client avait son propre environnement Azure Container Apps et un Elasticsearch managé : chaque nouveau tenant demandait du DNS et des certificats faits à la main, et la plateforme se heurtait aux limites de capacité d'Azure.",
+      en: "Each of a customer's tenants had its own Azure Container Apps environment and a managed Elasticsearch: every new tenant meant manual DNS and certificate work, and the platform kept hitting Azure capacity limits.",
+    },
+    solution: {
+      fr: "Un cluster AKS unique en Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) où chaque tenant, isolé dans son namespace, reçoit son Elasticsearch, son Grafana avec SSO Entra ID et ses jobs de traitement planifiés. Ajouter un tenant tient en une entrée de configuration et un terraform apply. La migration a suivi un runbook sans perte de données (snapshots et comptages avant et après chaque étape), avec sauvegardes AKS, snapshots Elasticsearch et restaurations testées.",
+      en: 'A single AKS cluster in Terraform (Cilium, NetworkPolicy, ingress-nginx, cert-manager) where each tenant, isolated in its own namespace, gets its Elasticsearch, a Grafana with Entra ID SSO and its scheduled processing jobs. Adding a tenant takes one config entry and one terraform apply. The migration followed a zero-data-loss runbook (snapshots and record counts before and after each step), with AKS backups, Elasticsearch snapshots and tested restores.',
+    },
+    role: {
+      fr: "J'ai conçu la plateforme, écrit tout le code Terraform et les scripts d'exploitation, mené la migration jusqu'au décommissionnement de l'ancienne infrastructure, puis optimisé les coûts et dimensionné la capacité. En production depuis octobre 2026.",
+      en: 'I designed the platform, wrote all the Terraform code and operations scripts, ran the migration through to decommissioning the old infrastructure, then optimised costs and planned capacity. In production since October 2026.',
+    },
+    figures: [
+      { value: '10', label: { fr: 'tenants isolés sur un seul cluster', en: 'isolated tenants on one cluster' } },
+      { value: '÷40', label: { fr: 'volume de logs ingérés après optimisation', en: 'log ingestion volume after tuning' } },
+      { value: '1', label: { fr: 'terraform apply pour ajouter un tenant', en: 'terraform apply to add a tenant' } },
+    ],
+    tags: ['AKS', 'Kubernetes', 'Cilium', 'Helm', 'Elasticsearch', 'Grafana', 'cert-manager', 'Terraform', 'Azure Backup'],
   },
 ];
 
