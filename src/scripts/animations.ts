@@ -3,7 +3,7 @@
  *  - Every visit: boot sequence, then the page provisions itself
  *    ("terraform apply", see provision.ts), section by section on scroll,
  *    then ambient effects keep running (drift detection, hover inspector).
- *  - Boot skipped with a key or a click: everything at once, short hero entrance.
+ *  - Boot skipped with Escape: everything at once, short hero entrance.
  *  - The live trace rows stream in.
  * Everything is readable without JS; with reduced motion nothing moves.
  */

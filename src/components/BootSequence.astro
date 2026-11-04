@@ -7,7 +7,7 @@ interface Props {
 
 const { lang } = Astro.props;
 
-const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press any key to skip';
+const skipLabel = lang === 'fr' ? 'Échap pour passer' : 'Esc to skip';
 ---
 
 <div id="boot" class="boot" aria-hidden="true">
@@ -25,7 +25,6 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
     justify-content: center;
     padding: clamp(1rem, 6vw, 4rem);
     background: var(--bg-deep);
-    cursor: pointer;
   }
 
   /* Shown only when JS is running (the `js` class is set by an inline script
@@ -88,7 +87,7 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
   /**
    * Boot sequence (first visit of the session): the homelab comes up, then
    * `terraform apply` is typed and the overlay fades into the page being
-   * provisioned (provision.ts). A key or a click skips everything.
+   * provisioned (provision.ts). Escape skips everything.
    */
   const boot = document.getElementById('boot');
   const log = document.getElementById('boot-log');
@@ -162,9 +161,9 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
       window.setTimeout(() => boot.remove(), skipped ? 0 : 600);
     };
 
-    // The skip keystroke must not also scroll the page (Space, arrows…).
+    // Only Escape skips: clicks and other keys no longer cut the show short.
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Tab') return;
+      if (e.key !== 'Escape') return;
       e.preventDefault();
       end(true);
     };
@@ -203,7 +202,6 @@ const skipLabel = lang === 'fr' ? 'appuyez sur une touche pour passer' : 'press 
       after(55 + Math.random() * 90, next);
     };
 
-    boot.addEventListener('click', () => end(true));
     window.addEventListener('keydown', onKey);
     next();
 

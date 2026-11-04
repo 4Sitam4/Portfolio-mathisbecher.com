@@ -135,25 +135,14 @@ export class Provisioner {
     this.bar.setMode('skip');
     this.intro = this.run(targets, { stagger: 0.14, from: 'bar', intro: true });
 
-    // Any intent to move on skips the intro.
+    // Only a deliberate gesture skips the show: Escape or the bar's button.
+    // (Clicks, scrolling and other keys used to skip it by accident.)
     const skipKeys = (e: KeyboardEvent) => {
-      if (e.key === 'Tab' || e.metaKey || e.ctrlKey || e.altKey) return;
-      this.skip();
+      if (e.key === 'Escape') this.skip();
     };
-    const skipPointer = (e: Event) => {
-      if ((e.target as HTMLElement).closest('.pv-status')) return;
-      this.skip();
-    };
-    const opts = { passive: true } as const;
-    window.addEventListener('wheel', skipPointer, opts);
-    window.addEventListener('touchmove', skipPointer, opts);
-    window.addEventListener('pointerdown', skipPointer, opts);
     window.addEventListener('keydown', skipKeys);
     this.introCleanup = () => {
       this.intro = null;
-      window.removeEventListener('wheel', skipPointer);
-      window.removeEventListener('touchmove', skipPointer);
-      window.removeEventListener('pointerdown', skipPointer);
       window.removeEventListener('keydown', skipKeys);
     };
   }
