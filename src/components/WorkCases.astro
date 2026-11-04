@@ -5,6 +5,8 @@
  */
 import { useTranslations, workProjects, type Lang } from '../i18n/ui';
 import Rich from './Rich.astro';
+import Icon from './Icon.astro';
+import TechLogo from './TechLogo.astro';
 
 interface Props {
   lang: Lang;
@@ -35,15 +37,15 @@ const t = useTranslations(lang);
 
         <dl class="case__story">
           <div>
-            <dt>{t('projects.need')}</dt>
+            <dt><Icon name="target" />{t('projects.need')}</dt>
             <dd><Rich text={p.need[lang]} /></dd>
           </div>
           <div>
-            <dt>{t('projects.solution')}</dt>
+            <dt><Icon name="bulb" />{t('projects.solution')}</dt>
             <dd><Rich text={p.solution[lang]} /></dd>
           </div>
           <div>
-            <dt>{t('projects.role')}</dt>
+            <dt><Icon name="userCheck" />{t('projects.role')}</dt>
             <dd><Rich text={p.role[lang]} /></dd>
           </div>
         </dl>
@@ -59,7 +61,7 @@ const t = useTranslations(lang);
           </ul>
           <ul class="tags" aria-label="Technologies">
             {p.tags.map((tag) => (
-              <li class="tag">{tag}</li>
+              <li class="tag"><TechLogo name={tag} />{tag}</li>
             ))}
           </ul>
         </aside>

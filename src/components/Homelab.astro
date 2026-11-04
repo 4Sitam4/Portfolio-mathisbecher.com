@@ -1,6 +1,8 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
+import Icon from './Icon.astro';
+import type { UiIcon } from './icons';
 import Window from './Window.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
@@ -50,10 +52,10 @@ const diagram = `
   });
 
 const specs = [
-  { value: t('homelab.stat1.value'), label: t('homelab.stat1.label') },
-  { value: t('homelab.stat2.value'), label: t('homelab.stat2.label') },
-  { value: t('homelab.stat3.value'), label: t('homelab.stat3.label') },
-  { value: t('homelab.stat4.value'), label: t('homelab.stat4.label') },
+  { value: t('homelab.stat1.value'), label: t('homelab.stat1.label'), icon: 'server' as UiIcon },
+  { value: t('homelab.stat2.value'), label: t('homelab.stat2.label'), icon: 'database' as UiIcon },
+  { value: t('homelab.stat3.value'), label: t('homelab.stat3.label'), icon: 'zap' as UiIcon },
+  { value: t('homelab.stat4.value'), label: t('homelab.stat4.label'), icon: 'home' as UiIcon },
 ];
 ---
 
@@ -68,7 +70,7 @@ const specs = [
           specs.map((spec) => (
             <div class="specs__row">
               <dt class="specs__label">{spec.label}</dt>
-              <dd class="specs__value mono">{spec.value}</dd>
+              <dd class="specs__value mono"><Icon name={spec.icon} />{spec.value}</dd>
             </div>
           ))
         }

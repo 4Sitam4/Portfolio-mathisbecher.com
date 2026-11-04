@@ -6,6 +6,8 @@
  * (provision.ts listens to `nav:opened` and `nav:closing`).
  */
 import { useTranslations, type Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+import { SECTION_ICON } from './icons';
 
 interface Props {
   lang: Lang;
@@ -55,6 +57,7 @@ const langs = [
           links.map((link, i) => (
             <li data-provision={`nav.link[${i}]`}>
               <a href={`#${link.id}`} data-spy={link.id}>
+                <Icon name={SECTION_ICON[link.id] ?? 'folder'} class="nav__icon" />
                 <span class="nav__path" aria-hidden="true">~/</span>
                 {link.label}
               </a>

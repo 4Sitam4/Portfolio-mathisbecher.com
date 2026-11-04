@@ -1,5 +1,8 @@
 ---
-/** Section title rendered as a directory path: "~/parcours". */
+/** Section title rendered as a directory path, with its icon: "[icon] ~/parcours". */
+import Icon from './Icon.astro';
+import { SECTION_ICON } from './icons';
+
 interface Props {
   title: string;
   /** section key, used as the terraform resource name */
@@ -7,8 +10,10 @@ interface Props {
 }
 
 const { title, name } = Astro.props;
+const icon = SECTION_ICON[name];
 ---
 
 <h2 class="section-heading" aria-label={title} data-provision={`${name}.title`}>
+  {icon && <span class="section-heading__icon"><Icon name={icon} /></span>}
   <span class="section-heading__path" aria-hidden="true">~/</span><span data-decrypt aria-hidden="true">{title}</span>
 </h2>

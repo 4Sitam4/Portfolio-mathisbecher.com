@@ -1,0 +1,24 @@
+---
+/**
+ * Logo of a technology (brand logo, or a UI icon as fallback); nothing if unknown.
+ * Brand logos point to the sprite drawn once by LogoSprite.astro.
+ */
+import Icon from './Icon.astro';
+import { techLogo } from './icons';
+
+interface Props {
+  name: string;
+}
+
+const logo = techLogo(Astro.props.name);
+---
+
+{
+  logo?.kind === 'brand' ? (
+    <svg class="icon icon--brand" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <use href={`#${logo.id}`} />
+    </svg>
+  ) : logo?.kind === 'ui' ? (
+    <Icon name={logo.name} />
+  ) : null
+}

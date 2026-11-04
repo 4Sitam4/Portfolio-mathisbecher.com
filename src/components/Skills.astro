@@ -1,6 +1,16 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import { useTranslations, skillGroups, type Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+import TechLogo from './TechLogo.astro';
+import type { UiIcon } from './icons';
+
+const GROUP_ICON: Record<string, UiIcon> = {
+  'skills.cloud': 'cloud',
+  'skills.infra': 'box',
+  'skills.dev': 'code',
+  'skills.net': 'network',
+};
 
 interface Props {
   lang: Lang;
@@ -19,13 +29,16 @@ const t = useTranslations(lang);
         skillGroups.map((group, i) => (
           <div class="skills__row" data-provision={`skills.group[${i}]`}>
             <dt class="skills__head">
-              <span class="skills__name">{t(group.key)}</span>
+              <span class="skills__name"><Icon name={GROUP_ICON[group.key] ?? 'wrench'} />{t(group.key)}</span>
               <code class="skills__prompt">$ {group.prompt}</code>
             </dt>
             <dd class="skills__items">
               <ul class="skills__list">
                 {group.items.map((item) => (
-                  <li>{item}</li>
+                  <li>
+                    <TechLogo name={item} />
+                    {item}
+                  </li>
                 ))}
               </ul>
             </dd>

@@ -336,6 +336,126 @@ p {
   gap: var(--s-2);
 }
 
+/* --- Icons (components/Icon.astro, TechLogo.astro) ----------------------------
+   Monochrome, sized to the text they sit next to. Only section icons use the
+   accent; everywhere else they stay quiet and light up on hover. Global (not
+   scoped) because the svg belongs to a child component. */
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.tag {
+  gap: 0.45em;
+}
+
+.tag .icon {
+  color: var(--text-3);
+}
+
+.section-heading__icon {
+  display: inline-grid;
+  place-items: center;
+  align-self: center;
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 0.45em;
+  color: var(--accent);
+  font-size: 0.85em;
+  background: var(--accent-wash);
+  border: 1px solid rgba(0, 255, 157, 0.18);
+  border-radius: var(--r-md);
+}
+
+.section-heading__icon .icon {
+  width: 0.62em;
+  height: 0.62em;
+}
+
+.nav__icon {
+  width: 16px;
+  height: 16px;
+  margin-right: var(--s-2);
+  opacity: 0.8;
+}
+
+.nav__links a[aria-current='true'] .nav__icon {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.xp__type .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.xp__loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-left: var(--s-3);
+}
+
+.xp__loc .icon {
+  width: 0.9em;
+  height: 0.9em;
+}
+
+.case__story dt {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.case__story dt .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.skills__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.skills__name .icon {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--accent);
+}
+
+.skills__list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.skills__list .icon {
+  width: 1.1em;
+  height: 1.1em;
+  color: var(--text-3);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.skills__list li:hover .icon,
+.tag:hover .icon {
+  color: var(--accent);
+}
+
+.specs__value {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.specs__value .icon {
+  width: 0.85em;
+  height: 0.85em;
+  color: var(--accent);
+}
+
 /* Keycap — used for commands the visitor can type */
 .kbd {
   display: inline-flex;

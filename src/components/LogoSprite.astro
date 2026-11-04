@@ -1,0 +1,35 @@
+---
+/**
+ * Every brand logo used on the page, drawn once; TechLogo.astro references
+ * them with <use>. Keeps the HTML light when a logo appears many times.
+ */
+import { brandSymbols } from './icons';
+import { projects, skillGroups, timeline, workProjects } from '../i18n/ui';
+
+const labels = [
+  ...skillGroups.flatMap((g) => g.items),
+  ...timeline.flatMap((e) => e.tags),
+  ...workProjects.flatMap((p) => p.tags),
+  ...projects.flatMap((p) => p.tags),
+];
+const symbols = brandSymbols(labels);
+---
+
+<svg class="logo-sprite" aria-hidden="true" focusable="false">
+  {
+    symbols.map((s) => (
+      <symbol id={s.id} viewBox={s.viewBox}>
+        <path d={s.path} />
+      </symbol>
+    ))
+  }
+</svg>
+
+<style>
+  .logo-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>

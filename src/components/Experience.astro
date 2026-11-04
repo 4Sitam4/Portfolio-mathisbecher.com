@@ -1,6 +1,8 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
+import Icon from './Icon.astro';
+import TechLogo from './TechLogo.astro';
 import { useTranslations, timeline, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -24,18 +26,19 @@ const t = useTranslations(lang);
               <div class="xp__when mono">
                 <span class="xp__period num">{entry.period[lang]}</span>
                 <span class="xp__type">
+                  <Icon name={entry.type === 'work' ? 'briefcase' : 'graduation'} />
                   {current ? t('xp.now') : entry.type === 'work' ? t('xp.work') : t('xp.edu')}
                 </span>
               </div>
               <div class="xp__body">
                 <h3 class="xp__title">{entry.title[lang]}</h3>
                 <p class="xp__org">
-                  {entry.org}<span class="xp__loc">, {entry.location[lang]}</span>
+                  {entry.org}<span class="xp__loc"><Icon name="pin" />{entry.location[lang]}</span>
                 </p>
                 <p class="xp__desc"><Rich text={entry.description[lang]} /></p>
                 <ul class="tags" aria-label="Technologies">
                   {entry.tags.map((tag) => (
-                    <li class="tag">{tag}</li>
+                    <li class="tag"><TechLogo name={tag} />{tag}</li>
                   ))}
                 </ul>
               </div>

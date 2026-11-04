@@ -1,6 +1,7 @@
 ---
 import SectionHeading from './SectionHeading.astro';
 import Rich from './Rich.astro';
+import TechLogo from './TechLogo.astro';
 import WorkCases from './WorkCases.astro';
 import { useTranslations, projects, type Lang } from '../i18n/ui';
 
@@ -41,7 +42,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
             <p class="feature__desc"><Rich text={featured.description[lang]} /></p>
             <ul class="tags" aria-label="Technologies">
               {featured.tags.map((tag) => (
-                <li class="tag">{tag}</li>
+                <li class="tag"><TechLogo name={tag} />{tag}</li>
               ))}
             </ul>
             {featured.url && (
@@ -93,7 +94,7 @@ const starFmt = new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB');
               <p class="project__desc"><Rich text={project.description[lang]} /></p>
               <ul class="tags" aria-label="Technologies">
                 {project.tags.map((tag) => (
-                  <li class="tag">{tag}</li>
+                  <li class="tag"><TechLogo name={tag} />{tag}</li>
                 ))}
               </ul>
               {href && (
