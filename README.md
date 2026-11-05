@@ -8,8 +8,6 @@ Mon portfolio de Cloud Infrastructure Engineer — en ligne sur **[mathisbecher.
 
 La page se construit sous vos yeux, avec le vocabulaire visuel de l'infrastructure. Au chargement, une séquence de boot s'affiche, puis chaque bloc du site apparaît : des curseurs tirent un cadre de sélection autour de lui (nom du bloc façon `module.hero.name`, dimensions, guides) et une ligne de scan le révèle. Au scroll, ce qui sort de l'écran s'efface (cadre rouge) et ce qui y entre se reconstruit, d'autant plus vite que vous scrollez vite.
 
-C'est une animation : aucun vrai Terraform ne tourne dans votre navigateur.
-
 Autres détails :
 
 - **Trace live** : le hero affiche les vrais en-têtes HTTP de la page que vous venez de charger et le temps de réponse mesuré par votre navigateur.
