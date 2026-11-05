@@ -1,8 +1,8 @@
 ---
 /**
- * Hero background: interactive matrix rain. Masked so it stays quiet behind
- * the headline (left) and fades into the page at the bottom. Pauses
- * off-screen and when the tab is hidden.
+ * Hero background: interactive matrix rain, even across the whole width (it
+ * builds the portrait: holo3d.ts), ending with a ragged edge at the bottom of
+ * the first screen. Pauses off-screen and when the tab is hidden.
  */
 ---
 
@@ -15,12 +15,8 @@
     width: 100%;
     height: 100%;
     opacity: 0.5;
-    --mask-x: linear-gradient(to right, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.35) 40%, #000 80%);
-    --mask-y: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
-    -webkit-mask-image: var(--mask-x), var(--mask-y);
-    -webkit-mask-composite: source-in;
-    mask-image: var(--mask-x), var(--mask-y);
-    mask-composite: intersect;
+    /* no mask: the same everywhere; the rain itself ends, raggedly, at the
+       bottom of the first screen (matrix.ts) */
   }
 
   @media (max-width: 1100px) {
@@ -31,15 +27,16 @@
 </style>
 
 <script>
-  import { MatrixRain } from '../scripts/matrix';
+  import { MatrixRain, setHeroRain } from '../scripts/matrix';
 
   const canvas = document.getElementById('matrix-hero') as HTMLCanvasElement | null;
 
   if (canvas) {
     // Phones: lighter rain (no hi-dpi buffers, fewer frames).
     const coarse = window.matchMedia('(pointer: coarse)').matches;
-    const rain = new MatrixRain(canvas, { intensity: 0.45, fps: coarse ? 20 : 28, maxDpr: coarse ? 1 : 1.5 });
+    const rain = new MatrixRain(canvas, { intensity: 0.46, fontSize: 13, fps: coarse ? 20 : 28, maxDpr: coarse ? 1 : 1.5 });
     const hero = canvas.parentElement!;
+    setHeroRain(rain, canvas); // the portrait is built by this rain (holo3d.ts)
 
     hero.addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;

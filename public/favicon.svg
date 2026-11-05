@@ -1,44 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- The MB monogram on the 5x7 terminal grid (same layout as the 3D logo). -->
-  <rect width="64" height="64" rx="12" fill="#060a08"/>
-  <g fill="#00ff9d">
-    <rect x="4.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="9.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="19.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="14.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="14.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="4.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="24.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="39.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="44.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="49.85" y="14.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="54.85" y="19.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="54.85" y="24.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="39.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="44.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="49.85" y="29.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="54.85" y="34.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="54.85" y="39.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="34.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="39.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="44.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
-    <rect x="49.85" y="44.85" width="4.30" height="4.30" rx="0.7"/>
+  <!-- The homelab rack: three machines, each with its status LEDs. No
+       background: the frame follows the browser's light or dark tab. -->
+  <style>
+    .unit { fill: #d9e4de; }
+    .slot { fill: #0b120e; }
+    .led { fill: #00ff9d; }
+    @media (prefers-color-scheme: light) {
+      .unit { fill: #18211c; }
+      .slot { fill: #ffffff; }
+      .led { fill: #00b86f; }
+    }
+  </style>
+  <rect class="unit" x="5" y="5" width="54" height="16" rx="3.5"/>
+  <rect class="unit" x="5" y="24" width="54" height="16" rx="3.5"/>
+  <rect class="unit" x="5" y="43" width="54" height="16" rx="3.5"/>
+  <g class="slot">
+    <rect x="11" y="10" width="15" height="6" rx="1.5"/>
+    <rect x="11" y="29" width="15" height="6" rx="1.5"/>
+    <rect x="11" y="48" width="15" height="6" rx="1.5"/>
+  </g>
+  <g class="led">
+    <rect x="13" y="11.5" width="4" height="3" rx="1"/>
+    <rect x="19.5" y="11.5" width="4" height="3" rx="1"/>
+    <rect x="13" y="30.5" width="4" height="3" rx="1"/>
+    <rect x="13" y="49.5" width="4" height="3" rx="1"/>
+    <rect x="19.5" y="49.5" width="4" height="3" rx="1"/>
+  </g>
+  <g class="slot">
+    <rect x="33" y="11.5" width="20" height="3" rx="1.5"/>
+    <rect x="33" y="30.5" width="20" height="3" rx="1.5"/>
+    <rect x="33" y="49.5" width="20" height="3" rx="1.5"/>
   </g>
 </svg>

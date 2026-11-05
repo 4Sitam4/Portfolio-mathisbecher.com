@@ -140,7 +140,9 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 26rem;
+    /* a square box: never taller than the identity beside it, so the whole
+       hero (trace included) still fits a laptop's first screen */
+    max-width: min(26rem, 44vh);
     justify-self: center;
   }
 
@@ -357,7 +359,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     }
 
     .hero__logo {
-      max-width: none;
+      max-width: 44vh;
     }
   }
 

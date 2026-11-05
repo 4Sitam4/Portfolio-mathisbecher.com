@@ -23,6 +23,8 @@ const FADE_BOOSTED = 0.11;
 const SWAP_MS = 5000; // a buffer is wiped clean at least this often
 const GLYPH_ALPHA = 0.8; // overall lightness of the heads (×intensity)
 const MOUSE_RADIUS = 90; // px
+const FLOOR_JITTER = 3; // glyphs: how much the columns' lowest points differ
+const FLOOR_FADE = 2; // glyphs over which a head dims before its floor
 
 export interface MatrixOptions {
   /** 0..1 — overall brightness/alpha of the rain */
@@ -56,7 +58,16 @@ export class MatrixRain {
   private runningFlag = false;
   private mouseX = -1;
   private boostUntil = 0;
-  private readonly fontSize: number;
+  /** Columns sent down on purpose (cue): lowest point each head reached since. */
+  private reach = new Map<number, number>();
+  private cueSpeed = new Map<number, number>();
+  private cueing = false;
+  /** Lowest point of the rain (CSS px), and each column's own, a bit above. */
+  private floorBase = 0;
+  private floors: number[] = [];
+  /** This frame's white heads, drawn over the trails, never into them. */
+  private heads: { x: number; y: number; g: string; a: number }[] = [];
+  readonly fontSize: number;
   private readonly fps: number;
   private readonly maxDpr: number;
   intensity: number;
@@ -83,6 +94,43 @@ export class MatrixRain {
     this.mouseX = x;
   }
 
+  get running(): boolean {
+    return this.runningFlag;
+  }
+
+  /**
+   * Start the whole rain again from the top, slightly staggered, and track how
+   * far the heads of the columns between x0 and x1 (CSS px, canvas space) get:
+   * the hero portrait is built by the very rain behind it. Every column
+   * restarts alike (no edge between tracked and untracked ones).
+   */
+  cue(x0: number, x1: number): void {
+    this.reach.clear();
+    this.cueing = true;
+    const fs = this.fontSize;
+    const i0 = Math.floor(x0 / fs);
+    const i1 = Math.ceil(x1 / fs);
+    for (let i = 0; i < this.columns; i++) {
+      this.drops[i] = -Math.random() * 6;
+      // a steady pace of their own (no boost, no cursor rush) until they leave
+      // the screen: the build is seen at the same speed every time
+      this.cueSpeed.set(i, 0.38 + Math.random() * 0.2);
+      if (i >= i0 && i < i1) this.reach.set(i, -Infinity);
+    }
+  }
+
+  /** Lowest head position (CSS px) of columns col0 … col0+out.length since the
+   * cue; columns not cued count as fully passed. */
+  reachInto(col0: number, out: Float32Array): void {
+    for (let k = 0; k < out.length; k++) out[k] = this.reach.get(col0 + k) ?? 1e6;
+  }
+
+  /** Stop tracking; each column keeps its cue pace until it leaves the screen. */
+  uncue(): void {
+    this.reach.clear();
+    this.cueing = false;
+  }
+
   /** Temporarily crank up speed & brightness (intro, terminal easter egg). */
   boost(durationMs = 6000): void {
     this.boostUntil = performance.now() + durationMs;
@@ -101,7 +149,19 @@ export class MatrixRain {
     this.columns = Math.ceil(this.width / this.fontSize);
     this.drops = Array.from({ length: this.columns }, () => Math.floor((Math.random() * this.height) / this.fontSize));
     this.speeds = Array.from({ length: this.columns }, () => 0.6 + Math.random() * 0.8);
+    // The rain ends at the bottom of the first screen (not mid-window when the
+    // canvas is taller than it), each column a little above or below its
+    // neighbours: a ragged, living edge rather than a straight line.
+    const top = this.canvas.getBoundingClientRect().top + window.scrollY;
+    const visible = window.innerHeight - top;
+    this.floorBase = visible > this.fontSize * 4 ? Math.min(this.height, visible) : this.height;
+    this.floors = Array.from({ length: this.columns }, () => this.newFloor());
     this.lastSwap = performance.now();
+  }
+
+  /** Where a column stops this time: 0 to FLOOR_JITTER glyphs above the base. */
+  private newFloor(): number {
+    return this.floorBase - Math.random() * FLOOR_JITTER * this.fontSize;
   }
 
   /** Draw a single static frame (reduced-motion fallback). */
@@ -145,24 +205,46 @@ export class MatrixRain {
     for (let i = 0; i < this.columns; i++) {
       const x = i * fs;
       const y = this.drops[i]! * fs;
-      const glyph = randomGlyph();
+      const floor = this.floors[i]!;
 
       // Columns near the cursor glow brighter and fall faster.
       const near = this.mouseX >= 0 && Math.abs(x - this.mouseX) < MOUSE_RADIUS;
-      const style = near
-        ? `rgba(200, 255, 230, ${Math.min(0.9, alpha + 0.3)})`
-        : `rgba(0, 255, 157, ${Math.min(0.75, alpha * (0.35 + Math.random() * 0.5))})`;
-      for (const { ctx } of this.buffers) {
-        ctx.fillStyle = style;
-        ctx.fillText(glyph, x, y);
+      if (y <= floor) {
+        // the head dims over its last glyphs before the column's own floor
+        const edge = Math.min(1, (floor - y) / (FLOOR_FADE * fs));
+        // while the portrait is being built, every head lights up the same way
+        const bright = near || this.cueing;
+        // the trail is always green; a bright head is a white glyph on top,
+        // shown for this frame only, so it never leaves a pale trail
+        const green = Math.min(0.75, alpha * (bright ? 0.85 : 0.35 + Math.random() * 0.5)) * edge;
+        const glyph = randomGlyph();
+        for (const { ctx } of this.buffers) {
+          ctx.fillStyle = `rgba(0, 255, 157, ${green})`;
+          ctx.fillText(glyph, x, y);
+        }
+        if (bright) this.heads.push({ x, y, g: glyph, a: Math.min(0.9, alpha + 0.3) * edge });
       }
 
-      const speed = this.speeds[i]! * (boosted ? 2.2 : 1) * (near ? 1.8 : 1);
-      this.drops[i] = y > h && Math.random() > 0.975 ? 0 : this.drops[i]! + speed;
+      const r = this.reach.get(i);
+      // past its floor, a column has crossed all there is to see
+      if (r !== undefined) this.reach.set(i, y > floor ? 1e6 : Math.max(r, y));
+
+      const speed = this.cueSpeed.get(i) ?? this.speeds[i]! * (boosted ? 2.2 : 1) * (near ? 1.8 : 1);
+      if (y > floor && Math.random() > 0.975) {
+        this.drops[i] = 0;
+        this.floors[i] = this.newFloor();
+        if (!this.cueing) this.cueSpeed.delete(i); // back to its own pace
+      } else this.drops[i] = this.drops[i]! + speed;
     }
 
     this.ctx.clearRect(0, 0, w, h);
     this.ctx.drawImage(this.buffers[this.shown]!.canvas, 0, 0, w, h);
+    for (const hd of this.heads) {
+      // a pale green, not white: at the canvas' half opacity white reads grey
+      this.ctx.fillStyle = `rgba(120, 255, 190, ${hd.a})`;
+      this.ctx.fillText(hd.g, hd.x, hd.y);
+    }
+    this.heads.length = 0;
   };
 
   start(): void {
@@ -185,6 +267,13 @@ export class MatrixRain {
     window.removeEventListener('resize', this.onResize);
   }
 }
+
+/** The hero background rain, for the portrait to sync its build with. */
+let heroRain: { rain: MatrixRain; canvas: HTMLCanvasElement } | null = null;
+export const setHeroRain = (rain: MatrixRain, canvas: HTMLCanvasElement): void => {
+  heroRain = { rain, canvas };
+};
+export const getHeroRain = () => heroRain;
 
 /** Fullscreen rain overlay for ~6s — triggered by the terminal `matrix` command. */
 export function fullscreenMatrixBurst(durationMs = 6000): void {

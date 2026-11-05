@@ -1,7 +1,8 @@
 ---
 /**
- * Side navigation, hidden by default. It opens when the pointer reaches the
- * left edge (or from the small tab, for touch and keyboard), pushes the page
+ * Side navigation, hidden by default. It opens when the pointer rests at the
+ * left edge (or from the small tab, for touch and keyboard), closes when the
+ * pointer moves away or leaves the page, pushes the page
  * aside, and its items are built / destroyed by the terraform effects
  * (provision.ts listens to `nav:opened` and `nav:closing`).
  */
@@ -325,7 +326,8 @@ const langs = [
   const tab = document.getElementById('nav-tab') as HTMLButtonElement | null;
   const panel = document.getElementById('nav-panel');
   const closeBtn = document.getElementById('nav-close');
-  const EDGE = 16; // px from the left edge that opens the nav
+  const EDGE = 72; // px from the left edge that opens the nav (after OPEN_DELAY)
+  const OPEN_DELAY = 280; // ms the pointer must rest at the edge (not just cross it)
   const LEAVE = 64; // px beyond the panel before it closes
   const CLOSE_DELAY = 250;
   const MAX_WAIT = 1200;
@@ -378,16 +380,26 @@ const langs = [
     tab?.focus();
   });
 
-  // Pointer near the left edge opens it; moving well away closes it.
+  // Pointer resting at the left edge opens it (crossing it on the way to
+  // another screen or window does not); moving well away closes it.
   let frame = 0;
+  let openTimer = 0;
+  const cancelOpen = () => {
+    clearTimeout(openTimer);
+    openTimer = 0;
+  };
   window.addEventListener(
     'pointermove',
     (e) => {
       if (e.pointerType !== 'mouse') return;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        if (!open && e.clientX <= EDGE) return show('hover');
-        if (open && by !== 'focus') {
+        if (!open) {
+          if (e.clientX > EDGE) cancelOpen();
+          else if (!openTimer) openTimer = window.setTimeout(() => ((openTimer = 0), show('hover')), OPEN_DELAY);
+          return;
+        }
+        if (by !== 'focus') {
           if (e.clientX > panelWidth() + LEAVE) {
             clearTimeout(leaveTimer);
             leaveTimer = window.setTimeout(() => void hide(), CLOSE_DELAY);
@@ -399,6 +411,19 @@ const langs = [
     },
     { passive: true }
   );
+
+  // The pointer leaves the page (other screen, browser bar, another window):
+  // no pending opening, and a panel opened by hovering closes.
+  const pointerGone = () => {
+    cancelAnimationFrame(frame);
+    cancelOpen();
+    if (open && by === 'hover') {
+      clearTimeout(leaveTimer);
+      leaveTimer = window.setTimeout(() => void hide(), CLOSE_DELAY);
+    }
+  };
+  document.documentElement.addEventListener('mouseleave', pointerGone);
+  window.addEventListener('blur', pointerGone);
 
   // Keyboard: focusing a link opens it, leaving the nav closes it.
   panel?.addEventListener('focusin', () => show('focus'));
