@@ -1,6 +1,6 @@
 /**
  * The hero portrait, in real time (three.js): a full 3D bust (front and back)
- * drawn as a point-cloud hologram of Matrix glyphs (data: assets/3d/holo/).
+ * drawn as a point-cloud hologram of Matrix glyphs (data: public/models/holo.bin).
  * On the page's first build, the hero's background rain builds it: the rain
  * starts again from the top, and each glyph lights up as its column's head
  * passes. Later builds (back to the top) are a quick scan line reveal; with

@@ -22,7 +22,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
   <MatrixRain />
 
   <div class="container hero__grid">
-    <div class="hero__logo" data-provision="hero.logo">
+    <div class="hero__portrait" data-provision="hero.portrait">
       <Logo3D lang={lang} />
     </div>
 
@@ -117,7 +117,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     position: relative;
     z-index: 2;
     display: grid;
-    /* the monogram beside the identity, the live trace full width underneath */
+    /* the portrait beside the identity, the live trace full width underneath */
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     grid-template-areas:
       'logo text'
@@ -135,7 +135,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     z-index: 2;
   }
 
-  .hero__logo {
+  .hero__portrait {
     grid-area: logo;
     position: relative;
     z-index: 1;
@@ -351,14 +351,14 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
   }
 
   /* Tablets in portrait, small laptops, phones in landscape: a narrower gap,
-     the monogram takes its whole column. */
+     the portrait takes its whole column. */
   @media (max-width: 1179px) {
     .hero__grid {
       grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
       column-gap: var(--s-7);
     }
 
-    .hero__logo {
+    .hero__portrait {
       max-width: 44vh;
     }
   }
@@ -388,7 +388,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
     }
   }
 
-  /* Phones in portrait: one column, the monogram centred on top. */
+  /* Phones in portrait: one column, the portrait centred on top. */
   @media (max-width: 699px) {
     .hero__grid {
       grid-template-columns: minmax(0, 1fr);
@@ -400,7 +400,7 @@ const route = [t('trace.you'), 'cloudflare', 'firewall', 'proxmox', 'nginx'];
       padding-block: var(--s-8) var(--s-9);
     }
 
-    .hero__logo {
+    .hero__portrait {
       max-width: 20rem;
       justify-self: center;
       margin-bottom: calc(var(--s-4) - var(--s-7)); /* closer to the name */

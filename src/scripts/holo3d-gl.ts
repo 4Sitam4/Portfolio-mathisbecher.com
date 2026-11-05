@@ -19,6 +19,10 @@ const GLYPH_COUNT = KANA.length + LATIN.length;
 
 export const FALL = 1.1; // own rain speed, units/s
 export const FALL_LEAD = 0.22; // s a glyph is seen falling before it lands
+/** Extra brightness of the glyphs along the silhouette (rim light). */
+const RIM = 0.6;
+/** Light kept on the base cap, which the bottom fade would otherwise erase. */
+const BASE_LIGHT = 0.55;
 /** Scan reveal (rebuilds after the first): line speed, units/s. */
 export const REVEAL = 1.6;
 /** Background rain columns tracked at once (more than any canvas spans). */
@@ -121,7 +125,7 @@ export const vertexShader = /* glsl */ `
     mv.xyz += normalize(mv.xyz) * uBias;
     gl_Position = projectionMatrix * mv;
     gl_PointSize = uSize * aSize / -mv.z;
-    vVeil = uVeil * smoothstep(uBottom, uBottom + 0.32, position.y);
+    vVeil = uVeil * max(smoothstep(uBottom, uBottom + 0.32, position.y), step(0.9, -normal.y));
     return;
 #endif
     gl_PointSize = uSize * aSize * (0.8 + 0.45 * aLum) / -mv.z;
@@ -130,11 +134,15 @@ export const vertexShader = /* glsl */ `
 
     vFlash = flash;
     float shimmer = 0.88 + 0.12 * sin(uTime * (1.5 + aSeed * 3.0) + aSeed * 40.0);
-    vBright = aLum * shimmer + band * 0.7;
+    // rim light: glyphs seen edge-on, along the silhouette, glow brighter
+    float rim = smoothstep(0.55, 0.08, facing) * smoothstep(-0.18, 0.04, facing);
+    vBright = aLum * shimmer + band * 0.7 + ${RIM.toFixed(2)} * rim;
     float rate = 0.15 + 1.6 * fract(aSeed * 7.13);
     vGlyph = mod(floor(aSeed * 61.0 + uTime * rate), ${GLYPH_COUNT}.0);
-    // the bust dissolves toward its cut at the bottom
-    vFade = smoothstep(uBottom, uBottom + 0.32, position.y) * smoothstep(-0.12, 0.3, facing);
+    // the bust dissolves toward its cut at the bottom; the base cap (facing
+    // down) stays, dimmer, so the bust is closed when seen from below
+    float base = step(0.9, -normal.y) * ${BASE_LIGHT.toFixed(2)};
+    vFade = max(smoothstep(uBottom, uBottom + 0.32, position.y), base) * smoothstep(-0.2, 0.12, facing);
   }`;
 
 export const fragmentShader = /* glsl */ `

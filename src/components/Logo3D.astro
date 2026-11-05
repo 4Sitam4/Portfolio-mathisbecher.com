@@ -14,7 +14,7 @@ const t = useTranslations(Astro.props.lang);
 ---
 
 <div class="logo3d" id="logo3d" role="img" aria-label={t('logo3d.label')}>
-  <img class="logo3d__still" src="/mb-logo.webp" alt="" width="960" height="600" decoding="async" />
+  <img class="logo3d__still" src="/portrait.webp" alt="" width="560" height="560" decoding="async" />
 </div>
 
 <style>
@@ -90,7 +90,7 @@ const t = useTranslations(Astro.props.lang);
       const logo = mountHolo3D(host, '/models/holo.bin');
       host.tabIndex = 0; // arrow keys turn it too
 
-      // Like every block of the page, the monogram is built when it comes into
+      // Like every block of the page, the portrait is built when it comes into
       // view and destroyed when it leaves (provision.ts): each new build
       // replays the Matrix rain from an empty grid.
       const block = host.closest<HTMLElement>('[data-provision]');
